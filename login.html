@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Log in to Tradoctory — Your AI Trading Doctor." />
+  <title>Login — Tradoctory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body data-page="login">
+
+  <div class="auth-wrapper">
+
+    <!-- ===== LEFT BRAND PANEL ===== -->
+    <aside class="auth-brand" aria-hidden="true">
+      <div class="auth-brand-grid"></div>
+
+      <div class="brand-top">
+        <!-- Logo -->
+        <div class="brand-logo">
+          <div class="brand-logo-icon">▲</div>
+          Tradoctory
+        </div>
+
+        <!-- Headline -->
+        <h2 class="brand-headline">
+          Trade Smarter.<br/>
+          <span class="highlight">Diagnose Every Move.</span>
+        </h2>
+        <p class="brand-sub">
+          AI-powered trade analysis that breaks down your patterns, identifies
+          risks, and turns every trade into a learning moment.
+        </p>
+
+        <!-- Mini dashboard -->
+        <div class="brand-dashboard">
+          <div class="bd-header">
+            <span class="bd-title">Portfolio Overview</span>
+            <span class="bd-live">
+              <span class="bd-live-dot"></span>
+              Live
+            </span>
+          </div>
+          <div class="bd-metrics">
+            <div class="bd-metric">
+              <div class="bd-metric-val green">+$4,821</div>
+              <div class="bd-metric-label">Net P&amp;L</div>
+            </div>
+            <div class="bd-metric">
+              <div class="bd-metric-val">73%</div>
+              <div class="bd-metric-label">Win Rate</div>
+            </div>
+            <div class="bd-metric">
+              <div class="bd-metric-val">2.4×</div>
+              <div class="bd-metric-label">Profit Factor</div>
+            </div>
+          </div>
+          <!-- Mini bar chart -->
+          <div class="bd-bars">
+            <div class="bd-bar green" style="height:45%"></div>
+            <div class="bd-bar green" style="height:70%"></div>
+            <div class="bd-bar red"   style="height:35%"></div>
+            <div class="bd-bar green" style="height:80%"></div>
+            <div class="bd-bar green" style="height:60%"></div>
+            <div class="bd-bar red"   style="height:25%"></div>
+            <div class="bd-bar green" style="height:90%"></div>
+            <div class="bd-bar green" style="height:75%"></div>
+            <div class="bd-bar green" style="height:95%"></div>
+            <div class="bd-bar red"   style="height:30%"></div>
+            <div class="bd-bar green" style="height:85%"></div>
+            <div class="bd-bar green" style="height:100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust stats -->
+      <div class="brand-bottom">
+        <div class="brand-stats">
+          <div class="bs-item">
+            <span class="bs-value">130K+</span>
+            <span class="bs-label">Traders</span>
+          </div>
+          <div class="bs-item">
+            <span class="bs-value">2.4M+</span>
+            <span class="bs-label">Trades Analyzed</span>
+          </div>
+          <div class="bs-item">
+            <span class="bs-value">68%</span>
+            <span class="bs-label">Avg Win Rate ↑</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== RIGHT FORM PANEL ===== -->
+    <main class="auth-form-panel">
+      <div class="auth-card">
+
+        <!-- Mobile logo (hidden on desktop) -->
+        <div class="mobile-brand">
+          <div class="mobile-brand-icon">▲</div>
+          Tradoctory
+        </div>
+
+        <!-- Back to home -->
+        <a href="index.html" class="auth-back">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back to home
+        </a>
+
+        <!-- Header -->
+        <div class="auth-header">
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-subtitle">
+            Don't have an account?
+            <a href="signup.html">Create one free</a>
+          </p>
+        </div>
+
+        <!-- Global error -->
+        <div id="authGlobalError" role="alert" style="
+          display: none;
+          background: rgba(239,68,68,0.1);
+          border: 1px solid rgba(239,68,68,0.3);
+          border-radius: 8px;
+          padding: 12px 14px;
+          font-size: 13px;
+          color: #f87171;
+          margin-bottom: 20px;
+          line-height: 1.5;
+        "></div>
+
+        <!-- Login form -->
+        <form id="loginForm" class="auth-form" novalidate>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email address</label>
+            <div class="form-input-wrap">
+              <span class="form-input-icon" aria-hidden="true">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"
+                     viewBox="0 0 24 24">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1
+                    0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="loginEmail"
+                name="email"
+                class="form-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                inputmode="email"
+                required
+              />
+            </div>
+            <span class="form-error" id="loginEmailError" role="alert"></span>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <div class="form-input-wrap pass-wrap">
+              <span class="form-input-icon" aria-hidden="true">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"
+                     viewBox="0 0 24 24">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="loginPassword"
+                name="password"
+                class="form-input pass-input"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                id="loginPassToggle"
+                class="pass-toggle"
+                aria-label="Show password"
+              >
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"
+                     viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error" id="loginPasswordError" role="alert"></span>
+          </div>
+
+          <!-- Remember me + Forgot password -->
+          <div class="form-checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe" name="rememberMe" class="checkbox-input" />
+              Remember me
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" id="loginBtn" class="btn-auth">
+            <span class="btn-text">Log In</span>
+            <div class="spinner"></div>
+          </button>
+
+        </form>
+
+        <!-- Success state -->
+        <div id="loginSuccess" class="auth-success" role="status">
+          <div class="success-icon">✓</div>
+          <h2 class="success-title">Welcome back!</h2>
+          <p class="success-text">Login successful. Redirecting to your dashboard…</p>
+        </div>
+
+        <!-- Divider -->
+        <div class="auth-divider" style="margin-top: 24px;">OR</div>
+
+        <!-- Social logins -->
+        <div class="social-buttons" style="margin-top: 16px;">
+          <button type="button" id="googleLoginBtn" class="btn-social">
+            <!-- Google SVG icon -->
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26
+                   1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92
+                   3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23
+                   1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99
+                   20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43
+                   8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09
+                   14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6
+                   3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <button type="button" class="btn-social">
+            <!-- Apple icon -->
+            <svg width="15" height="15" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true">
+              <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2
+                201.7 0 157.4 102.3 206.9
+                104.9 209.1v.5c-.9.6-7.9 27.3-53.3
+                94.3-40.4 57-82.2 113-143.4
+                113-61.2 0-79.6-36.4-149.1-36.4-68.8
+                0-92.8 36.9-151.7 36.9-60.4
+                0-101.1-55.7-144-112.1C90.7 611.3
+                19.7 435.6 19.7 268.1c0-235.8 152.3-360.7
+                303.5-360.7 87 0 155.6 57.8 208.5
+                57.8 51.9 0 133.8-61.7 236.8-61.7
+                36.7 0 139.8 3.5 203.2 132.4zM505.3
+                130.6c19.1-27.7 33.3-66.7 33.3-105.7
+                0-5.4-.5-10.9-1.5-15.3-31.8
+                1.2-70.3 21.2-93.6 52-17.1
+                21.9-33.1 60.1-33.1 99.1 0
+                6.1.9 12.3 1.4 14.2 2 .4
+                4.2.9 6.3.9 28.1 0 64.9-18.9
+                93.3-44.6z"/>
+            </svg>
+            Continue with Apple
+          </button>
+        </div>
+
+        <!-- Footer note -->
+        <p class="auth-footer-note">
+          By continuing, you agree to Tradoctory's
+          <a href="#" style="color: rgba(240,246,255,0.5); text-decoration: underline; text-underline-offset: 2px;">Terms</a>
+          and
+          <a href="#" style="color: rgba(240,246,255,0.5); text-decoration: underline; text-underline-offset: 2px;">Privacy Policy</a>.
+        </p>
+
+      </div><!-- /auth-card -->
+    </main>
+
+  </div><!-- /auth-wrapper -->
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
