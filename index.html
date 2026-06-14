@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tradoctory — The next-generation trading platform built for serious traders." />
+  <title>Tradoctory | Next-Gen Trading Platform</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <span class="logo-icon">▲</span>
+        Tradoctory
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#about" class="nav-link">About</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#login" class="btn btn-outline">Login</a>
+        <a href="#signup" class="btn btn-primary">Get Started</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#home" class="mobile-link">Home</a>
+      <a href="#features" class="mobile-link">Features</a>
+      <a href="#about" class="mobile-link">About</a>
+      <a href="#login" class="mobile-link">Login</a>
+      <a href="#signup" class="btn btn-primary mobile-cta">Get Started</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+      <div class="hero-bg">
+        <div class="grid-overlay"></div>
+        <canvas id="chartCanvas"></canvas>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Live Markets · Real-Time Data
+        </div>
+
+        <h1 class="hero-title">
+          Trade Smarter.<br />
+          <span class="gradient-text">Win Consistently.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Tradoctory gives professional traders an edge with AI-powered analytics,
+          ultra-low latency execution, and institutional-grade tools — all in one platform.
+        </p>
+
+        <div class="hero-cta">
+          <a href="#signup" class="btn btn-primary btn-lg">Start Trading Free</a>
+          <a href="#features" class="btn btn-ghost btn-lg">
+            <span class="play-icon">▶</span> See How It Works
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-value">$2.4B+</span>
+            <span class="stat-label">Volume Traded</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-value">180K+</span>
+            <span class="stat-label">Active Traders</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-value">0.3ms</span>
+            <span class="stat-label">Avg Execution</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="dashboard-card">
+          <div class="card-header">
+            <span class="ticker">BTC/USDT</span>
+            <span class="price-badge up">▲ 4.21%</span>
+          </div>
+          <div class="price-display">
+            <span class="current-price" id="livePrice">$67,432.80</span>
+          </div>
+          <div class="mini-chart" id="miniChart"></div>
+          <div class="card-stats">
+            <div class="cs-item">
+              <span class="cs-label">24h High</span>
+              <span class="cs-value up">$68,150</span>
+            </div>
+            <div class="cs-item">
+              <span class="cs-label">24h Low</span>
+              <span class="cs-value down">$65,900</span>
+            </div>
+            <div class="cs-item">
+              <span class="cs-label">Volume</span>
+              <span class="cs-value">$14.2B</span>
+            </div>
+          </div>
+          <div class="trade-buttons">
+            <button class="trade-btn buy">BUY</button>
+            <button class="trade-btn sell">SELL</button>
+          </div>
+        </div>
+
+        <div class="floating-alert alert-green">
+          <span class="alert-icon">✓</span>
+          Order filled · BTC +0.15 @ $67,430
+        </div>
+        <div class="floating-alert alert-blue" style="animation-delay: 1.2s;">
+          <span class="alert-icon">⚡</span>
+          AI Signal: ETH breakout detected
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TICKER TAPE ===== -->
+    <div class="ticker-tape">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="features" id="features">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Platform Features</span>
+          <h2 class="section-title">Everything You Need to <span class="gradient-text">Dominate Markets</span></h2>
+          <p class="section-subtitle">Built by traders, for traders. Every feature designed to give you a measurable edge.</p>
+        </div>
+
+        <div class="features-grid">
+
+          <div class="feature-card card-glow-green">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </div>
+            <h3>Real-Time Analytics</h3>
+            <p>Sub-millisecond market data feeds with advanced charting tools, technical indicators, and custom alert triggers.</p>
+            <ul class="feature-list">
+              <li>100+ built-in indicators</li>
+              <li>Multi-timeframe analysis</li>
+              <li>Custom alert engine</li>
+            </ul>
+          </div>
+
+          <div class="feature-card card-glow-blue">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <h3>Ultra-Fast Execution</h3>
+            <p>Institutional-grade infrastructure with co-located servers ensuring your orders execute before the competition.</p>
+            <ul class="feature-list">
+              <li>0.3ms average latency</li>
+              <li>Smart order routing</li>
+              <li>DMA access</li>
+            </ul>
+          </div>
+
+          <div class="feature-card card-glow-green">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3>AI-Powered Signals</h3>
+            <p>Our proprietary machine learning models scan thousands of patterns across global markets 24/7 to surface high-probability setups.</p>
+            <ul class="feature-list">
+              <li>Pattern recognition</li>
+              <li>Sentiment analysis</li>
+              <li>Risk scoring</li>
+            </ul>
+          </div>
+
+          <div class="feature-card card-glow-blue">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <h3>Portfolio Management</h3>
+            <p>Track all your positions across multiple asset classes — stocks, crypto, forex, and commodities — from a single unified dashboard.</p>
+            <ul class="feature-list">
+              <li>Multi-asset tracking</li>
+              <li>P&L analytics</li>
+              <li>Risk exposure heatmap</li>
+            </ul>
+          </div>
+
+          <div class="feature-card card-glow-green">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Bank-Grade Security</h3>
+            <p>Multi-layer security with 2FA, biometric login, IP whitelisting, and cold storage for digital assets — your funds are always protected.</p>
+            <ul class="feature-list">
+              <li>256-bit encryption</li>
+              <li>Cold storage custody</li>
+              <li>SOC 2 Type II certified</li>
+            </ul>
+          </div>
+
+          <div class="feature-card card-glow-blue">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>24/7 Expert Support</h3>
+            <p>Dedicated trading desk support from professional traders who understand your needs, available around the clock.</p>
+            <ul class="feature-list">
+              <li>Live chat support</li>
+              <li>Dedicated account manager</li>
+              <li>Trading desk hotline</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="about" id="about">
+      <div class="section-container">
+        <div class="about-grid">
+
+          <div class="about-content">
+            <span class="section-tag">About Tradoctory</span>
+            <h2 class="section-title">Built by Traders, <span class="gradient-text">for Traders</span></h2>
+            <p class="about-body">
+              Tradoctory was founded in 2021 by a team of quantitative analysts, software engineers, and professional traders who were frustrated with slow, expensive, and unreliable trading platforms.
+            </p>
+            <p class="about-body">
+              We built Tradoctory from the ground up with a single mission: give every serious trader access to the same institutional-grade tools that hedge funds and prop trading firms use — without the gatekeeping.
+            </p>
+            <div class="about-metrics">
+              <div class="metric">
+                <span class="metric-value gradient-text">2021</span>
+                <span class="metric-label">Founded</span>
+              </div>
+              <div class="metric">
+                <span class="metric-value gradient-text">47</span>
+                <span class="metric-label">Countries</span>
+              </div>
+              <div class="metric">
+                <span class="metric-value gradient-text">180K+</span>
+                <span class="metric-label">Traders</span>
+              </div>
+              <div class="metric">
+                <span class="metric-value gradient-text">99.97%</span>
+                <span class="metric-label">Uptime</span>
+              </div>
+            </div>
+            <a href="#signup" class="btn btn-primary">Join Our Community</a>
+          </div>
+
+          <div class="about-visual">
+            <div class="about-card main-card">
+              <div class="ac-header">
+                <span class="ac-title">Portfolio Overview</span>
+                <span class="ac-date">Jun 14, 2026</span>
+              </div>
+              <div class="ac-balance">
+                <span class="ac-label">Total Balance</span>
+                <span class="ac-value">$124,839.42</span>
+                <span class="ac-change up">▲ +$8,421.30 (7.24%) today</span>
+              </div>
+              <div class="ac-assets">
+                <div class="asset-row">
+                  <div class="asset-info">
+                    <span class="asset-symbol">BTC</span>
+                    <span class="asset-name">Bitcoin</span>
+                  </div>
+                  <div class="asset-bar-wrap">
+                    <div class="asset-bar" style="width: 58%; background: var(--green);"></div>
+                  </div>
+                  <span class="asset-pct up">+4.2%</span>
+                </div>
+                <div class="asset-row">
+                  <div class="asset-info">
+                    <span class="asset-symbol">ETH</span>
+                    <span class="asset-name">Ethereum</span>
+                  </div>
+                  <div class="asset-bar-wrap">
+                    <div class="asset-bar" style="width: 32%; background: var(--blue);"></div>
+                  </div>
+                  <span class="asset-pct up">+2.9%</span>
+                </div>
+                <div class="asset-row">
+                  <div class="asset-info">
+                    <span class="asset-symbol">SOL</span>
+                    <span class="asset-name">Solana</span>
+                  </div>
+                  <div class="asset-bar-wrap">
+                    <div class="asset-bar" style="width: 18%; background: #8b5cf6;"></div>
+                  </div>
+                  <span class="asset-pct down">-0.8%</span>
+                </div>
+                <div class="asset-row">
+                  <div class="asset-info">
+                    <span class="asset-symbol">AAPL</span>
+                    <span class="asset-name">Apple Inc.</span>
+                  </div>
+                  <div class="asset-bar-wrap">
+                    <div class="asset-bar" style="width: 12%; background: #f59e0b;"></div>
+                  </div>
+                  <span class="asset-pct up">+1.1%</span>
+                </div>
+              </div>
+            </div>
+            <div class="about-badge">
+              <span>🏆</span>
+              <div>
+                <strong>Best FinTech Platform 2025</strong>
+                <small>Global Finance Awards</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta-section">
+      <div class="cta-glow"></div>
+      <div class="section-container">
+        <div class="cta-content">
+          <h2 class="cta-title">Ready to Trade at <span class="gradient-text">Institutional Speed</span>?</h2>
+          <p class="cta-subtitle">Join 180,000+ traders who trust Tradoctory. No credit card required.</p>
+          <div class="cta-form">
+            <input type="email" class="cta-input" placeholder="Enter your email address" />
+            <button class="btn btn-primary btn-lg">Create Free Account</button>
+          </div>
+          <span class="cta-note">Free forever plan available · No card required · Cancel anytime</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="#home" class="nav-logo">
+          <span class="logo-icon">▲</span>
+          Tradoctory
+        </a>
+        <p>The next-generation trading platform for serious traders.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
+          <a href="#" class="social-link" aria-label="LinkedIn">in</a>
+          <a href="#" class="social-link" aria-label="Discord">⬡</a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <a href="#features">Features</a>
+          <a href="#">Pricing</a>
+          <a href="#">API Docs</a>
+          <a href="#">Changelog</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#about">About</a>
+          <a href="#">Careers</a>
+          <a href="#">Blog</a>
+          <a href="#">Press</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Risk Disclosure</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Tradoctory, Inc. All rights reserved.</span>
+      <span class="footer-disclaimer">Trading involves risk. Past performance is not indicative of future results.</span>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
