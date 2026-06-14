@@ -58,82 +58,169 @@
       <div class="hero-content">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Live Markets · Real-Time Data
+          AI-Powered Trading Analysis
         </div>
 
         <h1 class="hero-title">
-          Trade Smarter.<br />
-          <span class="gradient-text">Win Consistently.</span>
+          Your AI<br />
+          <span class="gradient-text">Trading Doctor</span>
         </h1>
 
         <p class="hero-subtitle">
-          Tradoctory gives professional traders an edge with AI-powered analytics,
-          ultra-low latency execution, and institutional-grade tools — all in one platform.
+          Analyze trades, track performance and improve decision making
+          with AI powered insights.
         </p>
 
         <div class="hero-cta">
-          <a href="#signup" class="btn btn-primary btn-lg">Start Trading Free</a>
+          <a href="#signup" class="btn btn-primary btn-lg">Start Free</a>
           <a href="#features" class="btn btn-ghost btn-lg">
-            <span class="play-icon">▶</span> See How It Works
+            Learn More
           </a>
         </div>
 
         <div class="hero-stats">
           <div class="stat">
-            <span class="stat-value">$2.4B+</span>
-            <span class="stat-label">Volume Traded</span>
+            <span class="stat-value">94%</span>
+            <span class="stat-label">Accuracy Rate</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
             <span class="stat-value">180K+</span>
-            <span class="stat-label">Active Traders</span>
+            <span class="stat-label">Trades Analyzed</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-value">0.3ms</span>
-            <span class="stat-label">Avg Execution</span>
+            <span class="stat-value">2.4×</span>
+            <span class="stat-label">Avg Performance Lift</span>
           </div>
         </div>
       </div>
 
-      <div class="hero-visual">
-        <div class="dashboard-card">
-          <div class="card-header">
-            <span class="ticker">BTC/USDT</span>
-            <span class="price-badge up">▲ 4.21%</span>
-          </div>
-          <div class="price-display">
-            <span class="current-price" id="livePrice">$67,432.80</span>
-          </div>
-          <div class="mini-chart" id="miniChart"></div>
-          <div class="card-stats">
-            <div class="cs-item">
-              <span class="cs-label">24h High</span>
-              <span class="cs-value up">$68,150</span>
+      <!-- ===== HERO DASHBOARD ILLUSTRATION ===== -->
+      <div class="hero-visual ai-dashboard">
+
+        <!-- Main analysis card -->
+        <div class="ai-main-card">
+          <div class="ai-card-header">
+            <div class="ai-card-title-group">
+              <span class="ai-card-label">AI Trade Analysis</span>
+              <span class="ai-live-dot"><span class="badge-dot"></span> Live</span>
             </div>
-            <div class="cs-item">
-              <span class="cs-label">24h Low</span>
-              <span class="cs-value down">$65,900</span>
+            <span class="ai-period-tag">Last 30 days</span>
+          </div>
+
+          <!-- Performance chart bars -->
+          <div class="ai-chart-area">
+            <div class="ai-chart-bars">
+              <div class="ai-bar-col">
+                <div class="ai-bar" style="height:45%; background: var(--green-dim); border-color: rgba(0,210,106,0.3);"><div class="ai-bar-fill green" style="height:100%"></div></div>
+                <span class="ai-bar-label">Mon</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar" style="height:68%;"><div class="ai-bar-fill green" style="height:100%"></div></div>
+                <span class="ai-bar-label">Tue</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar lose" style="height:32%;"><div class="ai-bar-fill red" style="height:100%"></div></div>
+                <span class="ai-bar-label">Wed</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar" style="height:82%;"><div class="ai-bar-fill green" style="height:100%"></div></div>
+                <span class="ai-bar-label">Thu</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar" style="height:55%;"><div class="ai-bar-fill green" style="height:100%"></div></div>
+                <span class="ai-bar-label">Fri</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar lose" style="height:22%;"><div class="ai-bar-fill red" style="height:100%"></div></div>
+                <span class="ai-bar-label">Sat</span>
+              </div>
+              <div class="ai-bar-col">
+                <div class="ai-bar" style="height:74%;"><div class="ai-bar-fill green" style="height:100%"></div></div>
+                <span class="ai-bar-label">Sun</span>
+              </div>
             </div>
-            <div class="cs-item">
-              <span class="cs-label">Volume</span>
-              <span class="cs-value">$14.2B</span>
+            <div class="ai-chart-line-wrap">
+              <div class="mini-chart" id="miniChart"></div>
             </div>
           </div>
-          <div class="trade-buttons">
-            <button class="trade-btn buy">BUY</button>
-            <button class="trade-btn sell">SELL</button>
+
+          <!-- Row of quick metrics -->
+          <div class="ai-metrics-row">
+            <div class="ai-metric-item">
+              <span class="ai-metric-val up">+$4,821</span>
+              <span class="ai-metric-key">Net P&amp;L</span>
+            </div>
+            <div class="ai-metric-sep"></div>
+            <div class="ai-metric-item">
+              <span class="ai-metric-val">73%</span>
+              <span class="ai-metric-key">Win Rate</span>
+            </div>
+            <div class="ai-metric-sep"></div>
+            <div class="ai-metric-item">
+              <span class="ai-metric-val">2.4</span>
+              <span class="ai-metric-key">Profit Factor</span>
+            </div>
           </div>
         </div>
 
-        <div class="floating-alert alert-green">
-          <span class="alert-icon">✓</span>
-          Order filled · BTC +0.15 @ $67,430
+        <!-- Health score pill card -->
+        <div class="ai-health-card">
+          <div class="ai-health-ring">
+            <svg viewBox="0 0 56 56" class="ai-ring-svg">
+              <circle cx="28" cy="28" r="23" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+              <circle cx="28" cy="28" r="23" fill="none" stroke="url(#ringGrad)" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="39"
+                transform="rotate(-90 28 28)"/>
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00d26a"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="ai-ring-score">87</span>
+          </div>
+          <div class="ai-health-info">
+            <span class="ai-health-title">Trade Health Score</span>
+            <span class="ai-health-sub up">▲ +6 this week</span>
+          </div>
         </div>
-        <div class="floating-alert alert-blue" style="animation-delay: 1.2s;">
+
+        <!-- Floating AI insight cards -->
+        <div class="floating-alert alert-green ai-insight-1">
+          <span class="alert-icon">🩺</span>
+          AI: Reduce position size on volatile pairs
+        </div>
+        <div class="floating-alert alert-blue ai-insight-2" style="animation-delay: 1.4s;">
           <span class="alert-icon">⚡</span>
-          AI Signal: ETH breakout detected
+          Pattern: Breakout setup detected — BTC
         </div>
+
+        <!-- Recent trades mini-list -->
+        <div class="ai-trades-card">
+          <div class="ai-trades-header">
+            <span>Recent Trades</span>
+            <span class="ai-trades-score up">+12.4%</span>
+          </div>
+          <div class="ai-trade-row">
+            <span class="ai-trade-sym">BTC/USD</span>
+            <span class="ai-trade-tag win">WIN</span>
+            <span class="ai-trade-pnl up">+$1,240</span>
+          </div>
+          <div class="ai-trade-row">
+            <span class="ai-trade-sym">ETH/USD</span>
+            <span class="ai-trade-tag win">WIN</span>
+            <span class="ai-trade-pnl up">+$380</span>
+          </div>
+          <div class="ai-trade-row">
+            <span class="ai-trade-sym">SOL/USD</span>
+            <span class="ai-trade-tag loss">LOSS</span>
+            <span class="ai-trade-pnl down">-$95</span>
+          </div>
+        </div>
+
       </div>
     </section>
 
