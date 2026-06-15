@@ -17,6 +17,10 @@ import {
   logoutUser,
   checkAuth,
 } from './auth-store.js';
+import {
+  AUTH_VALIDATORS,
+  sanitizeAuthInput,
+} from './auth-utils.js';
 
 
 /* ===================================================
@@ -56,35 +60,11 @@ const ICONS = {
 
 
 /* ===================================================
-   FIELD VALIDATORS  (pure → string | null)
+   FIELD VALIDATORS
+   Shared pure validators live in auth-utils.js so the
+   UI and auth provider enforce the same rules.
    =================================================== */
-const VALIDATORS = {
-  name(v) {
-    const t = v.trim();
-    if (!t)               return 'Full name is required.';
-    if (t.length < 3)     return 'Name must be at least 3 characters.';
-    if (t.length > 80)    return 'Name is too long (max 80 characters).';
-    if (!/[a-zA-Z]/.test(t)) return 'Name must contain at least one letter.';
-    return null;
-  },
-  email(v) {
-    const t = v.trim();
-    if (!t) return 'Email address is required.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(t))
-      return 'Please enter a valid email address.';
-    return null;
-  },
-  password(v) {
-    if (!v)           return 'Password is required.';
-    if (v.length < 8) return 'Password must be at least 8 characters.';
-    return null;
-  },
-  confirmPassword(v, original) {
-    if (!v)             return 'Please confirm your password.';
-    if (v !== original) return 'Passwords do not match.';
-    return null;
-  },
-};
+const VALIDATORS = AUTH_VALIDATORS;
 
 
 /* ===================================================
@@ -237,6 +217,7 @@ function mapAuthError(err) {
     'auth/user-not-found':         'No account found with that email address.',
     'auth/wrong-password':         'Incorrect password. Please try again.',
     'auth/invalid-email':          'Please enter a valid email address.',
+    'auth/invalid-registration':   'Please check your details and try again.',
     'auth/weak-password':          'Password must be at least 8 characters.',
     'auth/too-many-requests':      'Too many attempts. Please wait a moment and try again.',
     'auth/network-request-failed': 'Network error. Please check your connection.',
@@ -300,9 +281,14 @@ function initLoginPage() {
 
     setButtonLoading(submitBtn, true);
     try {
+      const credentials = sanitizeAuthInput({
+        email:    emailInput.value,
+        password: passInput.value,
+      });
+
       await loginUser({
-        email:      emailInput.value.trim(),
-        password:   passInput.value,
+        email:      credentials.email,
+        password:   credentials.password,
         rememberMe: rememberEl?.checked ?? true,
       });
       form.style.display = 'none';
@@ -422,9 +408,11 @@ function initSignupPage() {
     setButtonLoading(submitBtn, true);
     try {
       const user = await registerUser({
-        name:     nameInput.value.trim(),
-        email:    emailInput.value.trim(),
-        password: passInput.value,
+        ...sanitizeAuthInput({
+          name:     nameInput.value,
+          email:    emailInput.value,
+          password: passInput.value,
+        }),
       });
 
       /* Show personalised success message */

@@ -20,6 +20,13 @@
 
 'use strict';
 
+import {
+  normalizeEmail,
+  sanitizeText,
+  validateLoginInput,
+  validateSignupInput,
+} from './auth-utils.js';
+
 
 /* ===================================================
    AUTH ERROR CLASS
@@ -121,10 +128,21 @@ function saveCredentials(c){ Store.set(KEYS.CREDENTIALS, c); }
 const LocalAuthProvider = {
 
   async signUp({ name, email, password }) {
-    const users    = getUsers();
-    const emailKey = email.trim().toLowerCase();
+    const { sanitized, errors, valid } = validateSignupInput({
+      name,
+      email,
+      password,
+      confirmPassword: password,
+    });
 
-    if (users.some(u => u.email === emailKey)) {
+    if (!valid) {
+      throw new AuthError('auth/invalid-registration', Object.values(errors).find(Boolean));
+    }
+
+    const users    = getUsers();
+    const emailKey = sanitized.email;
+
+    if (users.some(u => normalizeEmail(u.email) === emailKey)) {
       throw new AuthError(
         'auth/email-already-in-use',
         'An account with this email already exists.'
@@ -134,7 +152,7 @@ const LocalAuthProvider = {
     /* Build user record (no sensitive data) */
     const user = {
       id:        generateId(),
-      name:      name.trim(),
+      name:      sanitized.name,
       email:     emailKey,
       createdAt: new Date().toISOString(),
       plan:      'free',
@@ -143,7 +161,7 @@ const LocalAuthProvider = {
     /* Store hashed credential separately */
     const salt  = Math.random().toString(36).slice(2, 10);
     const creds = getCredentials();
-    creds[user.id] = { hash: hashCredential(password, salt), salt };
+    creds[user.id] = { hash: hashCredential(sanitized.password, salt), salt };
 
     saveUsers([...users, user]);
     saveCredentials(creds);
@@ -152,9 +170,15 @@ const LocalAuthProvider = {
   },
 
   async signIn({ email, password, rememberMe = true }) {
+    const { sanitized, errors, valid } = validateLoginInput({ email, password });
+
+    if (!valid) {
+      throw new AuthError('auth/invalid-credential', Object.values(errors).find(Boolean));
+    }
+
     const users    = getUsers();
-    const emailKey = email.trim().toLowerCase();
-    const user     = users.find(u => u.email === emailKey);
+    const emailKey = sanitized.email;
+    const user     = users.find(u => normalizeEmail(u.email) === emailKey);
 
     if (!user) {
       throw new AuthError(
@@ -166,7 +190,7 @@ const LocalAuthProvider = {
     const creds = getCredentials();
     const cred  = creds[user.id];
 
-    if (!cred || hashCredential(password, cred.salt) !== cred.hash) {
+    if (!cred || hashCredential(sanitized.password, cred.salt) !== cred.hash) {
       throw new AuthError(
         'auth/wrong-password',
         'Incorrect password. Please try again.'
@@ -286,7 +310,11 @@ const ActiveProvider = LocalAuthProvider;
  * }
  */
 export async function registerUser({ name, email, password }) {
-  const user = await ActiveProvider.signUp({ name, email, password });
+  const user = await ActiveProvider.signUp({
+    name: sanitizeText(name),
+    email: normalizeEmail(email),
+    password,
+  });
   return user;
 }
 
@@ -298,7 +326,11 @@ export async function registerUser({ name, email, password }) {
  * @throws  {AuthError}
  */
 export async function loginUser({ email, password, rememberMe = true }) {
-  const user = await ActiveProvider.signIn({ email, password, rememberMe });
+  const user = await ActiveProvider.signIn({
+    email: normalizeEmail(email),
+    password,
+    rememberMe,
+  });
   return user;
 }
 
