@@ -30,15 +30,6 @@ signOutBtn?.addEventListener('click', () => signOutAndRedirect('index.html'));
 menuToggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
 
 /* ── 5. Journal interactions ─────────────────────── */
-const seedTrades = [
-  { tradeDate: '2026-06-15', marketType: 'Nifty', tradeName: 'Nifty ORB', strategy: 'ORB', direction: 'Buy', tradeResult: 'Win', capital: 25000, entryPrice: 100, exitPrice: 104.96, stopLoss: 98, target: 106, notes: 'Opening range breakout held above VWAP.' },
-  { tradeDate: '2026-06-14', marketType: 'Crypto', tradeName: 'BTC/USD', strategy: 'Breakout', direction: 'Buy', capital: 10000, entryPrice: 100, exitPrice: 103.8, stopLoss: 98, target: 105, notes: 'Clean breakout through prior resistance.' },
-  { tradeDate: '2026-06-13', marketType: 'BankNifty', tradeName: 'BankNifty Pullback', strategy: 'Pullback', direction: 'Sell', capital: 9500, entryPrice: 100, exitPrice: 101, stopLoss: 102, target: 96, notes: 'Pullback failed after a fast reversal candle.' },
-  { tradeDate: '2026-06-12', marketType: 'Stock', tradeName: 'AAPL', strategy: 'Support Resistance', direction: 'Buy', capital: 15000, entryPrice: 100, exitPrice: 101.4, stopLoss: 98, target: 105, notes: 'Pre-earnings swing remains above trend support.' },
-  { tradeDate: '2026-06-11', marketType: 'Forex', tradeName: 'EUR/USD', strategy: 'VWAP', direction: 'Sell', capital: 20000, entryPrice: 100, exitPrice: 96.9, stopLoss: 102, target: 95, notes: 'Continuation aligned with dollar strength.' },
-  { tradeDate: '2026-06-10', marketType: 'Stock', tradeName: 'TSLA', strategy: 'Other', direction: 'Buy', capital: 16000, entryPrice: 100, exitPrice: 98, stopLoss: 98, target: 106, notes: 'Entered early and failed to respect stop plan.' }
-];
-
 const tradeRepository = new LocalTradeRepository({ userId: user.id || user.email });
 const tradeService = new TradeService({ repository: tradeRepository, userId: user.id || user.email });
 let trades = [];
@@ -46,11 +37,13 @@ let trades = [];
 const tableBody = document.getElementById('tradeTableBody');
 const entryCount = document.getElementById('entryCount');
 const emptyState = document.getElementById('emptyState');
-const dateFilter = document.getElementById('dateFilter');
+const fromDateFilter = document.getElementById('fromDateFilter');
+const toDateFilter = document.getElementById('toDateFilter');
 const strategyFilter = document.getElementById('strategyFilter');
 const resultFilter = document.getElementById('resultFilter');
 const marketFilter = document.getElementById('marketFilter');
 const resetFilters = document.getElementById('resetFilters');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
 const addTradeBtn = document.getElementById('addTradeBtn');
 const topLogTradeBtn = document.getElementById('topLogTradeBtn');
 const addTradeFormSection = document.getElementById('addTradeFormSection');
@@ -104,13 +97,7 @@ function getCurrentStreak(items) {
 function renderTrades() {
   if (!tableBody) return;
 
-  const filteredTrades = trades.filter((trade) => {
-    const matchesDate = !dateFilter?.value || trade.tradeDate === dateFilter.value;
-    const matchesStrategy = strategyFilter?.value === 'all' || trade.strategy === strategyFilter?.value;
-    const matchesResult = resultFilter?.value === 'all' || trade.tradeResult === resultFilter?.value;
-    const matchesMarket = marketFilter?.value === 'all' || trade.marketType === marketFilter?.value;
-    return matchesDate && matchesStrategy && matchesResult && matchesMarket;
-  });
+  const filteredTrades = getFilteredTrades();
 
   tableBody.innerHTML = filteredTrades.map((trade) => {
     const tagClass = trade.tradeResult.toLowerCase();
@@ -134,12 +121,13 @@ function renderTrades() {
   renderSummary();
 }
 
-[dateFilter, strategyFilter, resultFilter, marketFilter].forEach((filter) => {
+[fromDateFilter, toDateFilter, strategyFilter, resultFilter, marketFilter].forEach((filter) => {
   filter?.addEventListener('change', renderTrades);
 });
 
 resetFilters?.addEventListener('click', () => {
-  if (dateFilter) dateFilter.value = '';
+  if (fromDateFilter) fromDateFilter.value = '';
+  if (toDateFilter) toDateFilter.value = '';
   if (strategyFilter) strategyFilter.value = 'all';
   if (resultFilter) resultFilter.value = 'all';
   if (marketFilter) marketFilter.value = 'all';
@@ -175,23 +163,63 @@ addTradeForm?.addEventListener('submit', async (event) => {
     capital: formData.get('capitalUsed'),
     entryPrice: formData.get('entryPrice'),
     exitPrice: formData.get('exitPrice'),
-    stopLoss: formData.get('stopLoss'),
-    target: formData.get('target'),
     emotion: formData.get('emotionBeforeTrade'),
     notes: formData.get('tradeNotes'),
-    screenshot: tradeScreenshot?.files?.[0]?.name || ''
+    screenshot: await getScreenshotPayload(tradeScreenshot?.files?.[0])
   });
 
   trades = [trade, ...trades];
   addTradeForm.dataset.lastAiPayload = JSON.stringify(trade);
-  if (addTradeStatus) addTradeStatus.textContent = `Trade saved locally. P/L: ${formatCurrency(trade.profitLoss)} · R:R ${trade.riskRewardRatio}:1 · ${trade.tradeResult}.`;
+  if (addTradeStatus) addTradeStatus.textContent = `Trade saved locally. P/L: ${formatCurrency(trade.profitLoss)} · ${trade.tradeResult}.`;
   addTradeForm.reset();
   if (screenshotFileName) screenshotFileName.textContent = 'PNG, JPG, or WebP evidence for future AI review.';
   renderTrades();
 });
 
+function getFilteredTrades() {
+  return trades.filter((trade) => {
+    const matchesFromDate = !fromDateFilter?.value || trade.tradeDate >= fromDateFilter.value;
+    const matchesToDate = !toDateFilter?.value || trade.tradeDate <= toDateFilter.value;
+    const matchesStrategy = strategyFilter?.value === 'all' || trade.strategy === strategyFilter?.value;
+    const matchesResult = resultFilter?.value === 'all' || trade.tradeResult === resultFilter?.value;
+    const matchesMarket = marketFilter?.value === 'all' || trade.marketType === marketFilter?.value;
+    return matchesFromDate && matchesToDate && matchesStrategy && matchesResult && matchesMarket;
+  });
+}
+
+function getScreenshotPayload(file) {
+  if (!file) return Promise.resolve('');
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve({ name: file.name, dataUrl: reader.result }));
+    reader.addEventListener('error', () => resolve(file.name));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPdfReport() {
+  const reportTrades = getFilteredTrades();
+  const rangeLabel = `${fromDateFilter?.value || 'Start'} to ${toDateFilter?.value || 'Today'}`;
+  const rows = reportTrades.map((trade) => {
+    const screenshot = typeof trade.screenshot === 'object' && trade.screenshot?.dataUrl
+      ? `<img src="${trade.screenshot.dataUrl}" alt="${escapeHtml(trade.screenshot.name || 'Trade screenshot')}" />`
+      : escapeHtml(typeof trade.screenshot === 'string' ? trade.screenshot : '');
+    return `<tr><td>${formatDate(trade.tradeDate)}</td><td>${escapeHtml(trade.marketType)}</td><td>${escapeHtml(trade.tradeName)}</td><td>${escapeHtml(trade.strategy)}</td><td>${escapeHtml(trade.direction)}</td><td>${trade.tradeResult}</td><td>${formatCurrency(trade.profitLoss)}</td><td>${escapeHtml(trade.notes)}</td><td>${screenshot}</td></tr>`;
+  }).join('');
+
+  const reportWindow = window.open('', '_blank');
+  if (!reportWindow) {
+    if (addTradeStatus) addTradeStatus.textContent = 'Please allow pop-ups to export the trade PDF.';
+    return;
+  }
+  reportWindow.document.write(`<!doctype html><html><head><title>Trade Report ${rangeLabel}</title><style>body{font-family:Inter,Arial,sans-serif;padding:24px;color:#111}h1{margin-bottom:4px}.meta{color:#555;margin-bottom:20px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ddd;padding:8px;vertical-align:top}th{background:#f4f6f8;text-align:left}img{max-width:180px;max-height:120px;border:1px solid #ddd}@media print{@page{size:landscape;margin:12mm}}</style></head><body><h1>My Logged Trade Details</h1><div class="meta">Range: ${escapeHtml(rangeLabel)} · Total: ${reportTrades.length}</div><table><thead><tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>Notes</th><th>Screenshot</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No trades in selected range.</td></tr>'}</tbody></table><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  reportWindow.document.close();
+}
+
+exportPdfBtn?.addEventListener('click', renderPdfReport);
+
 async function initializeJournal() {
-  trades = await tradeService.seedTrades(seedTrades);
+  trades = await tradeService.listTrades();
   renderTrades();
 }
 

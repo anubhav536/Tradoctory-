@@ -969,3 +969,24 @@ svg { display: block; flex-shrink: 0; }
   .save-trade-btn { width: 100%; }
   .ai-ready-badge { width: 100%; justify-content: center; }
 }
+
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-export { padding: 7px 12px; }
+
+.premium-form-grid.three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 980px) {
+  .premium-form-grid.three-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .premium-form-grid.three-col { grid-template-columns: 1fr; }
+  .filter-actions { width: 100%; }
+  .filter-actions .btn { flex: 1; justify-content: center; }
+}
