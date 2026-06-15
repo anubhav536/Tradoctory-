@@ -431,7 +431,9 @@ function initSignupPage() {
       if (successName) successName.textContent = user.name.split(' ')[0];
       form.style.display = 'none';
       successEl?.classList.add('show');
-      setTimeout(() => { window.location.href = 'login.html'; }, 2400);
+      /* Send new users to onboarding — the ?next= param brings them
+         there after login, bypassing the default dashboard redirect. */
+      setTimeout(() => { window.location.href = 'login.html?next=onboarding.html'; }, 2400);
     } catch (err) {
       showGlobalError(mapAuthError(err));
       if (err?.code === 'auth/email-already-in-use') shakeField(emailInput);

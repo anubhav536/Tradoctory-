@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Welcome to Tradoctory — Get started with your first trade." />
+  <title>Welcome — Tradoctory</title>
+
+  <!--
+    ROUTE GUARD — hides page until auth confirmed.
+    Must be the very first script on the page.
+  -->
+  <script>document.documentElement.classList.add('guard-loading');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+</head>
+<body>
+
+  <!-- Animated background -->
+  <div class="ob-bg" aria-hidden="true">
+    <div class="ob-bg-grid"></div>
+    <div class="ob-bg-glow ob-bg-glow-1"></div>
+    <div class="ob-bg-glow ob-bg-glow-2"></div>
+  </div>
+
+  <div class="ob-wrapper">
+    <div class="ob-card">
+
+      <!-- Logo -->
+      <a href="index.html" class="ob-logo">
+        <div class="ob-logo-icon">▲</div>
+        Tradoctory
+      </a>
+
+      <!-- Step indicator -->
+      <div class="ob-steps" aria-label="Setup step 1 of 1">
+        <div class="ob-step-dot active"></div>
+        <div class="ob-step-dot"></div>
+        <div class="ob-step-dot"></div>
+      </div>
+
+      <!-- Success check -->
+      <div class="ob-check" aria-hidden="true">
+        <svg width="26" height="26" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+             viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="ob-heading">
+        Welcome to Tradoctory,
+        <span class="ob-heading-name" id="obUserName">Trader</span>!
+      </h1>
+      <p class="ob-subheading">
+        Your account is ready. Choose where to start — you can always come back to the others.
+      </p>
+
+      <!-- Section label -->
+      <div class="ob-section-label">3 quick actions to get started</div>
+
+      <!-- Action cards -->
+      <div class="ob-actions" role="list">
+
+        <!-- Action 1: Add First Trade -->
+        <a href="journal.html"
+           class="ob-action green"
+           role="listitem"
+           data-action="trade"
+           id="obActionTrade">
+          <div class="ob-action-icon" aria-hidden="true">
+            <svg width="20" height="20" fill="none" stroke="currentColor"
+                 stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div class="ob-action-content">
+            <div class="ob-action-title">Add First Trade</div>
+            <div class="ob-action-desc">Log your first trade and start building your journal history.</div>
+            <div class="ob-action-cta">
+              Start journaling
+              <svg width="13" height="13" fill="none" stroke="currentColor"
+                   stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+
+        <!-- Action 2: Open Dashboard -->
+        <a href="dashboard.html"
+           class="ob-action blue"
+           role="listitem"
+           data-action="dashboard"
+           id="obActionDashboard">
+          <div class="ob-action-icon" aria-hidden="true">
+            <svg width="20" height="20" fill="none" stroke="currentColor"
+                 stroke-width="1.8" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </div>
+          <div class="ob-action-content">
+            <div class="ob-action-title">Open Dashboard</div>
+            <div class="ob-action-desc">See your trading overview, performance stats, and health score.</div>
+            <div class="ob-action-cta">
+              Go to dashboard
+              <svg width="13" height="13" fill="none" stroke="currentColor"
+                   stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+
+        <!-- Action 3: Analyze Chart -->
+        <a href="analysis.html"
+           class="ob-action indigo"
+           role="listitem"
+           data-action="chart"
+           id="obActionChart">
+          <div class="ob-action-icon" aria-hidden="true">
+            <svg width="20" height="20" fill="none" stroke="currentColor"
+                 stroke-width="1.8" viewBox="0 0 24 24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <div class="ob-action-content">
+            <div class="ob-action-title">Analyze Chart</div>
+            <div class="ob-action-desc">Run AI analysis on your trading patterns and get personalized insights.</div>
+            <div class="ob-action-cta">
+              Run analysis
+              <svg width="13" height="13" fill="none" stroke="currentColor"
+                   stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+
+      </div><!-- /ob-actions -->
+
+      <!-- Footer -->
+      <div class="ob-footer">
+        <button class="ob-skip" id="obSkip" aria-label="Skip onboarding and go to dashboard">
+          <svg width="13" height="13" fill="none" stroke="currentColor"
+               stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+          Skip for now
+        </button>
+        <span class="ob-footer-dot" aria-hidden="true"></span>
+        <span class="ob-already">
+          Already familiar? <a href="dashboard.html">Go straight to dashboard</a>
+        </span>
+      </div>
+
+    </div><!-- /ob-card -->
+  </div><!-- /ob-wrapper -->
+
+  <script type="module" src="js/onboarding.js"></script>
+</body>
+</html>
