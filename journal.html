@@ -174,12 +174,10 @@
             </div>
 
             <div class="form-section-label">Risk & Execution</div>
-            <div class="premium-form-grid five-col">
+            <div class="premium-form-grid three-col">
               <label class="premium-field"><span>Capital Used</span><input type="number" name="capitalUsed" min="0" step="0.01" placeholder="0.00" required data-ai-key="risk.capital_used" /></label>
               <label class="premium-field"><span>Entry Price</span><input type="number" name="entryPrice" step="0.0001" placeholder="0.00" required data-ai-key="execution.entry_price" /></label>
               <label class="premium-field"><span>Exit Price</span><input type="number" name="exitPrice" step="0.0001" placeholder="0.00" data-ai-key="execution.exit_price" /></label>
-              <label class="premium-field"><span>Stop Loss</span><input type="number" name="stopLoss" step="0.0001" placeholder="0.00" required data-ai-key="risk.stop_loss" /></label>
-              <label class="premium-field"><span>Target</span><input type="number" name="target" step="0.0001" placeholder="0.00" required data-ai-key="risk.target" /></label>
             </div>
 
             <div class="form-section-label">Psychology & Evidence</div>
@@ -244,12 +242,19 @@
               </div>
               Trade Filters
             </div>
-            <button class="btn btn-ghost filter-reset" id="resetFilters" type="button">Reset</button>
+            <div class="filter-actions">
+              <button class="btn btn-ghost filter-reset" id="resetFilters" type="button">Reset</button>
+              <button class="btn btn-primary filter-export" id="exportPdfBtn" type="button">Export PDF</button>
+            </div>
           </div>
           <div class="filter-grid">
             <label class="filter-field">
-              <span>Date</span>
-              <input type="date" id="dateFilter" />
+              <span>From Date</span>
+              <input type="date" id="fromDateFilter" />
+            </label>
+            <label class="filter-field">
+              <span>To Date</span>
+              <input type="date" id="toDateFilter" />
             </label>
             <label class="filter-field">
               <span>Strategy</span>
@@ -296,9 +301,9 @@
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
               </div>
-              Recent Trades
+              My Logged Trade Details
             </div>
-            <span class="card-badge" id="entryCount">6 entries</span>
+            <span class="card-badge" id="entryCount">0 entries</span>
           </div>
           <div class="table-wrap">
             <table class="trade-table journal-table">
