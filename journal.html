@@ -85,7 +85,7 @@
           <div class="topbar-subtitle">Log and review your trades</div>
         </div>
         <div class="topbar-right">
-          <button class="btn btn-primary" style="font-size:13px;padding:7px 14px;">
+          <button class="btn btn-primary" id="topLogTradeBtn" type="button" style="font-size:13px;padding:7px 14px;">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
@@ -116,6 +116,97 @@
             </svg>
             Add Trade
           </button>
+        </section>
+
+
+        <!-- Add trade form -->
+        <section class="card add-trade-card" id="addTradeFormSection" aria-labelledby="addTradeFormTitle">
+          <div class="add-trade-glow" aria-hidden="true"></div>
+          <div class="card-header add-trade-header">
+            <div>
+              <div class="card-title" id="addTradeFormTitle">
+                <div class="card-title-icon">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                </div>
+                Add Trade
+              </div>
+              <p class="add-trade-subtitle">Capture execution, psychology, and risk data in an AI-ready structure.</p>
+            </div>
+            <span class="ai-ready-badge">AI analysis ready</span>
+          </div>
+
+          <form class="add-trade-form" id="addTradeForm" data-ai-schema="tradoctory.trade.v1">
+            <input type="hidden" name="aiCompatibilityVersion" value="tradoctory.trade.v1" />
+
+            <div class="form-section-label">Trade Setup</div>
+            <div class="premium-form-grid">
+              <label class="premium-field span-2">
+                <span>Trade Name</span>
+                <input type="text" name="tradeName" placeholder="e.g. Nifty opening range breakout" required data-ai-key="trade.name" />
+              </label>
+              <label class="premium-field">
+                <span>Market Type</span>
+                <select name="marketType" required data-ai-key="trade.market_type">
+                  <option value="" selected disabled>Select market</option>
+                  <option>Nifty</option><option>BankNifty</option><option>Stock</option><option>Crypto</option><option>Forex</option>
+                </select>
+              </label>
+              <label class="premium-field">
+                <span>Trade Direction</span>
+                <select name="tradeDirection" required data-ai-key="trade.direction">
+                  <option value="" selected disabled>Select direction</option>
+                  <option>Buy</option><option>Sell</option>
+                </select>
+              </label>
+              <label class="premium-field">
+                <span>Strategy Used</span>
+                <select name="strategyUsed" required data-ai-key="strategy.name">
+                  <option value="" selected disabled>Select strategy</option>
+                  <option>Breakout</option><option>Pullback</option><option>VWAP</option><option>ORB</option><option>Support Resistance</option><option>Other</option>
+                </select>
+              </label>
+              <label class="premium-field">
+                <span>Trade Date</span>
+                <input type="date" name="tradeDate" required data-ai-key="trade.date" />
+              </label>
+            </div>
+
+            <div class="form-section-label">Risk & Execution</div>
+            <div class="premium-form-grid five-col">
+              <label class="premium-field"><span>Capital Used</span><input type="number" name="capitalUsed" min="0" step="0.01" placeholder="0.00" required data-ai-key="risk.capital_used" /></label>
+              <label class="premium-field"><span>Entry Price</span><input type="number" name="entryPrice" step="0.0001" placeholder="0.00" required data-ai-key="execution.entry_price" /></label>
+              <label class="premium-field"><span>Exit Price</span><input type="number" name="exitPrice" step="0.0001" placeholder="0.00" data-ai-key="execution.exit_price" /></label>
+              <label class="premium-field"><span>Stop Loss</span><input type="number" name="stopLoss" step="0.0001" placeholder="0.00" required data-ai-key="risk.stop_loss" /></label>
+              <label class="premium-field"><span>Target</span><input type="number" name="target" step="0.0001" placeholder="0.00" required data-ai-key="risk.target" /></label>
+            </div>
+
+            <div class="form-section-label">Psychology & Evidence</div>
+            <div class="premium-form-grid">
+              <label class="premium-field">
+                <span>Emotion Before Trade</span>
+                <select name="emotionBeforeTrade" required data-ai-key="psychology.emotion_before">
+                  <option value="" selected disabled>Select emotion</option>
+                  <option>Calm</option><option>Confident</option><option>Fear</option><option>Greed</option><option>FOMO</option><option>Revenge</option>
+                </select>
+              </label>
+              <label class="premium-field upload-field">
+                <span>Trade Screenshot Upload</span>
+                <input type="file" name="tradeScreenshot" id="tradeScreenshot" accept="image/*" data-ai-key="evidence.screenshot" />
+                <small id="screenshotFileName">PNG, JPG, or WebP evidence for future AI review.</small>
+              </label>
+              <label class="premium-field span-2">
+                <span>Trade Notes</span>
+                <textarea name="tradeNotes" rows="5" placeholder="Document thesis, entry trigger, mistake, confidence, and post-trade observations." data-ai-key="notes.raw"></textarea>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <p id="addTradeStatus" class="form-status" role="status" aria-live="polite">Structured fields are mapped for future AI analysis.</p>
+              <button class="btn btn-primary save-trade-btn" type="submit">Save Trade</button>
+            </div>
+          </form>
         </section>
 
         <!-- Journal overview cards -->
@@ -165,10 +256,11 @@
               <select id="strategyFilter">
                 <option value="all">All strategies</option>
                 <option value="Breakout">Breakout</option>
-                <option value="Momentum">Momentum</option>
-                <option value="Reversal">Reversal</option>
-                <option value="Swing">Swing</option>
-                <option value="Trend">Trend</option>
+                <option value="Pullback">Pullback</option>
+                <option value="VWAP">VWAP</option>
+                <option value="ORB">ORB</option>
+                <option value="Support Resistance">Support Resistance</option>
+                <option value="Other">Other</option>
               </select>
             </label>
             <label class="filter-field">
@@ -184,8 +276,10 @@
               <span>Market</span>
               <select id="marketFilter">
                 <option value="all">All markets</option>
+                <option value="Nifty">Nifty</option>
+                <option value="BankNifty">BankNifty</option>
+                <option value="Stock">Stock</option>
                 <option value="Crypto">Crypto</option>
-                <option value="Stocks">Stocks</option>
                 <option value="Forex">Forex</option>
               </select>
             </label>
