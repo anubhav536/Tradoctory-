@@ -103,155 +103,120 @@
       <!-- Page body -->
       <div class="page-body">
 
-        <!-- Stats row -->
-        <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-label">Total Trades</div>
-            <div class="stat-value">48</div>
-            <div class="stat-delta up">↑ 8 this week</div>
+        <!-- Journal hero -->
+        <section class="journal-hero" aria-labelledby="journalHeroTitle">
+          <div>
+            <div class="eyebrow">Premium trade tracking</div>
+            <h1 id="journalHeroTitle">Trade Journal</h1>
+            <p>Review performance, filter your playbook, and keep every trade decision backed by clean data.</p>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Wins</div>
-            <div class="stat-value green">35</div>
-            <div class="stat-delta up">73% win rate</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Losses</div>
-            <div class="stat-value red">13</div>
-            <div class="stat-delta down">27% loss rate</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Avg R:R</div>
-            <div class="stat-value">1:2.4</div>
-            <div class="stat-delta">risk-to-reward</div>
-          </div>
-        </div>
+          <button class="btn btn-primary add-trade-btn" id="addTradeBtn" type="button">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Trade
+          </button>
+        </section>
 
-        <!-- Full trade log -->
-        <div class="card">
+        <!-- Journal overview cards -->
+        <section class="stats-row journal-overview" aria-label="Journal overview">
+          <article class="stat-card premium-stat">
+            <div class="stat-label">Total Trades</div>
+            <div class="stat-value" id="totalTrades">48</div>
+            <div class="stat-delta up">↑ 8 trades this week</div>
+          </article>
+          <article class="stat-card premium-stat">
+            <div class="stat-label">Total Profit/Loss</div>
+            <div class="stat-value green" id="totalPnl">+$2,035</div>
+            <div class="stat-delta up">+12.4% account growth</div>
+          </article>
+          <article class="stat-card premium-stat">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value blue" id="winRate">73%</div>
+            <div class="stat-delta">35 wins / 13 losses</div>
+          </article>
+          <article class="stat-card premium-stat">
+            <div class="stat-label">Current Streak</div>
+            <div class="stat-value" id="currentStreak">2W</div>
+            <div class="stat-delta up">Best streak: 6W</div>
+          </article>
+        </section>
+
+        <!-- Trade filters -->
+        <section class="card filters-card" aria-labelledby="filtersTitle">
           <div class="card-header">
-            <div class="card-title">
+            <div class="card-title" id="filtersTitle">
               <div class="card-title-icon">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
+              </div>
+              Trade Filters
+            </div>
+            <button class="btn btn-ghost filter-reset" id="resetFilters" type="button">Reset</button>
+          </div>
+          <div class="filter-grid">
+            <label class="filter-field">
+              <span>Date</span>
+              <input type="date" id="dateFilter" />
+            </label>
+            <label class="filter-field">
+              <span>Strategy</span>
+              <select id="strategyFilter">
+                <option value="all">All strategies</option>
+                <option value="Breakout">Breakout</option>
+                <option value="Momentum">Momentum</option>
+                <option value="Reversal">Reversal</option>
+                <option value="Swing">Swing</option>
+                <option value="Trend">Trend</option>
+              </select>
+            </label>
+            <label class="filter-field">
+              <span>Result</span>
+              <select id="resultFilter">
+                <option value="all">All results</option>
+                <option value="Win">Win</option>
+                <option value="Loss">Loss</option>
+                <option value="Open">Open</option>
+              </select>
+            </label>
+            <label class="filter-field">
+              <span>Market</span>
+              <select id="marketFilter">
+                <option value="all">All markets</option>
+                <option value="Crypto">Crypto</option>
+                <option value="Stocks">Stocks</option>
+                <option value="Forex">Forex</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <!-- Recent trades table -->
+        <section class="card recent-trades-card" aria-labelledby="recentTradesTitle">
+          <div class="card-header">
+            <div class="card-title" id="recentTradesTitle">
+              <div class="card-title-icon">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
               </div>
-              All Trades
+              Recent Trades
             </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <span style="font-size:12px;color:var(--text-muted);">48 entries</span>
-            </div>
+            <span class="card-badge" id="entryCount">6 entries</span>
           </div>
-          <div class="card-body" style="padding:0;">
-            <table class="trade-table">
+          <div class="table-wrap">
+            <table class="trade-table journal-table">
               <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Pair</th>
-                  <th>Direction</th>
-                  <th>Entry</th>
-                  <th>Exit</th>
-                  <th>Result</th>
-                  <th>P&amp;L</th>
-                  <th>Notes</th>
-                </tr>
+                <tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>Notes</th></tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Jun 15</td>
-                  <td style="color:var(--text-primary);font-weight:600;">BTC/USD</td>
-                  <td>Long</td>
-                  <td>$65,200</td>
-                  <td>$67,100</td>
-                  <td><span class="tag win">WIN</span></td>
-                  <td style="color:var(--accent);font-weight:600;">+$1,240</td>
-                  <td style="color:var(--text-muted);font-size:12px;">Strong breakout above resistance</td>
-                </tr>
-                <tr>
-                  <td>Jun 14</td>
-                  <td style="color:var(--text-primary);font-weight:600;">ETH/USD</td>
-                  <td>Long</td>
-                  <td>$3,410</td>
-                  <td>$3,520</td>
-                  <td><span class="tag win">WIN</span></td>
-                  <td style="color:var(--accent);font-weight:600;">+$380</td>
-                  <td style="color:var(--text-muted);font-size:12px;">ETH following BTC momentum</td>
-                </tr>
-                <tr>
-                  <td>Jun 13</td>
-                  <td style="color:var(--text-primary);font-weight:600;">SOL/USD</td>
-                  <td>Short</td>
-                  <td>$148</td>
-                  <td>$151</td>
-                  <td><span class="tag loss">LOSS</span></td>
-                  <td style="color:var(--red);font-weight:600;">−$95</td>
-                  <td style="color:var(--text-muted);font-size:12px;">Stopped out on news spike</td>
-                </tr>
-                <tr>
-                  <td>Jun 12</td>
-                  <td style="color:var(--text-primary);font-weight:600;">AAPL</td>
-                  <td>Long</td>
-                  <td>$192.30</td>
-                  <td>Open</td>
-                  <td><span class="tag open">OPEN</span></td>
-                  <td style="color:var(--blue);font-weight:600;">+$210</td>
-                  <td style="color:var(--text-muted);font-size:12px;">Pre-earnings swing setup</td>
-                </tr>
-                <tr>
-                  <td>Jun 11</td>
-                  <td style="color:var(--text-primary);font-weight:600;">EUR/USD</td>
-                  <td>Short</td>
-                  <td>1.0842</td>
-                  <td>1.0798</td>
-                  <td><span class="tag win">WIN</span></td>
-                  <td style="color:var(--accent);font-weight:600;">+$620</td>
-                  <td style="color:var(--text-muted);font-size:12px;">Clear H4 downtrend continuation</td>
-                </tr>
-                <tr>
-                  <td>Jun 10</td>
-                  <td style="color:var(--text-primary);font-weight:600;">TSLA</td>
-                  <td>Long</td>
-                  <td>$176.40</td>
-                  <td>$171.20</td>
-                  <td><span class="tag loss">LOSS</span></td>
-                  <td style="color:var(--red);font-weight:600;">−$320</td>
-                  <td style="color:var(--text-muted);font-size:12px;">Entered too early, held too long</td>
-                </tr>
-              </tbody>
+              <tbody id="tradeTableBody"></tbody>
             </table>
+            <div class="empty-state" id="emptyState" hidden>No trades match the selected filters.</div>
           </div>
-        </div>
+        </section>
 
-        <!-- Coming soon placeholder -->
-        <div class="card" style="margin-top:20px;">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-title-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-              </div>
-              Trade Log Entry Form
-            </div>
-          </div>
-          <div class="placeholder-block">
-            <div class="placeholder-icon">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-            </div>
-            <div class="placeholder-title">Log a New Trade</div>
-            <div class="placeholder-sub">The trade entry form will live here. You'll be able to log pair, direction, entry/exit, screenshots, and notes.</div>
-            <button class="btn btn-primary" style="margin-top:8px;">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              Add Trade Entry
-            </button>
-          </div>
-        </div>
 
       </div><!-- /page-body -->
     </div><!-- /main-content -->
