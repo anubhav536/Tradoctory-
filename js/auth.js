@@ -307,7 +307,10 @@ function initLoginPage() {
       });
       form.style.display = 'none';
       successEl?.classList.add('show');
-      setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+      /* Honour ?next= param set by route-guard, or default to dashboard */
+      const params = new URLSearchParams(window.location.search);
+      const next   = params.get('next') || 'dashboard.html';
+      setTimeout(() => { window.location.href = next; }, 1800);
     } catch (err) {
       showGlobalError(mapAuthError(err));
       shakeField(emailInput);
