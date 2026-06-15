@@ -29,12 +29,12 @@ menuToggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
 
 /* ── 5. Journal interactions ─────────────────────── */
 const trades = [
-  { date: '2026-06-15', market: 'Crypto', symbol: 'BTC/USD', strategy: 'Breakout', direction: 'Long', result: 'Win', pnl: 1240, notes: 'Clean breakout through prior resistance.' },
-  { date: '2026-06-14', market: 'Crypto', symbol: 'ETH/USD', strategy: 'Momentum', direction: 'Long', result: 'Win', pnl: 380, notes: 'Followed BTC strength with tight invalidation.' },
-  { date: '2026-06-13', market: 'Crypto', symbol: 'SOL/USD', strategy: 'Reversal', direction: 'Short', result: 'Loss', pnl: -95, notes: 'News spike invalidated the short thesis.' },
-  { date: '2026-06-12', market: 'Stocks', symbol: 'AAPL', strategy: 'Swing', direction: 'Long', result: 'Open', pnl: 210, notes: 'Pre-earnings swing remains above trend support.' },
-  { date: '2026-06-11', market: 'Forex', symbol: 'EUR/USD', strategy: 'Trend', direction: 'Short', result: 'Win', pnl: 620, notes: 'H4 continuation aligned with dollar strength.' },
-  { date: '2026-06-10', market: 'Stocks', symbol: 'TSLA', strategy: 'Momentum', direction: 'Long', result: 'Loss', pnl: -320, notes: 'Entered early and failed to respect stop plan.' }
+  { date: '2026-06-15', market: 'Nifty', symbol: 'Nifty ORB', strategy: 'ORB', direction: 'Buy', result: 'Win', pnl: 1240, notes: 'Opening range breakout held above VWAP.' },
+  { date: '2026-06-14', market: 'Crypto', symbol: 'BTC/USD', strategy: 'Breakout', direction: 'Buy', result: 'Win', pnl: 380, notes: 'Clean breakout through prior resistance.' },
+  { date: '2026-06-13', market: 'BankNifty', symbol: 'BankNifty Pullback', strategy: 'Pullback', direction: 'Sell', result: 'Loss', pnl: -95, notes: 'Pullback failed after a fast reversal candle.' },
+  { date: '2026-06-12', market: 'Stock', symbol: 'AAPL', strategy: 'Support Resistance', direction: 'Buy', result: 'Open', pnl: 210, notes: 'Pre-earnings swing remains above trend support.' },
+  { date: '2026-06-11', market: 'Forex', symbol: 'EUR/USD', strategy: 'VWAP', direction: 'Sell', result: 'Win', pnl: 620, notes: 'Continuation aligned with dollar strength.' },
+  { date: '2026-06-10', market: 'Stock', symbol: 'TSLA', strategy: 'Other', direction: 'Buy', result: 'Loss', pnl: -320, notes: 'Entered early and failed to respect stop plan.' }
 ];
 
 const tableBody = document.getElementById('tradeTableBody');
@@ -46,6 +46,12 @@ const resultFilter = document.getElementById('resultFilter');
 const marketFilter = document.getElementById('marketFilter');
 const resetFilters = document.getElementById('resetFilters');
 const addTradeBtn = document.getElementById('addTradeBtn');
+const topLogTradeBtn = document.getElementById('topLogTradeBtn');
+const addTradeFormSection = document.getElementById('addTradeFormSection');
+const addTradeForm = document.getElementById('addTradeForm');
+const tradeScreenshot = document.getElementById('tradeScreenshot');
+const screenshotFileName = document.getElementById('screenshotFileName');
+const addTradeStatus = document.getElementById('addTradeStatus');
 
 function formatDate(value) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(`${value}T00:00:00`));
@@ -100,11 +106,70 @@ resetFilters?.addEventListener('click', () => {
   renderTrades();
 });
 
-addTradeBtn?.addEventListener('click', () => {
-  addTradeBtn.textContent = 'Trade form coming soon';
-  window.setTimeout(() => {
-    addTradeBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Trade';
-  }, 1800);
+function scrollToAddTradeForm() {
+  addTradeFormSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  addTradeForm?.querySelector('input[name="tradeName"]')?.focus({ preventScroll: true });
+}
+
+addTradeBtn?.addEventListener('click', scrollToAddTradeForm);
+topLogTradeBtn?.addEventListener('click', scrollToAddTradeForm);
+
+tradeScreenshot?.addEventListener('change', () => {
+  const file = tradeScreenshot.files?.[0];
+  if (screenshotFileName) {
+    screenshotFileName.textContent = file
+      ? `${file.name} selected for evidence review.`
+      : 'PNG, JPG, or WebP evidence for future AI review.';
+  }
+});
+
+addTradeForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const formData = new FormData(addTradeForm);
+  const tradeName = String(formData.get('tradeName') || '').trim();
+  const marketType = String(formData.get('marketType') || 'Stock');
+  const strategyUsed = String(formData.get('strategyUsed') || 'Other');
+  const tradeDirection = String(formData.get('tradeDirection') || 'Buy');
+  const tradeDate = String(formData.get('tradeDate') || new Date().toISOString().slice(0, 10));
+  const entryPrice = Number(formData.get('entryPrice') || 0);
+  const exitPrice = Number(formData.get('exitPrice') || 0);
+  const capitalUsed = Number(formData.get('capitalUsed') || 0);
+  const notes = String(formData.get('tradeNotes') || '').trim();
+  const pnl = exitPrice ? Math.round((exitPrice - entryPrice) * (tradeDirection === 'Buy' ? 1 : -1)) : 0;
+
+  const aiReadyTrade = {
+    aiSchema: addTradeForm.dataset.aiSchema,
+    tradeName,
+    marketType,
+    strategyUsed,
+    tradeDirection,
+    tradeDate,
+    capitalUsed,
+    entryPrice,
+    exitPrice,
+    stopLoss: Number(formData.get('stopLoss') || 0),
+    target: Number(formData.get('target') || 0),
+    emotionBeforeTrade: String(formData.get('emotionBeforeTrade') || ''),
+    tradeNotes: notes,
+    screenshotFileName: tradeScreenshot?.files?.[0]?.name || ''
+  };
+
+  trades.unshift({
+    date: tradeDate,
+    market: marketType,
+    symbol: tradeName || marketType,
+    strategy: strategyUsed,
+    direction: tradeDirection,
+    result: exitPrice ? (pnl >= 0 ? 'Win' : 'Loss') : 'Open',
+    pnl,
+    notes: notes || `Emotion: ${aiReadyTrade.emotionBeforeTrade}. Capital: ${capitalUsed.toLocaleString()}.`
+  });
+
+  addTradeForm.dataset.lastAiPayload = JSON.stringify(aiReadyTrade);
+  if (addTradeStatus) addTradeStatus.textContent = 'Trade saved locally with AI-ready metadata.';
+  addTradeForm.reset();
+  if (screenshotFileName) screenshotFileName.textContent = 'PNG, JPG, or WebP evidence for future AI review.';
+  renderTrades();
 });
 
 renderTrades();

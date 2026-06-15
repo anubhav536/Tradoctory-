@@ -779,3 +779,193 @@ svg { display: block; flex-shrink: 0; }
   .card-header { align-items: flex-start; gap: 12px; flex-direction: column; }
   .filter-reset { width: 100%; justify-content: center; }
 }
+
+/* ── Premium add trade form ───────────────────────── */
+.add-trade-card {
+  position: relative;
+  margin-bottom: 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.045), transparent 42%),
+    linear-gradient(180deg, rgba(17,24,39,0.98), rgba(10,15,25,0.98));
+}
+
+.add-trade-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  right: -150px;
+  top: -180px;
+  border-radius: 50%;
+  background: rgba(0,210,106,0.16);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.add-trade-header { align-items: flex-start; }
+
+.add-trade-subtitle {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-ready-badge {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid rgba(59,130,246,0.32);
+  border-radius: 999px;
+  background: rgba(59,130,246,0.12);
+  color: #93c5fd;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.ai-ready-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 14px var(--blue);
+}
+
+.add-trade-form {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+
+.form-section-label {
+  margin: 4px 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.form-section-label:not(:first-of-type) { margin-top: 24px; }
+
+.premium-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.premium-form-grid.five-col { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+.premium-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.premium-field.span-2 { grid-column: span 2; }
+
+.premium-field span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.premium-field input,
+.premium-field select,
+.premium-field textarea {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: rgba(8,12,20,0.72);
+  color: var(--text-primary);
+  padding: 0 13px;
+  font: inherit;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition), transform var(--transition);
+}
+
+.premium-field input,
+.premium-field select { height: 46px; }
+
+.premium-field textarea {
+  min-height: 128px;
+  padding: 13px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.premium-field input[type="file"] {
+  padding: 10px 12px;
+  height: auto;
+  color: var(--text-secondary);
+}
+
+.premium-field input:focus,
+.premium-field select:focus,
+.premium-field textarea:focus {
+  border-color: rgba(0,210,106,0.58);
+  box-shadow: 0 0 0 3px var(--accent-dim), 0 12px 28px rgba(0,0,0,0.18);
+  background: rgba(8,12,20,0.96);
+  transform: translateY(-1px);
+}
+
+.premium-field small {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.upload-field {
+  border: 1px dashed rgba(255,255,255,0.16);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,255,255,0.025);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.form-status {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.save-trade-btn {
+  min-width: 148px;
+  justify-content: center;
+  padding: 12px 20px;
+  box-shadow: 0 16px 36px rgba(0,210,106,0.2);
+}
+
+@media (max-width: 1100px) {
+  .premium-form-grid,
+  .premium-form-grid.five-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .add-trade-form { padding: 18px 16px; }
+  .premium-form-grid,
+  .premium-form-grid.five-col { grid-template-columns: 1fr; }
+  .premium-field.span-2 { grid-column: span 1; }
+  .form-actions { align-items: stretch; flex-direction: column; }
+  .save-trade-btn { width: 100%; }
+  .ai-ready-badge { width: 100%; justify-content: center; }
+}
