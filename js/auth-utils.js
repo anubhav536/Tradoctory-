@@ -31,9 +31,9 @@ export function normalizeEmail(value) {
   return sanitizeText(value).toLowerCase();
 }
 
-/** Passwords are not stripped internally, but accidental edge whitespace is. */
+/** Passwords are credentials, so preserve every typed character. */
 export function normalizePassword(value) {
-  return String(value ?? '').trim();
+  return String(value ?? '');
 }
 
 export function sanitizeAuthInput({ name = '', email = '', password = '', confirmPassword = '' } = {}) {
