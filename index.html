@@ -28,9 +28,67 @@
         <a href="#about" class="nav-link">About</a>
       </nav>
 
-      <div class="nav-actions">
-        <a href="login.html" class="btn btn-outline">Login</a>
-        <a href="signup.html" class="btn btn-primary">Get Started</a>
+      <div class="nav-actions" id="navActions">
+
+        <!-- Guest state -->
+        <div class="nav-guest" id="navGuest">
+          <a href="login.html" class="btn btn-outline">Login</a>
+          <a href="signup.html" class="btn btn-primary">Get Started</a>
+        </div>
+
+        <!-- Auth state (hidden until JS confirms session) -->
+        <div class="nav-user" id="navUser" style="display:none;">
+          <button class="nav-avatar-btn" id="navAvatarBtn"
+                  aria-haspopup="true" aria-expanded="false"
+                  aria-label="Account menu">
+            <div class="nav-avatar" id="navAvatarInitial">?</div>
+            <svg class="nav-avatar-chevron" width="12" height="12" fill="none"
+                 stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"
+                 aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div class="nav-dropdown" id="navDropdown" role="menu" aria-label="Account">
+
+            <!-- User identity -->
+            <div class="nav-dropdown-header">
+              <div class="nav-dropdown-avatar" id="dropdownAvatarInitial">?</div>
+              <div class="nav-dropdown-identity">
+                <div class="nav-dropdown-name" id="dropdownName">Loading…</div>
+                <div class="nav-dropdown-plan" id="dropdownPlan">Free plan</div>
+              </div>
+            </div>
+
+            <div class="nav-dropdown-divider"></div>
+
+            <a href="dashboard.html" class="nav-dropdown-item" role="menuitem">
+              <svg width="14" height="14" fill="none" stroke="currentColor"
+                   stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              Dashboard
+            </a>
+
+            <div class="nav-dropdown-divider"></div>
+
+            <button class="nav-dropdown-item nav-dropdown-signout"
+                    id="navSignOut" role="menuitem">
+              <svg width="14" height="14" fill="none" stroke="currentColor"
+                   stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign out
+            </button>
+
+          </div>
+        </div>
+
       </div>
 
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -43,8 +101,43 @@
       <a href="#home" class="mobile-link">Home</a>
       <a href="#features" class="mobile-link">Features</a>
       <a href="#about" class="mobile-link">About</a>
-      <a href="login.html" class="mobile-link">Login</a>
-      <a href="signup.html" class="btn btn-primary mobile-cta">Get Started</a>
+
+      <!-- Mobile: guest state -->
+      <div id="mobileGuest">
+        <a href="login.html" class="mobile-link">Login</a>
+        <a href="signup.html" class="btn btn-primary mobile-cta">Get Started</a>
+      </div>
+
+      <!-- Mobile: auth state (hidden until JS confirms session) -->
+      <div id="mobileUser" style="display:none;">
+        <div class="mobile-user-card">
+          <div class="mobile-user-avatar" id="mobileAvatarInitial">?</div>
+          <div class="mobile-user-info">
+            <div class="mobile-user-name" id="mobileUserName">Loading…</div>
+            <div class="mobile-user-plan" id="mobileUserPlan">Free plan</div>
+          </div>
+        </div>
+        <a href="dashboard.html" class="mobile-link">
+          <svg width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:8px;">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          Dashboard
+        </a>
+        <button class="mobile-link mobile-signout" id="mobileSignOut">
+          <svg width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:8px;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign out
+        </button>
+      </div>
+
     </div>
   </header>
 
@@ -796,5 +889,6 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script type="module" src="js/navbar-auth.js"></script>
 </body>
 </html>
