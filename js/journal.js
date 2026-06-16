@@ -6,7 +6,7 @@
 import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
-import { isClosedTrade } from './trades/trade.js';
+import { calculateTradeStatistics } from './trades/trade-statistics.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -69,17 +69,13 @@ function escapeHtml(value) {
 }
 
 function renderSummary() {
-  const closedTrades = trades.filter(isClosedTrade);
-  const wins = trades.filter((trade) => trade.tradeResult === 'Win').length;
-  const losses = trades.filter((trade) => trade.tradeResult === 'Loss').length;
-  const totalPnlValue = trades.reduce((total, trade) => total + trade.profitLoss, 0);
-  const winRateValue = closedTrades.length ? Math.round((wins / closedTrades.length) * 100) : 0;
+  const statistics = calculateTradeStatistics(trades);
 
-  document.getElementById('totalTrades')?.replaceChildren(String(trades.length));
-  document.getElementById('totalPnl')?.replaceChildren(formatCurrency(totalPnlValue));
-  document.getElementById('winRate')?.replaceChildren(`${winRateValue}%`);
+  document.getElementById('totalTrades')?.replaceChildren(String(statistics.totalTrades));
+  document.getElementById('totalPnl')?.replaceChildren(formatCurrency(statistics.totalProfit));
+  document.getElementById('winRate')?.replaceChildren(`${statistics.winRate}%`);
   document.getElementById('currentStreak')?.replaceChildren(getCurrentStreak(trades));
-  document.querySelector('#winRate + .stat-delta')?.replaceChildren(`${wins} wins / ${losses} losses`);
+  document.querySelector('#winRate + .stat-delta')?.replaceChildren(`${statistics.winningTrades} wins / ${statistics.losingTrades} losses`);
 }
 
 function getCurrentStreak(items) {

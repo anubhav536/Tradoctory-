@@ -990,3 +990,25 @@ svg { display: block; flex-shrink: 0; }
   .filter-actions { width: 100%; }
   .filter-actions .btn { flex: 1; justify-content: center; }
 }
+
+.dashboard-stats {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.empty-table-message,
+.chart-empty {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 18px 20px;
+  text-align: center;
+}
+
+.chart-empty {
+  align-self: center;
+  width: 100%;
+}
+
+.green { color: var(--accent); }
+.red { color: var(--red); }
+.blue { color: var(--blue); }
+.tag.breakeven { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
