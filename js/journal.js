@@ -59,6 +59,11 @@ const tradeScreenshot = document.getElementById('tradeScreenshot');
 const screenshotFileName = document.getElementById('screenshotFileName');
 const addTradeStatus = document.getElementById('addTradeStatus');
 const sortButtons = document.querySelectorAll('.sort-button');
+const tradeDetailModal = document.getElementById('tradeDetailModal');
+const tradeDetailContent = document.getElementById('tradeDetailContent');
+const tradeDetailDialog = tradeDetailModal?.querySelector('.trade-detail-dialog');
+const tradeDetailClose = document.getElementById('tradeDetailClose');
+let lastFocusedElement = null;
 
 let currentPage = 1;
 let sortState = { key: 'tradeDate', direction: 'desc' };
@@ -67,16 +72,114 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(`${value}T00:00:00`));
 }
 
+function formatMoney(value) {
+  const numericValue = Number(value) || 0;
+  return `$${Math.abs(numericValue).toLocaleString()}`;
+}
+
 function formatCurrency(value) {
   const numericValue = Number(value) || 0;
   const sign = numericValue >= 0 ? '+' : '−';
-  return `${sign}$${Math.abs(numericValue).toLocaleString()}`;
+  return `${sign}${formatMoney(numericValue)}`;
 }
 
 function escapeHtml(value) {
   const element = document.createElement('span');
   element.textContent = String(value ?? '');
   return element.innerHTML;
+}
+
+function formatFullDate(value) {
+  if (!value) return 'Not set';
+  return new Intl.DateTimeFormat('en', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(`${value}T00:00:00`));
+}
+
+function getScreenshotMarkup(trade) {
+  if (typeof trade.screenshot === 'object' && trade.screenshot?.dataUrl) {
+    return `<img src="${trade.screenshot.dataUrl}" alt="${escapeHtml(trade.screenshot.name || `${trade.tradeName} screenshot`)}" />`;
+  }
+
+  const screenshotLabel = typeof trade.screenshot === 'string' ? trade.screenshot : '';
+  return `<div class="trade-detail-screenshot-empty">
+    <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2"/>
+      <circle cx="8.5" cy="10.5" r="1.5"/>
+      <path d="M21 15l-4.5-4.5L6 21"/>
+    </svg>
+    <span>${escapeHtml(screenshotLabel || 'No screenshot uploaded')}</span>
+  </div>`;
+}
+
+function renderDetailItem(label, value, className = '') {
+  return `<div class="trade-detail-item ${className}"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`;
+}
+
+function openTradeModal(tradeId) {
+  const trade = trades.find((item) => item.id === tradeId);
+  if (!trade || !tradeDetailModal || !tradeDetailContent) return;
+
+  const pnlClass = trade.profitLoss >= 0 ? 'profit' : 'loss';
+  lastFocusedElement = document.activeElement;
+  tradeDetailContent.innerHTML = `
+    <header class="trade-detail-header">
+      <div>
+        <p class="trade-detail-eyebrow">Trade Information</p>
+        <h2 id="tradeDetailTitle">${escapeHtml(trade.tradeName)}</h2>
+        <div class="trade-detail-chips">
+          <span>${escapeHtml(trade.marketType)}</span>
+          <span>${escapeHtml(trade.strategy)}</span>
+          <span>${escapeHtml(trade.direction)}</span>
+        </div>
+      </div>
+      <div class="trade-detail-result ${pnlClass}">${escapeHtml(trade.tradeResult)}</div>
+    </header>
+
+    <div class="trade-detail-grid">
+      <section class="trade-detail-panel trade-detail-info-panel" aria-label="Trade Information">
+        <h3>Trade Information</h3>
+        <div class="trade-detail-items">
+          ${renderDetailItem('Date', formatFullDate(trade.tradeDate))}
+          ${renderDetailItem('Capital Used', formatMoney(trade.capital))}
+          ${renderDetailItem('Entry Price', trade.entryPrice)}
+          ${renderDetailItem('Exit Price', trade.exitPrice || 'Open')}
+          ${renderDetailItem('Stop Loss', trade.stopLoss)}
+          ${renderDetailItem('Target', trade.target)}
+        </div>
+      </section>
+
+      <section class="trade-detail-panel" aria-label="Screenshot">
+        <h3>Screenshot</h3>
+        <div class="trade-detail-screenshot">${getScreenshotMarkup(trade)}</div>
+      </section>
+
+      <section class="trade-detail-panel" aria-label="Notes">
+        <h3>Notes</h3>
+        <p class="trade-detail-notes">${escapeHtml(trade.notes || 'No notes added for this trade.')}</p>
+      </section>
+
+      <section class="trade-detail-panel trade-detail-metrics" aria-label="Emotion risk reward and profit loss">
+        <h3>Psychology & Outcome</h3>
+        <div class="trade-detail-items">
+          ${renderDetailItem('Emotion', trade.emotion || 'Not logged')}
+          ${renderDetailItem('Risk Reward', `${trade.riskRewardRatio}:1`)}
+          ${renderDetailItem('Profit/Loss', formatCurrency(trade.profitLoss), pnlClass)}
+        </div>
+      </section>
+    </div>
+  `;
+
+  tradeDetailModal.classList.add('open');
+  tradeDetailModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  tradeDetailDialog?.focus({ preventScroll: true });
+}
+
+function closeTradeModal() {
+  if (!tradeDetailModal) return;
+  tradeDetailModal.classList.remove('open');
+  tradeDetailModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  lastFocusedElement?.focus?.({ preventScroll: true });
 }
 
 function renderSummary() {
@@ -117,7 +220,7 @@ function renderTrades() {
     const tagClass = trade.tradeResult.toLowerCase();
     const pnlClass = trade.profitLoss >= 0 ? 'profit' : 'loss';
     return `
-      <tr class="trade-history-row ${pnlClass}">
+      <tr class="trade-history-row ${pnlClass}" data-trade-id="${escapeHtml(trade.id)}" tabindex="0" aria-label="Open details for ${escapeHtml(trade.tradeName)}">
         <td data-label="Date">${formatDate(trade.tradeDate)}</td>
         <td data-label="Trade Name" class="trade-name-cell">
           <strong>${escapeHtml(trade.tradeName)}</strong>
@@ -175,6 +278,29 @@ prevPageBtn?.addEventListener('click', () => {
 nextPageBtn?.addEventListener('click', () => {
   currentPage += 1;
   renderTrades();
+});
+
+tableBody?.addEventListener('click', (event) => {
+  const row = event.target.closest('.trade-history-row');
+  if (row?.dataset.tradeId) openTradeModal(row.dataset.tradeId);
+});
+
+tableBody?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const row = event.target.closest('.trade-history-row');
+  if (!row?.dataset.tradeId) return;
+  event.preventDefault();
+  openTradeModal(row.dataset.tradeId);
+});
+
+tradeDetailModal?.addEventListener('click', (event) => {
+  if (event.target.closest('[data-modal-close]')) closeTradeModal();
+});
+
+tradeDetailClose?.addEventListener('click', closeTradeModal);
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && tradeDetailModal?.classList.contains('open')) closeTradeModal();
 });
 
 resetFilters?.addEventListener('click', () => {

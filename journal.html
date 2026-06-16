@@ -342,6 +342,18 @@
           </div>
         </section>
 
+        <div class="trade-detail-modal" id="tradeDetailModal" aria-hidden="true">
+          <div class="trade-detail-backdrop" data-modal-close></div>
+          <section class="trade-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="tradeDetailTitle" tabindex="-1">
+            <div class="trade-detail-glow" aria-hidden="true"></div>
+            <button class="trade-detail-close" id="tradeDetailClose" type="button" aria-label="Close trade details" data-modal-close>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+            <div class="trade-detail-content" id="tradeDetailContent"></div>
+          </section>
+        </div>
 
       </div><!-- /page-body -->
     </div><!-- /main-content -->
