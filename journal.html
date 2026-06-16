@@ -178,6 +178,8 @@
               <label class="premium-field"><span>Capital Used</span><input type="number" name="capitalUsed" min="0" step="0.01" placeholder="0.00" required data-ai-key="risk.capital_used" /></label>
               <label class="premium-field"><span>Entry Price</span><input type="number" name="entryPrice" step="0.0001" placeholder="0.00" required data-ai-key="execution.entry_price" /></label>
               <label class="premium-field"><span>Exit Price</span><input type="number" name="exitPrice" step="0.0001" placeholder="0.00" data-ai-key="execution.exit_price" /></label>
+              <label class="premium-field"><span>Stop Loss (SL)</span><input type="number" name="stopLoss" step="0.0001" placeholder="0.00" required data-ai-key="risk.stop_loss" /></label>
+              <label class="premium-field"><span>Target</span><input type="number" name="target" step="0.0001" placeholder="0.00" required data-ai-key="risk.target" /></label>
             </div>
 
             <div class="form-section-label">Psychology & Evidence</div>
@@ -308,7 +310,7 @@
           <div class="table-wrap">
             <table class="trade-table journal-table">
               <thead>
-                <tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>Notes</th></tr>
+                <tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>R:R</th><th>Notes</th></tr>
               </thead>
               <tbody id="tradeTableBody"></tbody>
             </table>

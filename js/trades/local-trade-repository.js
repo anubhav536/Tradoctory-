@@ -1,13 +1,16 @@
 'use strict';
 
+import { TradeRepository } from './trade-repository.js';
+
 const BASE_STORAGE_KEY = 'tradoctory.trades';
 
 function getStorageKey(userId) {
   return `${BASE_STORAGE_KEY}.${userId || 'guest'}`;
 }
 
-export class LocalTradeRepository {
+export class LocalTradeRepository extends TradeRepository {
   constructor({ storage = window.localStorage, userId = 'guest' } = {}) {
+    super();
     this.storage = storage;
     this.userId = userId;
     this.storageKey = getStorageKey(userId);
