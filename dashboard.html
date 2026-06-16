@@ -104,52 +104,53 @@
       <div class="page-body">
 
         <!-- Stats row -->
-        <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-label">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-              Net P&amp;L
-            </div>
-            <div class="stat-value green">+$4,821</div>
-            <div class="stat-delta up">↑ 12.4% this month</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-              </svg>
-              Win Rate
-            </div>
-            <div class="stat-value blue">73%</div>
-            <div class="stat-delta up">↑ 5% vs last month</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              Profit Factor
-            </div>
-            <div class="stat-value">2.4×</div>
-            <div class="stat-delta">vs 1.8× benchmark</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
-              Trades Logged
-            </div>
-            <div class="stat-value">48</div>
-            <div class="stat-delta up">↑ 8 this week</div>
-          </div>
-        </div>
+        <section class="stats-row dashboard-stats" aria-label="Automatic trading statistics">
+          <article class="stat-card">
+            <div class="stat-label">Total Trades</div>
+            <div class="stat-value" id="totalTrades">0</div>
+            <div class="stat-delta">All logged trades</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Winning Trades</div>
+            <div class="stat-value green" id="winningTrades">0</div>
+            <div class="stat-delta up">Closed in profit</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Losing Trades</div>
+            <div class="stat-value red" id="losingTrades">0</div>
+            <div class="stat-delta down">Closed at a loss</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value blue" id="winRate">0%</div>
+            <div class="stat-delta">Wins ÷ closed trades</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Total Profit</div>
+            <div class="stat-value" id="totalProfit">$0</div>
+            <div class="stat-delta">Net P&amp;L across trades</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Average Profit</div>
+            <div class="stat-value" id="averageProfit">$0</div>
+            <div class="stat-delta">Mean winning trade</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Average Loss</div>
+            <div class="stat-value" id="averageLoss">$0</div>
+            <div class="stat-delta">Mean losing trade</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Best Trade</div>
+            <div class="stat-value" id="bestTrade">$0</div>
+            <div class="stat-delta">Largest single gain</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Worst Trade</div>
+            <div class="stat-value" id="worstTrade">$0</div>
+            <div class="stat-delta">Largest single loss</div>
+          </article>
+        </section>
 
         <!-- Main content grid -->
         <div class="content-grid main-side">
@@ -171,20 +172,7 @@
                 <span class="card-badge">Last 30 days</span>
               </div>
               <div class="card-body">
-                <div class="chart-area">
-                  <div class="chart-bar green" style="height:45%"></div>
-                  <div class="chart-bar green" style="height:70%"></div>
-                  <div class="chart-bar red"   style="height:30%"></div>
-                  <div class="chart-bar green" style="height:80%"></div>
-                  <div class="chart-bar green" style="height:55%"></div>
-                  <div class="chart-bar red"   style="height:22%"></div>
-                  <div class="chart-bar green" style="height:88%"></div>
-                  <div class="chart-bar green" style="height:75%"></div>
-                  <div class="chart-bar green" style="height:92%"></div>
-                  <div class="chart-bar red"   style="height:28%"></div>
-                  <div class="chart-bar green" style="height:82%"></div>
-                  <div class="chart-bar green" style="height:100%"></div>
-                </div>
+                <div class="chart-area" id="profitChart" aria-live="polite"></div>
               </div>
             </div>
 
@@ -212,33 +200,9 @@
                       <th>P&amp;L</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">BTC/USD</td>
-                      <td>Long</td>
-                      <td><span class="tag win">WIN</span></td>
-                      <td style="color:var(--accent);font-weight:600;">+$1,240</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">ETH/USD</td>
-                      <td>Long</td>
-                      <td><span class="tag win">WIN</span></td>
-                      <td style="color:var(--accent);font-weight:600;">+$380</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">SOL/USD</td>
-                      <td>Short</td>
-                      <td><span class="tag loss">LOSS</span></td>
-                      <td style="color:var(--red);font-weight:600;">−$95</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">AAPL</td>
-                      <td>Long</td>
-                      <td><span class="tag open">OPEN</span></td>
-                      <td style="color:var(--blue);font-weight:600;">+$210</td>
-                    </tr>
-                  </tbody>
+                  <tbody id="recentTradesBody"></tbody>
                 </table>
+                <p class="empty-table-message" id="emptyRecentTrades">No trades logged yet. Add your first trade from the journal.</p>
               </div>
             </div>
 

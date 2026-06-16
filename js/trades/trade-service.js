@@ -1,6 +1,7 @@
 'use strict';
 
 import { createTrade, TRADE_SCHEMA_VERSION } from './trade.js';
+import { calculateTradeStatistics } from './trade-statistics.js';
 
 export class TradeService {
   constructor({ repository, userId }) {
@@ -25,6 +26,11 @@ export class TradeService {
   async addTrade(input) {
     const trade = createTrade({ ...input, userId: this.userId });
     return this.repository.create(trade);
+  }
+
+  async getStatistics() {
+    const trades = await this.listTrades();
+    return calculateTradeStatistics(trades);
   }
 
   async normalizeTrades(trades) {
