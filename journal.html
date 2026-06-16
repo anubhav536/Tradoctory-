@@ -249,7 +249,11 @@
               <button class="btn btn-primary filter-export" id="exportPdfBtn" type="button">Export PDF</button>
             </div>
           </div>
-          <div class="filter-grid">
+          <div class="filter-grid trade-history-controls">
+            <label class="filter-field search-field span-2">
+              <span>Search</span>
+              <input type="search" id="tradeSearchInput" placeholder="Search date, trade, strategy, direction, P/L, or result" autocomplete="off" />
+            </label>
             <label class="filter-field">
               <span>From Date</span>
               <input type="date" id="fromDateFilter" />
@@ -280,20 +284,25 @@
               </select>
             </label>
             <label class="filter-field">
-              <span>Market</span>
-              <select id="marketFilter">
-                <option value="all">All markets</option>
-                <option value="Nifty">Nifty</option>
-                <option value="BankNifty">BankNifty</option>
-                <option value="Stock">Stock</option>
-                <option value="Crypto">Crypto</option>
-                <option value="Forex">Forex</option>
+              <span>Direction</span>
+              <select id="directionFilter">
+                <option value="all">All directions</option>
+                <option value="Buy">Buy</option>
+                <option value="Sell">Sell</option>
+              </select>
+            </label>
+            <label class="filter-field">
+              <span>Rows</span>
+              <select id="pageSizeSelect">
+                <option value="5">5 per page</option>
+                <option value="10" selected>10 per page</option>
+                <option value="25">25 per page</option>
               </select>
             </label>
           </div>
         </section>
 
-        <!-- Recent trades table -->
+        <!-- Professional trade history table -->
         <section class="card recent-trades-card" aria-labelledby="recentTradesTitle">
           <div class="card-header">
             <div class="card-title" id="recentTradesTitle">
@@ -303,18 +312,33 @@
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
               </div>
-              My Logged Trade Details
+              Trade History
             </div>
-            <span class="card-badge" id="entryCount">0 entries</span>
+            <div class="trade-history-meta">
+              <span class="card-badge" id="entryCount">0 entries</span>
+              <span class="card-badge muted" id="pageRange">Page 1 of 1</span>
+            </div>
           </div>
           <div class="table-wrap">
-            <table class="trade-table journal-table">
+            <table class="trade-table journal-table trade-history-table">
               <thead>
-                <tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>R:R</th><th>Notes</th></tr>
+                <tr>
+                  <th><button class="sort-button" type="button" data-sort="tradeDate">Date <span aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-sort="tradeName">Trade Name <span aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-sort="strategy">Strategy <span aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-sort="direction">Direction <span aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-sort="profitLoss">Profit/Loss <span aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-sort="tradeResult">Result <span aria-hidden="true"></span></button></th>
+                </tr>
               </thead>
               <tbody id="tradeTableBody"></tbody>
             </table>
             <div class="empty-state" id="emptyState" hidden>No trades match the selected filters.</div>
+          </div>
+          <div class="pagination-bar" aria-label="Trade history pagination">
+            <button class="btn btn-ghost pagination-btn" id="prevPageBtn" type="button">Previous</button>
+            <span id="paginationStatus" class="pagination-status">Page 1 of 1</span>
+            <button class="btn btn-ghost pagination-btn" id="nextPageBtn" type="button">Next</button>
           </div>
         </section>
 

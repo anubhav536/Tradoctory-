@@ -1012,3 +1012,165 @@ svg { display: block; flex-shrink: 0; }
 .red { color: var(--red); }
 .blue { color: var(--blue); }
 .tag.breakeven { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+
+/* ── Professional trade history controls ─────────── */
+.trade-history-controls .span-2 { grid-column: span 2; }
+
+.filter-field input[type="search"] {
+  padding-left: 38px;
+  background-image:
+    linear-gradient(transparent, transparent),
+    url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='7' stroke='%238795a8' stroke-width='2'/%3E%3Cpath d='M20 20L16.2 16.2' stroke='%238795a8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px 50%;
+}
+
+.trade-history-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-badge.muted {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+}
+
+.trade-history-table { min-width: 760px; }
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.sort-button span {
+  min-width: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.sort-button.active,
+.sort-button.active span { color: var(--accent); }
+
+.trade-history-row.profit td {
+  background: linear-gradient(90deg, rgba(0,210,106,0.065), transparent 46%);
+}
+
+.trade-history-row.loss td {
+  background: linear-gradient(90deg, rgba(239,68,68,0.065), transparent 46%);
+}
+
+.trade-name-cell strong {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.trade-name-cell span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.direction-pill {
+  display: inline-flex;
+  align-items: center;
+  min-width: 52px;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.04);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pnl-cell { font-weight: 800; }
+.pnl-cell.profit { color: var(--accent); }
+.pnl-cell.loss { color: var(--red); }
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-status {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 640px) {
+  .trade-history-controls .span-2 { grid-column: span 1; }
+
+  .trade-history-table,
+  .trade-history-table thead,
+  .trade-history-table tbody,
+  .trade-history-table th,
+  .trade-history-table td,
+  .trade-history-table tr {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .trade-history-table thead { display: none; }
+
+  .trade-history-table tr {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trade-history-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 0;
+    border: 0;
+    white-space: normal;
+    text-align: right;
+  }
+
+  .trade-history-table td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  .trade-name-cell {
+    align-items: flex-start !important;
+    text-align: right;
+  }
+
+  .pagination-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination-btn { justify-content: center; }
+  .pagination-status { text-align: center; }
+}

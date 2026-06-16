@@ -42,7 +42,13 @@ const fromDateFilter = document.getElementById('fromDateFilter');
 const toDateFilter = document.getElementById('toDateFilter');
 const strategyFilter = document.getElementById('strategyFilter');
 const resultFilter = document.getElementById('resultFilter');
-const marketFilter = document.getElementById('marketFilter');
+const directionFilter = document.getElementById('directionFilter');
+const tradeSearchInput = document.getElementById('tradeSearchInput');
+const pageSizeSelect = document.getElementById('pageSizeSelect');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+const paginationStatus = document.getElementById('paginationStatus');
+const pageRange = document.getElementById('pageRange');
 const resetFilters = document.getElementById('resetFilters');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
 const addTradeBtn = document.getElementById('addTradeBtn');
@@ -52,14 +58,19 @@ const addTradeForm = document.getElementById('addTradeForm');
 const tradeScreenshot = document.getElementById('tradeScreenshot');
 const screenshotFileName = document.getElementById('screenshotFileName');
 const addTradeStatus = document.getElementById('addTradeStatus');
+const sortButtons = document.querySelectorAll('.sort-button');
+
+let currentPage = 1;
+let sortState = { key: 'tradeDate', direction: 'desc' };
 
 function formatDate(value) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(`${value}T00:00:00`));
 }
 
 function formatCurrency(value) {
-  const sign = value >= 0 ? '+' : '−';
-  return `${sign}$${Math.abs(value).toLocaleString()}`;
+  const numericValue = Number(value) || 0;
+  const sign = numericValue >= 0 ? '+' : '−';
+  return `${sign}$${Math.abs(numericValue).toLocaleString()}`;
 }
 
 function escapeHtml(value) {
@@ -95,32 +106,75 @@ function renderTrades() {
   if (!tableBody) return;
 
   const filteredTrades = getFilteredTrades();
+  const sortedTrades = sortTrades(filteredTrades);
+  const pageSize = Number(pageSizeSelect?.value) || 10;
+  const totalPages = Math.max(1, Math.ceil(sortedTrades.length / pageSize));
+  currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const paginatedTrades = sortedTrades.slice(pageStart, pageStart + pageSize);
 
-  tableBody.innerHTML = filteredTrades.map((trade) => {
+  tableBody.innerHTML = paginatedTrades.map((trade) => {
     const tagClass = trade.tradeResult.toLowerCase();
-    const pnlClass = trade.profitLoss >= 0 ? 'var(--accent)' : 'var(--red)';
+    const pnlClass = trade.profitLoss >= 0 ? 'profit' : 'loss';
     return `
-      <tr>
-        <td>${formatDate(trade.tradeDate)}</td>
-        <td>${escapeHtml(trade.marketType)}</td>
-        <td style="color:var(--text-primary);font-weight:600;">${escapeHtml(trade.tradeName)}</td>
-        <td>${escapeHtml(trade.strategy)}</td>
-        <td>${escapeHtml(trade.direction)}</td>
-        <td><span class="tag ${tagClass}">${trade.tradeResult.toUpperCase()}</span></td>
-        <td style="color:${pnlClass};font-weight:700;">${formatCurrency(trade.profitLoss)}</td>
-        <td>${trade.riskRewardRatio}:1</td>
-        <td style="color:var(--text-muted);font-size:12px;">${escapeHtml(trade.notes)}</td>
+      <tr class="trade-history-row ${pnlClass}">
+        <td data-label="Date">${formatDate(trade.tradeDate)}</td>
+        <td data-label="Trade Name" class="trade-name-cell">
+          <strong>${escapeHtml(trade.tradeName)}</strong>
+          <span>${escapeHtml(trade.marketType)}</span>
+        </td>
+        <td data-label="Strategy">${escapeHtml(trade.strategy)}</td>
+        <td data-label="Direction"><span class="direction-pill">${escapeHtml(trade.direction)}</span></td>
+        <td data-label="Profit/Loss" class="pnl-cell ${pnlClass}">${formatCurrency(trade.profitLoss)}</td>
+        <td data-label="Result"><span class="tag ${tagClass}">${trade.tradeResult.toUpperCase()}</span></td>
       </tr>
     `;
   }).join('');
 
+  const rangeStart = sortedTrades.length ? pageStart + 1 : 0;
+  const rangeEnd = Math.min(pageStart + paginatedTrades.length, sortedTrades.length);
   if (entryCount) entryCount.textContent = `${filteredTrades.length} ${filteredTrades.length === 1 ? 'entry' : 'entries'}`;
+  if (pageRange) pageRange.textContent = `${rangeStart}-${rangeEnd} shown`;
+  if (paginationStatus) paginationStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+  if (prevPageBtn) prevPageBtn.disabled = currentPage === 1;
+  if (nextPageBtn) nextPageBtn.disabled = currentPage === totalPages;
   if (emptyState) emptyState.hidden = filteredTrades.length > 0;
+  renderSortIndicators();
   renderSummary();
 }
 
-[fromDateFilter, toDateFilter, strategyFilter, resultFilter, marketFilter].forEach((filter) => {
-  filter?.addEventListener('change', renderTrades);
+[fromDateFilter, toDateFilter, strategyFilter, resultFilter, directionFilter, pageSizeSelect].forEach((filter) => {
+  filter?.addEventListener('change', () => {
+    currentPage = 1;
+    renderTrades();
+  });
+});
+
+tradeSearchInput?.addEventListener('input', () => {
+  currentPage = 1;
+  renderTrades();
+});
+
+sortButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const nextKey = button.dataset.sort;
+    sortState = {
+      key: nextKey,
+      direction: sortState.key === nextKey && sortState.direction === 'asc' ? 'desc' : 'asc'
+    };
+    currentPage = 1;
+    renderTrades();
+  });
+});
+
+prevPageBtn?.addEventListener('click', () => {
+  currentPage = Math.max(1, currentPage - 1);
+  renderTrades();
+});
+
+nextPageBtn?.addEventListener('click', () => {
+  currentPage += 1;
+  renderTrades();
 });
 
 resetFilters?.addEventListener('click', () => {
@@ -128,7 +182,11 @@ resetFilters?.addEventListener('click', () => {
   if (toDateFilter) toDateFilter.value = '';
   if (strategyFilter) strategyFilter.value = 'all';
   if (resultFilter) resultFilter.value = 'all';
-  if (marketFilter) marketFilter.value = 'all';
+  if (directionFilter) directionFilter.value = 'all';
+  if (tradeSearchInput) tradeSearchInput.value = '';
+  if (pageSizeSelect) pageSizeSelect.value = '10';
+  currentPage = 1;
+  sortState = { key: 'tradeDate', direction: 'desc' };
   renderTrades();
 });
 
@@ -177,13 +235,52 @@ addTradeForm?.addEventListener('submit', async (event) => {
 });
 
 function getFilteredTrades() {
+  const query = (tradeSearchInput?.value || '').trim().toLowerCase();
+
   return trades.filter((trade) => {
+    const searchableText = [
+      trade.tradeDate,
+      trade.tradeName,
+      trade.strategy,
+      trade.direction,
+      formatCurrency(trade.profitLoss),
+      trade.tradeResult,
+      trade.marketType
+    ].join(' ').toLowerCase();
+    const matchesSearch = !query || searchableText.includes(query);
     const matchesFromDate = !fromDateFilter?.value || trade.tradeDate >= fromDateFilter.value;
     const matchesToDate = !toDateFilter?.value || trade.tradeDate <= toDateFilter.value;
     const matchesStrategy = strategyFilter?.value === 'all' || trade.strategy === strategyFilter?.value;
     const matchesResult = resultFilter?.value === 'all' || trade.tradeResult === resultFilter?.value;
-    const matchesMarket = marketFilter?.value === 'all' || trade.marketType === marketFilter?.value;
-    return matchesFromDate && matchesToDate && matchesStrategy && matchesResult && matchesMarket;
+    const matchesDirection = directionFilter?.value === 'all' || trade.direction === directionFilter?.value;
+    return matchesSearch && matchesFromDate && matchesToDate && matchesStrategy && matchesResult && matchesDirection;
+  });
+}
+
+function sortTrades(items) {
+  return [...items].sort((firstTrade, secondTrade) => {
+    const firstValue = firstTrade[sortState.key];
+    const secondValue = secondTrade[sortState.key];
+    const directionModifier = sortState.direction === 'asc' ? 1 : -1;
+
+    if (sortState.key === 'profitLoss') {
+      return ((Number(firstValue) || 0) - (Number(secondValue) || 0)) * directionModifier;
+    }
+
+    return String(firstValue || '').localeCompare(String(secondValue || ''), undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    }) * directionModifier;
+  });
+}
+
+function renderSortIndicators() {
+  sortButtons.forEach((button) => {
+    const isActive = button.dataset.sort === sortState.key;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-sort', isActive ? (sortState.direction === 'asc' ? 'ascending' : 'descending') : 'none');
+    const indicator = button.querySelector('span');
+    if (indicator) indicator.textContent = isActive ? (sortState.direction === 'asc' ? '↑' : '↓') : '↕';
   });
 }
 
