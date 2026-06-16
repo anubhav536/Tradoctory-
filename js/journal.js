@@ -6,6 +6,7 @@
 import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
+import { isClosedTrade } from './trades/trade.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -68,7 +69,7 @@ function escapeHtml(value) {
 }
 
 function renderSummary() {
-  const closedTrades = trades.filter((trade) => trade.tradeResult !== 'Open');
+  const closedTrades = trades.filter(isClosedTrade);
   const wins = trades.filter((trade) => trade.tradeResult === 'Win').length;
   const losses = trades.filter((trade) => trade.tradeResult === 'Loss').length;
   const totalPnlValue = trades.reduce((total, trade) => total + trade.profitLoss, 0);
@@ -111,6 +112,7 @@ function renderTrades() {
         <td>${escapeHtml(trade.direction)}</td>
         <td><span class="tag ${tagClass}">${trade.tradeResult.toUpperCase()}</span></td>
         <td style="color:${pnlClass};font-weight:700;">${formatCurrency(trade.profitLoss)}</td>
+        <td>${trade.riskRewardRatio}:1</td>
         <td style="color:var(--text-muted);font-size:12px;">${escapeHtml(trade.notes)}</td>
       </tr>
     `;
@@ -163,6 +165,8 @@ addTradeForm?.addEventListener('submit', async (event) => {
     capital: formData.get('capitalUsed'),
     entryPrice: formData.get('entryPrice'),
     exitPrice: formData.get('exitPrice'),
+    stopLoss: formData.get('stopLoss'),
+    target: formData.get('target'),
     emotion: formData.get('emotionBeforeTrade'),
     notes: formData.get('tradeNotes'),
     screenshot: await getScreenshotPayload(tradeScreenshot?.files?.[0])
@@ -170,7 +174,7 @@ addTradeForm?.addEventListener('submit', async (event) => {
 
   trades = [trade, ...trades];
   addTradeForm.dataset.lastAiPayload = JSON.stringify(trade);
-  if (addTradeStatus) addTradeStatus.textContent = `Trade saved locally. P/L: ${formatCurrency(trade.profitLoss)} · ${trade.tradeResult}.`;
+  if (addTradeStatus) addTradeStatus.textContent = `Trade saved locally. P/L: ${formatCurrency(trade.profitLoss)} · R:R ${trade.riskRewardRatio}:1 · ${trade.tradeResult}.`;
   addTradeForm.reset();
   if (screenshotFileName) screenshotFileName.textContent = 'PNG, JPG, or WebP evidence for future AI review.';
   renderTrades();
@@ -204,7 +208,7 @@ function renderPdfReport() {
     const screenshot = typeof trade.screenshot === 'object' && trade.screenshot?.dataUrl
       ? `<img src="${trade.screenshot.dataUrl}" alt="${escapeHtml(trade.screenshot.name || 'Trade screenshot')}" />`
       : escapeHtml(typeof trade.screenshot === 'string' ? trade.screenshot : '');
-    return `<tr><td>${formatDate(trade.tradeDate)}</td><td>${escapeHtml(trade.marketType)}</td><td>${escapeHtml(trade.tradeName)}</td><td>${escapeHtml(trade.strategy)}</td><td>${escapeHtml(trade.direction)}</td><td>${trade.tradeResult}</td><td>${formatCurrency(trade.profitLoss)}</td><td>${escapeHtml(trade.notes)}</td><td>${screenshot}</td></tr>`;
+    return `<tr><td>${formatDate(trade.tradeDate)}</td><td>${escapeHtml(trade.marketType)}</td><td>${escapeHtml(trade.tradeName)}</td><td>${escapeHtml(trade.strategy)}</td><td>${escapeHtml(trade.direction)}</td><td>${trade.tradeResult}</td><td>${formatCurrency(trade.profitLoss)}</td><td>${trade.riskRewardRatio}:1</td><td>${escapeHtml(trade.notes)}</td><td>${screenshot}</td></tr>`;
   }).join('');
 
   const reportWindow = window.open('', '_blank');
@@ -212,7 +216,7 @@ function renderPdfReport() {
     if (addTradeStatus) addTradeStatus.textContent = 'Please allow pop-ups to export the trade PDF.';
     return;
   }
-  reportWindow.document.write(`<!doctype html><html><head><title>Trade Report ${rangeLabel}</title><style>body{font-family:Inter,Arial,sans-serif;padding:24px;color:#111}h1{margin-bottom:4px}.meta{color:#555;margin-bottom:20px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ddd;padding:8px;vertical-align:top}th{background:#f4f6f8;text-align:left}img{max-width:180px;max-height:120px;border:1px solid #ddd}@media print{@page{size:landscape;margin:12mm}}</style></head><body><h1>My Logged Trade Details</h1><div class="meta">Range: ${escapeHtml(rangeLabel)} · Total: ${reportTrades.length}</div><table><thead><tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>Notes</th><th>Screenshot</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No trades in selected range.</td></tr>'}</tbody></table><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  reportWindow.document.write(`<!doctype html><html><head><title>Trade Report ${rangeLabel}</title><style>body{font-family:Inter,Arial,sans-serif;padding:24px;color:#111}h1{margin-bottom:4px}.meta{color:#555;margin-bottom:20px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ddd;padding:8px;vertical-align:top}th{background:#f4f6f8;text-align:left}img{max-width:180px;max-height:120px;border:1px solid #ddd}@media print{@page{size:landscape;margin:12mm}}</style></head><body><h1>My Logged Trade Details</h1><div class="meta">Range: ${escapeHtml(rangeLabel)} · Total: ${reportTrades.length}</div><table><thead><tr><th>Date</th><th>Market</th><th>Symbol</th><th>Strategy</th><th>Direction</th><th>Result</th><th>P&amp;L</th><th>R:R</th><th>Notes</th><th>Screenshot</th></tr></thead><tbody>${rows || '<tr><td colspan="10">No trades in selected range.</td></tr>'}</tbody></table><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
   reportWindow.document.close();
 }
 

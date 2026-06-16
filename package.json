@@ -11,5 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "serve": "^14.2.6"
-  }
+  },
+  "type": "module"
 }

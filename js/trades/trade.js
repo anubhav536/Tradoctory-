@@ -4,17 +4,24 @@ export const TRADE_SCHEMA_VERSION = 'tradoctory.trade.v1';
 
 const BUY_DIRECTIONS = new Set(['buy', 'long']);
 const SELL_DIRECTIONS = new Set(['sell', 'short']);
+const CLOSED_RESULTS = new Set(['Win', 'Loss', 'Breakeven']);
 
-function toNumber(value, fallback = 0) {
+export function toNumber(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 }
 
-function roundMoney(value) {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+function roundTo(value, precision = 2) {
+  const multiplier = 10 ** precision;
+  return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
 }
 
-function normalizeDirection(direction) {
+function createId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `trade_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function normalizeDirection(direction) {
   const value = String(direction || '').trim();
   const lowerValue = value.toLowerCase();
 
@@ -33,7 +40,7 @@ export function calculateProfitLoss({ direction, capital, entryPrice, exitPrice 
 
   const positionSize = capitalValue / entry;
   const priceDifference = normalizedDirection === 'Sell' ? entry - exit : exit - entry;
-  return roundMoney(priceDifference * positionSize);
+  return roundTo(priceDifference * positionSize, 2);
 }
 
 export function calculateRiskRewardRatio({ direction, entryPrice, stopLoss, target }) {
@@ -48,7 +55,7 @@ export function calculateRiskRewardRatio({ direction, entryPrice, stopLoss, targ
   const reward = normalizedDirection === 'Sell' ? entry - targetPrice : targetPrice - entry;
 
   if (risk <= 0 || reward <= 0) return 0;
-  return Math.round((reward / risk + Number.EPSILON) * 100) / 100;
+  return roundTo(reward / risk, 2);
 }
 
 export function calculateTradeResult(profitLoss, exitPrice) {
@@ -56,6 +63,10 @@ export function calculateTradeResult(profitLoss, exitPrice) {
   if (profitLoss > 0) return 'Win';
   if (profitLoss < 0) return 'Loss';
   return 'Breakeven';
+}
+
+export function isClosedTrade(trade) {
+  return CLOSED_RESULTS.has(trade?.tradeResult);
 }
 
 export function createTrade(input = {}) {
@@ -71,7 +82,7 @@ export function createTrade(input = {}) {
 
   return {
     schemaVersion: TRADE_SCHEMA_VERSION,
-    id: input.id || crypto.randomUUID(),
+    id: input.id || createId(),
     userId: input.userId || '',
     tradeName: String(input.tradeName || '').trim(),
     marketType: String(input.marketType || '').trim(),
