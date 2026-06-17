@@ -20,10 +20,20 @@ function roundTo(value, precision = 2) {
   return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
 }
 
-function getTradeTimestamp(trade) {
-  const value = trade?.createdAt || (trade?.tradeDate ? `${trade.tradeDate}T00:00:00` : '');
-  const timestamp = Date.parse(value);
+function parseTimestamp(value) {
+  const timestamp = Date.parse(value || '');
   return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function getExecutionTimestamp(trade) {
+  const explicitExecutionTime = trade?.executedAt || trade?.executionTime || trade?.entryTime || trade?.openedAt;
+  return parseTimestamp(explicitExecutionTime);
+}
+
+function getSortTimestamp(trade) {
+  return getExecutionTimestamp(trade)
+    || parseTimestamp(trade?.tradeDate ? `${trade.tradeDate}T00:00:00` : '')
+    || parseTimestamp(trade?.createdAt);
 }
 
 function getTradeDay(trade) {
@@ -99,7 +109,7 @@ function analyzeOvertrading(trades, rules) {
 }
 
 function analyzeRevengeTrading(trades, rules) {
-  const sortedTrades = [...trades].sort((a, b) => getTradeTimestamp(a) - getTradeTimestamp(b));
+  const sortedTrades = [...trades].sort((a, b) => getSortTimestamp(a) - getSortTimestamp(b));
   const sequences = [];
   let lossStreak = [];
 
@@ -111,10 +121,14 @@ function analyzeRevengeTrading(trades, rules) {
 
     if (lossStreak.length >= rules.revengeLossStreak) {
       const previousLoss = lossStreak.at(-1);
-      const minutesAfterLoss = (getTradeTimestamp(trade) - getTradeTimestamp(previousLoss)) / 60000;
-      const sameDayFallback = !trade.createdAt && getTradeDay(trade) === getTradeDay(previousLoss);
-      if ((minutesAfterLoss >= 0 && minutesAfterLoss <= rules.revengeWindowMinutes) || sameDayFallback) {
-        sequences.push({ losses: [...lossStreak], nextTrade: trade, minutesAfterLoss: roundTo(minutesAfterLoss, 1) });
+      const tradeExecutionTimestamp = getExecutionTimestamp(trade);
+      const previousLossExecutionTimestamp = getExecutionTimestamp(previousLoss);
+
+      if (tradeExecutionTimestamp && previousLossExecutionTimestamp) {
+        const minutesAfterLoss = (tradeExecutionTimestamp - previousLossExecutionTimestamp) / 60000;
+        if (minutesAfterLoss >= 0 && minutesAfterLoss <= rules.revengeWindowMinutes) {
+          sequences.push({ losses: [...lossStreak], nextTrade: trade, minutesAfterLoss: roundTo(minutesAfterLoss, 1) });
+        }
       }
     }
 
@@ -129,17 +143,23 @@ function analyzeRevengeTrading(trades, rules) {
 }
 
 function analyzeFomoTrading(trades, rules) {
-  const fomoTrades = trades.filter((trade) => {
+  const lowRiskRewardTrades = trades.filter((trade) => {
     const ratio = toNumber(trade?.riskRewardRatio);
-    const emotion = getEmotionKey(trade);
-    return (ratio > 0 && ratio < rules.fomoRiskRewardThreshold) || FOMO_EMOTIONS.has(emotion);
+    return ratio > 0 && ratio < rules.fomoRiskRewardThreshold;
   });
+  const emotionDrivenTrades = trades.filter((trade) => FOMO_EMOTIONS.has(getEmotionKey(trade)));
+  const fomoTrades = [...new Map([...lowRiskRewardTrades, ...emotionDrivenTrades].map((trade) => [trade.id || trade, trade])).values()];
+  const observations = [];
 
-  const observations = fomoTrades.length
-    ? [createObservation('fomo-trading', 'warning', `${fomoTrades.length} trade${fomoTrades.length === 1 ? ' was' : 's were'} entered below the ideal ${rules.idealRiskReward}:1 risk-reward profile.`, summarizeTrades(fomoTrades))]
-    : [];
+  if (lowRiskRewardTrades.length) {
+    observations.push(createObservation('fomo-trading', 'warning', `${lowRiskRewardTrades.length} trade${lowRiskRewardTrades.length === 1 ? ' was' : 's were'} entered below the ideal ${rules.idealRiskReward}:1 risk-reward profile.`, summarizeTrades(lowRiskRewardTrades)));
+  }
 
-  return { trades: fomoTrades, summary: summarizeTrades(fomoTrades), observations };
+  if (emotionDrivenTrades.length) {
+    observations.push(createObservation('fomo-trading', 'warning', `${emotionDrivenTrades.length} trade${emotionDrivenTrades.length === 1 ? ' had' : 's had'} FOMO-like emotions logged; review whether the setup still matched your plan.`, summarizeTrades(emotionDrivenTrades)));
+  }
+
+  return { trades: fomoTrades, lowRiskRewardTrades, emotionDrivenTrades, summary: summarizeTrades(fomoTrades), observations };
 }
 
 function analyzeConsistency(trades, rules) {

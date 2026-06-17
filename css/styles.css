@@ -83,12 +83,17 @@ button { cursor: pointer; border: none; background: none; font-family: var(--fon
 
 /* ===== REVEAL ANIMATIONS ===== */
 .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.js-animations-enabled .reveal {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1),
               transform 0.65s cubic-bezier(0.16,1,0.3,1);
 }
-.reveal.visible {
+body.js-animations-enabled .reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }

@@ -4,6 +4,8 @@
 
 'use strict';
 
+document.body?.classList.add('js-animations-enabled');
+
 /* ===== SCROLL PROGRESS BAR ===== */
 (function initScrollProgress() {
   const bar = document.getElementById('scroll-progress');
@@ -382,6 +384,8 @@
 (function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
       const id     = anchor.getAttribute('href');
       const target = document.querySelector(id);
       if (!target) return;
