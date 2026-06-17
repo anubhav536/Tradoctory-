@@ -736,6 +736,86 @@ svg { display: block; flex-shrink: 0; }
   transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
 }
 
+.tag-field {
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(8,12,20,0.42);
+}
+
+.tag-field legend {
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tag-field small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.tag-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 10px;
+}
+
+.tag-picker label {
+  cursor: pointer;
+}
+
+.tag-picker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tag-picker span,
+.trade-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(0,210,106,0.24);
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: var(--accent);
+  background: rgba(0,210,106,0.09);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tag-picker input:focus-visible + span {
+  outline: 2px solid rgba(0,210,106,0.65);
+  outline-offset: 2px;
+}
+
+.tag-picker input:checked + span {
+  border-color: rgba(0,210,106,0.72);
+  color: #03120a;
+  background: var(--accent);
+}
+
+.trade-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.trade-tag-chip {
+  padding: 5px 9px;
+  font-size: 11px;
+}
+
+.trade-tag-chip.muted {
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+}
+
 .filter-field input:focus,
 .filter-field select:focus {
   border-color: rgba(0,210,106,0.55);

@@ -184,6 +184,18 @@
 
             <div class="form-section-label">Psychology & Evidence</div>
             <div class="premium-form-grid">
+              <fieldset class="premium-field tag-field span-2" data-ai-key="classification.tags">
+                <legend>Trade Tags</legend>
+                <div class="tag-picker" aria-label="Trade tags">
+                  <label><input type="checkbox" name="tradeTags" value="#Breakout" /> <span>#Breakout</span></label>
+                  <label><input type="checkbox" name="tradeTags" value="#Scalp" /> <span>#Scalp</span></label>
+                  <label><input type="checkbox" name="tradeTags" value="#Swing" /> <span>#Swing</span></label>
+                  <label><input type="checkbox" name="tradeTags" value="#NewsTrade" /> <span>#NewsTrade</span></label>
+                  <label><input type="checkbox" name="tradeTags" value="#HighRisk" /> <span>#HighRisk</span></label>
+                  <label><input type="checkbox" name="tradeTags" value="#LowRisk" /> <span>#LowRisk</span></label>
+                </div>
+                <small>Tags are saved in the trade record for filtering and future AI learning.</small>
+              </fieldset>
               <label class="premium-field">
                 <span>Emotion Before Trade</span>
                 <select name="emotionBeforeTrade" required data-ai-key="psychology.emotion_before">
@@ -292,6 +304,18 @@
               </select>
             </label>
             <label class="filter-field">
+              <span>Tag</span>
+              <select id="tagFilter">
+                <option value="all">All tags</option>
+                <option value="#Breakout">#Breakout</option>
+                <option value="#Scalp">#Scalp</option>
+                <option value="#Swing">#Swing</option>
+                <option value="#NewsTrade">#NewsTrade</option>
+                <option value="#HighRisk">#HighRisk</option>
+                <option value="#LowRisk">#LowRisk</option>
+              </select>
+            </label>
+            <label class="filter-field">
               <span>Rows</span>
               <select id="pageSizeSelect">
                 <option value="5">5 per page</option>
@@ -326,6 +350,7 @@
                   <th><button class="sort-button" type="button" data-sort="tradeDate">Date <span aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-sort="tradeName">Trade Name <span aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-sort="strategy">Strategy <span aria-hidden="true"></span></button></th>
+                  <th>Tags</th>
                   <th><button class="sort-button" type="button" data-sort="direction">Direction <span aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-sort="profitLoss">Profit/Loss <span aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-sort="tradeResult">Result <span aria-hidden="true"></span></button></th>
