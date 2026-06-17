@@ -38,7 +38,9 @@ export class TradeService {
     const needsPersistence = trades.some((trade, index) => trade.schemaVersion !== TRADE_SCHEMA_VERSION
       || trade.profitLoss !== normalizedTrades[index].profitLoss
       || trade.riskRewardRatio !== normalizedTrades[index].riskRewardRatio
-      || trade.tradeResult !== normalizedTrades[index].tradeResult);
+      || trade.tradeResult !== normalizedTrades[index].tradeResult
+      || JSON.stringify(trade.tags || []) !== JSON.stringify(normalizedTrades[index].tags)
+      || !trade.aiLearningProfile);
 
     if (needsPersistence) await this.repository.saveAll(normalizedTrades);
     return normalizedTrades;

@@ -2,6 +2,17 @@
 
 export const TRADE_SCHEMA_VERSION = 'tradoctory.trade.v1';
 
+export const TRADE_TAGS = Object.freeze([
+  '#Breakout',
+  '#Scalp',
+  '#Swing',
+  '#NewsTrade',
+  '#HighRisk',
+  '#LowRisk'
+]);
+
+export const AI_LEARNING_SCHEMA_VERSION = 'tradoctory.ai-learning.v1';
+
 const BUY_DIRECTIONS = new Set(['buy', 'long']);
 const SELL_DIRECTIONS = new Set(['sell', 'short']);
 const CLOSED_RESULTS = new Set(['Win', 'Loss', 'Breakeven']);
@@ -28,6 +39,32 @@ export function normalizeDirection(direction) {
   if (BUY_DIRECTIONS.has(lowerValue)) return 'Buy';
   if (SELL_DIRECTIONS.has(lowerValue)) return 'Sell';
   return value || 'Buy';
+}
+
+export function normalizeTradeTags(tags = []) {
+  const rawTags = Array.isArray(tags) ? tags : [tags];
+  const allowedTagsByKey = new Map(TRADE_TAGS.map((tag) => [tag.toLowerCase(), tag]));
+
+  return [...new Set(rawTags
+    .map((tag) => String(tag || '').trim())
+    .map((tag) => (tag && !tag.startsWith('#') ? `#${tag}` : tag))
+    .map((tag) => allowedTagsByKey.get(tag.toLowerCase()))
+    .filter(Boolean))];
+}
+
+function createAiLearningProfile({ tags, strategy, emotion, riskRewardRatio, tradeResult }) {
+  return {
+    schemaVersion: AI_LEARNING_SCHEMA_VERSION,
+    tags,
+    features: {
+      strategy,
+      emotion,
+      riskRewardRatio,
+      tradeResult
+    },
+    labels: [],
+    notes: 'Reserved for future AI learning, clustering, and recommendation workflows.'
+  };
 }
 
 export function calculateProfitLoss({ direction, capital, entryPrice, exitPrice }) {
@@ -79,6 +116,10 @@ export function createTrade(input = {}) {
   const target = toNumber(input.target);
   const profitLoss = calculateProfitLoss({ direction, capital, entryPrice, exitPrice });
   const riskRewardRatio = calculateRiskRewardRatio({ direction, entryPrice, stopLoss, target });
+  const strategy = String(input.strategy || '').trim();
+  const emotion = String(input.emotion || '').trim();
+  const tradeResult = calculateTradeResult(profitLoss, exitPrice);
+  const tags = normalizeTradeTags(input.tags);
 
   return {
     schemaVersion: TRADE_SCHEMA_VERSION,
@@ -87,7 +128,7 @@ export function createTrade(input = {}) {
     tradeName: String(input.tradeName || '').trim(),
     marketType: String(input.marketType || '').trim(),
     direction,
-    strategy: String(input.strategy || '').trim(),
+    strategy,
     capital,
     entryPrice,
     exitPrice,
@@ -95,8 +136,10 @@ export function createTrade(input = {}) {
     target,
     profitLoss,
     riskRewardRatio,
-    tradeResult: calculateTradeResult(profitLoss, exitPrice),
-    emotion: String(input.emotion || '').trim(),
+    tradeResult,
+    tags,
+    aiLearningProfile: createAiLearningProfile({ tags, strategy, emotion, riskRewardRatio, tradeResult }),
+    emotion,
     notes: String(input.notes || '').trim(),
     screenshot: input.screenshot || '',
     tradeDate: input.tradeDate || now.slice(0, 10),
