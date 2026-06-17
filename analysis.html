@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tradoctory AI Analysis — AI-powered insights on your trading patterns." />
-  <title>AI Analysis — Tradoctory</title>
+  <meta name="description" content="Tradoctory Behavior Analysis — rule-based insights on your trading patterns." />
+  <title>Behavior Analysis — Tradoctory</title>
 
   <!--
     ROUTE GUARD — inline script runs before ANYTHING else.
@@ -53,7 +53,7 @@
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
-          AI Analysis
+          Behavior Analysis
         </a>
       </div>
 
@@ -81,13 +81,13 @@
       <!-- Top bar -->
       <header class="topbar">
         <div class="topbar-left">
-          <div class="topbar-title">AI Analysis</div>
-          <div class="topbar-subtitle">AI-powered insights on your trading patterns</div>
+          <div class="topbar-title">Behavior Analysis</div>
+          <div class="topbar-subtitle">Rule-based insights from your saved trade journal</div>
         </div>
         <div class="topbar-right">
           <div class="topbar-badge">
             <span class="live-dot"></span>
-            Updated daily
+            Local rules
           </div>
           <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
             <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -104,24 +104,24 @@
         <!-- Stats row -->
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-label">Accuracy Rate</div>
-            <div class="stat-value blue">70.4%</div>
-            <div class="stat-delta up">↑ AI prediction accuracy</div>
+            <div class="stat-label">Profitable Days</div>
+            <div class="stat-value blue" id="profitableDaysStat">0/0</div>
+            <div class="stat-delta up" id="profitableDaysDelta">based on closed trade P&amp;L</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Patterns Detected</div>
-            <div class="stat-value">12</div>
-            <div class="stat-delta">across your trades</div>
+            <div class="stat-value" id="patternsDetectedStat">0</div>
+            <div class="stat-delta">rule-based observations</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Risk Score</div>
-            <div class="stat-value green">Low</div>
-            <div class="stat-delta up">↑ Improved this week</div>
+            <div class="stat-label">Behavior Risk</div>
+            <div class="stat-value green" id="behaviorRiskStat">Low</div>
+            <div class="stat-delta up" id="behaviorRiskDelta">Overtrading, revenge and FOMO checks</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Avg Performance Lift</div>
-            <div class="stat-value">1.8×</div>
-            <div class="stat-delta">vs. unassisted trading</div>
+            <div class="stat-label">Avg R:R</div>
+            <div class="stat-value" id="avgRiskRewardStat">0:1</div>
+            <div class="stat-delta">logged risk-reward quality</div>
           </div>
         </div>
 
@@ -144,41 +144,8 @@
                 </div>
                 <span class="card-badge">This Month</span>
               </div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-                <div class="ai-insight">
-                  <div class="ai-insight-icon">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
-                  <div><strong>Best time to trade:</strong> Your win rate peaks at 73% between 9–11 AM EST. Trades after 3 PM show a 48% win rate.</div>
-                </div>
-                <div class="ai-insight">
-                  <div class="ai-insight-icon">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                  </div>
-                  <div><strong>Overtrading detected:</strong> On days with 5+ trades, your P&amp;L is negative 78% of the time. Consider a 3-trade daily limit.</div>
-                </div>
-                <div class="ai-insight">
-                  <div class="ai-insight-icon">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                      <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                  </div>
-                  <div><strong>Strongest setup:</strong> BTC/USD breakout trades on the daily chart — 82% win rate over last 30 entries.</div>
-                </div>
-                <div class="ai-insight">
-                  <div class="ai-insight-icon">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                  </div>
-                  <div><strong>Risk warning:</strong> Average stop loss on volatile pairs is 2.8R — above your 2R target. Reduce size or tighten stops.</div>
-                </div>
+              <div class="card-body" id="keyInsightsList" style="display:flex;flex-direction:column;gap:10px;">
+                <div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading behavior observations…</div></div>
               </div>
             </div>
 
@@ -206,42 +173,8 @@
                       <th>Avg R:R</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">BTC/USD</td>
-                      <td>18</td>
-                      <td style="color:var(--accent);font-weight:600;">82%</td>
-                      <td style="color:var(--accent);font-weight:600;">+$3,210</td>
-                      <td>1:2.8</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">ETH/USD</td>
-                      <td>12</td>
-                      <td style="color:var(--accent);font-weight:600;">75%</td>
-                      <td style="color:var(--accent);font-weight:600;">+$1,440</td>
-                      <td>1:2.1</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">SOL/USD</td>
-                      <td>8</td>
-                      <td style="color:var(--red);font-weight:600;">50%</td>
-                      <td style="color:var(--red);font-weight:600;">−$280</td>
-                      <td>1:1.4</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">EUR/USD</td>
-                      <td>6</td>
-                      <td style="color:var(--accent);font-weight:600;">67%</td>
-                      <td style="color:var(--accent);font-weight:600;">+$560</td>
-                      <td>1:2.4</td>
-                    </tr>
-                    <tr>
-                      <td style="color:var(--text-primary);font-weight:600;">TSLA</td>
-                      <td>4</td>
-                      <td style="color:var(--red);font-weight:600;">25%</td>
-                      <td style="color:var(--red);font-weight:600;">−$110</td>
-                      <td>1:1.1</td>
-                    </tr>
+                  <tbody id="performanceTableBody">
+                    <tr><td colspan="5">Loading saved trades…</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -265,33 +198,8 @@
                   Psychological Patterns
                 </div>
               </div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-                <div class="ai-insight" style="border-left-color:var(--red);">
-                  <div class="ai-insight-icon" style="background:var(--red-dim);color:var(--red);">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                      <line x1="12" y1="9" x2="12" y2="13"/>
-                    </svg>
-                  </div>
-                  <div><strong>Revenge trading</strong> detected after 3 consecutive losses — you tend to increase size by 40% on the next trade.</div>
-                </div>
-                <div class="ai-insight" style="border-left-color:var(--red);">
-                  <div class="ai-insight-icon" style="background:var(--red-dim);color:var(--red);">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
-                  <div><strong>Early exits</strong> — you close winning trades 35% before your target on average, cutting profit potential.</div>
-                </div>
-                <div class="ai-insight">
-                  <div class="ai-insight-icon">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                      <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                  </div>
-                  <div><strong>Good discipline:</strong> You respect your stop losses 91% of the time — better than 80% of tracked traders.</div>
-                </div>
+              <div class="card-body" id="psychologyPatternsList" style="display:flex;flex-direction:column;gap:10px;">
+                <div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading psychology patterns…</div></div>
               </div>
             </div>
 
@@ -307,31 +215,16 @@
                   </div>
                   Improvement Plan
                 </div>
-                <span class="card-badge">AI Generated</span>
+                <span class="card-badge">Rule Based</span>
               </div>
               <div class="card-body">
-                <div style="display:flex;flex-direction:column;gap:12px;">
-                  <div style="display:flex;gap:12px;align-items:flex-start;">
-                    <div style="width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-                    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Limit to 3 trades/day</strong> — your overtrading pattern costs an average of $180 per extra trade taken.</div>
-                  </div>
-                  <div style="display:flex;gap:12px;align-items:flex-start;">
-                    <div style="width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
-                    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Avoid SOL/USD</strong> — below-average win rate and poor R:R. Reallocate capital to BTC/USD setups.</div>
-                  </div>
-                  <div style="display:flex;gap:12px;align-items:flex-start;">
-                    <div style="width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
-                    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Trade 9–11 AM only</strong> — focus entries in your peak window and avoid evening sessions entirely.</div>
-                  </div>
-                  <div style="display:flex;gap:12px;align-items:flex-start;">
-                    <div style="width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
-                    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Set a loss limit</strong> — after 2 losses in a day, step away. Your 3rd+ loss probability is 76%.</div>
-                  </div>
+                <div id="improvementPlanList" style="display:flex;flex-direction:column;gap:12px;">
+                  <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Loading recommendations…</div>
                 </div>
               </div>
             </div>
 
-            <!-- Full AI analysis CTA -->
+            <!-- Behavior report CTA -->
             <div class="card" style="background:linear-gradient(135deg,rgba(0,210,106,0.08),rgba(0,168,84,0.04));border-color:rgba(0,210,106,0.2);">
               <div class="card-body" style="text-align:center;padding:28px 20px;">
                 <div style="width:44px;height:44px;border-radius:12px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
@@ -340,9 +233,9 @@
                     <line x1="12" y1="17" x2="12.01" y2="17"/>
                   </svg>
                 </div>
-                <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Deep AI Report</div>
-                <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">Get a full breakdown of your trading psychology, pattern recognition, and a personalised improvement roadmap.</div>
-                <button class="btn btn-primary">Generate Full Report</button>
+                <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Behavior Report</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">Review rule-based trading psychology, pattern recognition, and a personalized improvement roadmap.</div>
+                <button class="btn btn-primary">Refresh Analysis</button>
               </div>
             </div>
 
