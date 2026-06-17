@@ -88,29 +88,29 @@ function renderStats(report, trades) {
   document.getElementById('avgRiskRewardStat')?.replaceChildren(`${averageRiskReward(trades)}:1`);
 }
 
-function renderPerformanceByStrategy(trades) {
+function renderPerformanceByPair(trades) {
   const tableBody = document.getElementById('performanceTableBody');
   if (!tableBody) return;
 
-  const byStrategy = trades.reduce((groups, trade) => {
-    const key = trade.strategy || 'Unlabeled';
+  const byPair = trades.reduce((groups, trade) => {
+    const key = trade.tradeName || trade.marketType || 'Unlabeled';
     groups[key] = groups[key] || [];
     groups[key].push(trade);
     return groups;
   }, {});
 
-  const rows = Object.entries(byStrategy).map(([strategy, strategyTrades]) => {
-    const closed = strategyTrades.filter((trade) => ['Win', 'Loss', 'Breakeven'].includes(trade.tradeResult));
+  const rows = Object.entries(byPair).map(([pair, pairTrades]) => {
+    const closed = pairTrades.filter((trade) => ['Win', 'Loss', 'Breakeven'].includes(trade.tradeResult));
     const wins = closed.filter((trade) => trade.tradeResult === 'Win').length;
-    const pnl = strategyTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
-    const avgRr = averageRiskReward(strategyTrades);
-    return { strategy, trades: strategyTrades.length, winRate: closed.length ? Math.round((wins / closed.length) * 100) : 0, pnl, avgRr };
+    const pnl = pairTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
+    const avgRr = averageRiskReward(pairTrades);
+    return { pair, trades: pairTrades.length, winRate: closed.length ? Math.round((wins / closed.length) * 100) : 0, pnl, avgRr };
   }).sort((a, b) => b.pnl - a.pnl).slice(0, 5);
 
   tableBody.innerHTML = rows.length ? rows.map((row) => {
     const pnlClass = row.pnl >= 0 ? 'var(--accent)' : 'var(--red)';
     return `<tr>
-      <td style="color:var(--text-primary);font-weight:600;">${escapeHtml(row.strategy)}</td>
+      <td style="color:var(--text-primary);font-weight:600;">${escapeHtml(row.pair)}</td>
       <td>${row.trades}</td>
       <td style="color:${row.winRate >= 50 ? 'var(--accent)' : 'var(--red)'};font-weight:600;">${row.winRate}%</td>
       <td style="color:${pnlClass};font-weight:600;">${formatCurrency(row.pnl)}</td>
@@ -126,7 +126,8 @@ function renderImprovementPlan(report) {
   const recommendations = [];
   if (report.overtrading.overtradedDays.length) recommendations.push(`Limit to ${report.rules.overtradeDailyLimit} trades/day to control overtrading.`);
   if (report.revengeTrading.sequences.length) recommendations.push(`Pause after ${report.rules.revengeLossStreak} losses before taking another trade.`);
-  if (report.fomoTrading.trades.length) recommendations.push(`Avoid entries below ${report.rules.fomoRiskRewardThreshold}:1 R:R unless your plan explicitly allows them.`);
+  if (report.fomoTrading.lowRiskRewardTrades.length) recommendations.push(`Avoid entries below ${report.rules.fomoRiskRewardThreshold}:1 R:R unless your plan explicitly allows them.`);
+  if (report.fomoTrading.emotionDrivenTrades.length) recommendations.push('When FOMO-like emotions appear, verify the setup against your written plan before entering.');
   recommendations.push('Review profitable days weekly and repeat the strategy, emotion, and market conditions that worked.');
 
   plan.innerHTML = recommendations.map((text, index) => `<div style="display:flex;gap:12px;align-items:flex-start;">
@@ -147,7 +148,7 @@ function renderReport(report, trades) {
     psychology.innerHTML = psychologyObservations.length ? psychologyObservations.map(renderObservation).join('') : renderObservation({ severity: 'positive', message: 'No psychology risk pattern has enough evidence yet.' });
   }
 
-  renderPerformanceByStrategy(trades);
+  renderPerformanceByPair(trades);
   renderImprovementPlan(report);
 }
 

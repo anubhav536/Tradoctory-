@@ -52,18 +52,24 @@ export function normalizeTradeTags(tags = []) {
     .filter(Boolean))];
 }
 
-function createAiLearningProfile({ tags, strategy, emotion, riskRewardRatio, tradeResult }) {
+function createAiLearningProfile({ existingProfile = {}, tags, strategy, emotion, riskRewardRatio, tradeResult }) {
+  const existingFeatures = existingProfile?.features && typeof existingProfile.features === 'object'
+    ? existingProfile.features
+    : {};
+
   return {
-    schemaVersion: AI_LEARNING_SCHEMA_VERSION,
+    ...existingProfile,
+    schemaVersion: existingProfile?.schemaVersion || AI_LEARNING_SCHEMA_VERSION,
     tags,
     features: {
+      ...existingFeatures,
       strategy,
       emotion,
       riskRewardRatio,
       tradeResult
     },
-    labels: [],
-    notes: 'Reserved for future AI learning, clustering, and recommendation workflows.'
+    labels: Array.isArray(existingProfile?.labels) ? [...existingProfile.labels] : [],
+    notes: existingProfile?.notes || 'Reserved for future AI learning, clustering, and recommendation workflows.'
   };
 }
 
@@ -138,7 +144,14 @@ export function createTrade(input = {}) {
     riskRewardRatio,
     tradeResult,
     tags,
-    aiLearningProfile: createAiLearningProfile({ tags, strategy, emotion, riskRewardRatio, tradeResult }),
+    aiLearningProfile: createAiLearningProfile({
+      existingProfile: input.aiLearningProfile,
+      tags,
+      strategy,
+      emotion,
+      riskRewardRatio,
+      tradeResult
+    }),
     emotion,
     notes: String(input.notes || '').trim(),
     screenshot: input.screenshot || '',
