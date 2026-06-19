@@ -7,7 +7,7 @@ import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
-import { TRADE_TAGS } from './trades/trade.js';
+import { AI_LEARNING_SCHEMA_VERSION, TRADE_SCHEMA_VERSION, TRADE_TAGS } from './trades/trade.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -53,6 +53,8 @@ const paginationStatus = document.getElementById('paginationStatus');
 const pageRange = document.getElementById('pageRange');
 const resetFilters = document.getElementById('resetFilters');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
+const exportCsvBtn = document.getElementById('exportCsvBtn');
+const exportJsonBtn = document.getElementById('exportJsonBtn');
 const addTradeBtn = document.getElementById('addTradeBtn');
 const topLogTradeBtn = document.getElementById('topLogTradeBtn');
 const addTradeFormSection = document.getElementById('addTradeFormSection');
@@ -439,6 +441,123 @@ function getScreenshotPayload(file) {
   });
 }
 
+function getExportFileName(extension) {
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  return `tradoctory-trades-${dateStamp}.${extension}`;
+}
+
+function downloadExport({ content, fileName, mimeType }) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function getExportTrades() {
+  return sortTrades(trades);
+}
+
+function getAiImportManifest(exportTrades) {
+  return {
+    app: 'Tradoctory',
+    exportSchemaVersion: 'tradoctory.trade-export.v1',
+    tradeSchemaVersion: TRADE_SCHEMA_VERSION,
+    aiLearningSchemaVersion: AI_LEARNING_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    recordCount: exportTrades.length,
+    compatibility: {
+      intendedUse: 'Future AI trade import, learning, clustering, and recommendation workflows.',
+      recordFormat: 'Records are normalized Tradoctory trade objects with aiLearningProfile included.',
+      source: 'journal.all-trades'
+    }
+  };
+}
+
+function exportTradesAsJson() {
+  const exportTrades = getExportTrades();
+  const payload = {
+    manifest: getAiImportManifest(exportTrades),
+    trades: exportTrades
+  };
+
+  downloadExport({
+    content: JSON.stringify(payload, null, 2),
+    fileName: getExportFileName('json'),
+    mimeType: 'application/json;charset=utf-8'
+  });
+
+  if (addTradeStatus) addTradeStatus.textContent = `Exported ${exportTrades.length} trade records to JSON.`;
+}
+
+function stringifyCsvValue(value) {
+  if (Array.isArray(value)) return value.join('|');
+  if (value && typeof value === 'object') return JSON.stringify(value);
+  return String(value ?? '');
+}
+
+function toCsvRow(values) {
+  return values.map((value) => {
+    const stringValue = stringifyCsvValue(value);
+    return /[",\n\r]/.test(stringValue) ? `"${stringValue.replaceAll('"', '""')}"` : stringValue;
+  }).join(',');
+}
+
+function exportTradesAsCsv() {
+  const exportTrades = getExportTrades();
+  const exportedAt = new Date().toISOString();
+  const headers = [
+    'exportSchemaVersion',
+    'tradeSchemaVersion',
+    'aiLearningSchemaVersion',
+    'exportedAt',
+    'schemaVersion',
+    'id',
+    'userId',
+    'tradeDate',
+    'createdAt',
+    'tradeName',
+    'marketType',
+    'direction',
+    'strategy',
+    'capital',
+    'entryPrice',
+    'exitPrice',
+    'stopLoss',
+    'target',
+    'profitLoss',
+    'riskRewardRatio',
+    'tradeResult',
+    'tags',
+    'emotion',
+    'notes',
+    'screenshot',
+    'aiLearningProfile'
+  ];
+  const csvRows = [
+    toCsvRow(headers),
+    ...exportTrades.map((trade) => toCsvRow(headers.map((header) => ({
+      exportSchemaVersion: 'tradoctory.trade-export.v1',
+      tradeSchemaVersion: TRADE_SCHEMA_VERSION,
+      aiLearningSchemaVersion: AI_LEARNING_SCHEMA_VERSION,
+      exportedAt,
+      ...trade
+    })[header])))
+  ];
+
+  downloadExport({
+    content: csvRows.join('\n'),
+    fileName: getExportFileName('csv'),
+    mimeType: 'text/csv;charset=utf-8'
+  });
+
+  if (addTradeStatus) addTradeStatus.textContent = `Exported ${exportTrades.length} trade records to CSV.`;
+}
+
 function renderPdfReport() {
   const reportTrades = getFilteredTrades();
   const rangeLabel = `${fromDateFilter?.value || 'Start'} to ${toDateFilter?.value || 'Today'}`;
@@ -459,6 +578,8 @@ function renderPdfReport() {
 }
 
 exportPdfBtn?.addEventListener('click', renderPdfReport);
+exportCsvBtn?.addEventListener('click', exportTradesAsCsv);
+exportJsonBtn?.addEventListener('click', exportTradesAsJson);
 
 async function initializeJournal() {
   trades = await tradeService.listTrades();
