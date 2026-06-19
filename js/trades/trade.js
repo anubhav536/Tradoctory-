@@ -126,6 +126,10 @@ export function createTrade(input = {}) {
   const emotion = String(input.emotion || '').trim();
   const tradeResult = calculateTradeResult(profitLoss, exitPrice);
   const tags = normalizeTradeTags(input.tags);
+  const executionTimestamps = ['executedAt', 'executionTime', 'entryTime', 'openedAt'].reduce((timestamps, field) => {
+    if (input[field]) timestamps[field] = input[field];
+    return timestamps;
+  }, {});
 
   return {
     schemaVersion: TRADE_SCHEMA_VERSION,
@@ -155,6 +159,7 @@ export function createTrade(input = {}) {
     emotion,
     notes: String(input.notes || '').trim(),
     screenshot: input.screenshot || '',
+    ...executionTimestamps,
     tradeDate: input.tradeDate || now.slice(0, 10),
     createdAt: now
   };
