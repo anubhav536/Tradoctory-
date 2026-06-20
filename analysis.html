@@ -196,6 +196,57 @@
               </div>
             </div>
 
+            <!-- Emotion analytics -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </div>
+                  Emotion Analytics
+                </div>
+                <span class="card-badge">Journal Emotions</span>
+              </div>
+              <div class="card-body emotion-analytics-body">
+                <div class="emotion-card-grid">
+                  <div class="emotion-metric-card">
+                    <div class="emotion-metric-label">Most Common Emotion</div>
+                    <div class="emotion-metric-value" id="mostCommonEmotionStat">—</div>
+                    <div class="emotion-metric-meta" id="mostCommonEmotionMeta">No emotion-tagged trades yet.</div>
+                  </div>
+                  <div class="emotion-metric-card best">
+                    <div class="emotion-metric-label">Best Performing Emotion</div>
+                    <div class="emotion-metric-value" id="bestEmotionStat">—</div>
+                    <div class="emotion-metric-meta" id="bestEmotionMeta">Add emotion tags to unlock analytics.</div>
+                  </div>
+                  <div class="emotion-metric-card worst">
+                    <div class="emotion-metric-label">Worst Performing Emotion</div>
+                    <div class="emotion-metric-value" id="worstEmotionStat">—</div>
+                    <div class="emotion-metric-meta" id="worstEmotionMeta">Add emotion tags to unlock analytics.</div>
+                  </div>
+                </div>
+                <div class="emotion-chart" id="emotionChart" aria-label="Trades by emotion chart"></div>
+                <div id="emotionObservationsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                <div class="strategy-table-wrap">
+                  <table class="trade-table">
+                    <thead>
+                      <tr>
+                        <th>Emotion</th>
+                        <th>Trades</th>
+                        <th>Win Rate</th>
+                        <th>Total P&amp;L</th>
+                      </tr>
+                    </thead>
+                    <tbody id="emotionPerformanceTableBody">
+                      <tr><td colspan="4">Loading emotion analytics…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- Performance by pair -->
             <div class="card">
               <div class="card-header">
