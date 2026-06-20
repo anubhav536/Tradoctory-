@@ -503,9 +503,13 @@ function stringifyCsvValue(value) {
   return String(value ?? '');
 }
 
+function neutralizeCsvFormula(value) {
+  return /^[=+\-@]/.test(value) ? `'${value}` : value;
+}
+
 function toCsvRow(values) {
   return values.map((value) => {
-    const stringValue = stringifyCsvValue(value);
+    const stringValue = neutralizeCsvFormula(stringifyCsvValue(value));
     return /[",\n\r]/.test(stringValue) ? `"${stringValue.replaceAll('"', '""')}"` : stringValue;
   }).join(',');
 }
