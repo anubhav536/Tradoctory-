@@ -1,6 +1,7 @@
 'use strict';
 
 import { isClosedTrade, toNumber } from './trade.js';
+import { analyzeConsistency } from './consistency-analysis.js';
 
 export const TRADE_ANALYTICS_SCHEMA_VERSION = 'tradoctory.trade-analytics.v1';
 
@@ -79,24 +80,10 @@ function getMostProfitableDay(trades) {
   };
 }
 
-function calculateConsistencyScore(trades) {
-  const closedTrades = trades.filter(isClosedTrade);
-  if (!closedTrades.length) return 0;
-
-  const profitableDays = [...groupBy(trades, getTradeDay).values()].filter((dayTrades) => (
-    dayTrades.reduce((sum, trade) => sum + toNumber(trade?.profitLoss), 0) > 0
-  )).length;
-  const totalDays = groupBy(trades, getTradeDay).size || 1;
-  const winRate = closedTrades.filter((trade) => trade.tradeResult === 'Win').length / closedTrades.length;
-  const profitableDayRate = profitableDays / totalDays;
-  const positiveExpectancyRate = trades.filter((trade) => toNumber(trade?.profitLoss) >= 0).length / trades.length;
-
-  return roundTo(((winRate * 0.45) + (profitableDayRate * 0.35) + (positiveExpectancyRate * 0.2)) * 100, 1);
-}
-
 export function generateTradeAnalytics(trades = []) {
   const validTrades = Array.isArray(trades) ? trades.filter(Boolean) : [];
   const strategyRanking = getStrategyRanking(validTrades);
+  const consistency = analyzeConsistency(validTrades);
   const riskRewards = validTrades.map((trade) => toNumber(trade?.riskRewardRatio)).filter((ratio) => ratio > 0);
   const emotions = new Map();
   validTrades.forEach((trade) => increment(emotions, String(trade?.emotion || '').trim()));
@@ -110,7 +97,10 @@ export function generateTradeAnalytics(trades = []) {
     averageRiskReward: riskRewards.length ? roundTo(riskRewards.reduce((sum, ratio) => sum + ratio, 0) / riskRewards.length) : 0,
     mostProfitableDay: getMostProfitableDay(validTrades),
     mostCommonEmotion: getMostCommon(emotions),
-    consistencyScore: calculateConsistencyScore(validTrades),
+    consistencyScore: consistency.score,
+    consistencyTrend: consistency.trend,
+    consistencyFactors: consistency.factors,
+    consistencySuggestions: consistency.suggestions,
     strategyRanking,
     featureReadiness: {
       aiCoach: true,

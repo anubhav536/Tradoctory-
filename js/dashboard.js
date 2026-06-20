@@ -8,6 +8,7 @@ import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
 import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
+import { analyzeConsistency } from './trades/consistency-analysis.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -94,36 +95,29 @@ function getCurrentStreak(closedTrades) {
   return { label: `${streakCount} ${latestResult}${streakCount === 1 ? '' : 's'}`, count: streakCount, result: latestResult };
 }
 
-function getConsistencyScore(statistics, closedTrades) {
-  if (!closedTrades.length) return 0;
-  const pnlValues = closedTrades.map((trade) => Number(trade.profitLoss) || 0);
-  const average = pnlValues.reduce((sum, value) => sum + value, 0) / pnlValues.length;
-  const variance = pnlValues.reduce((sum, value) => sum + ((value - average) ** 2), 0) / pnlValues.length;
-  const standardDeviation = Math.sqrt(variance);
-  const stabilityScore = Math.max(0, 100 - Math.min(100, (standardDeviation / Math.max(Math.abs(average), 1)) * 18));
-  return Math.round((statistics.winRate * 0.65) + (stabilityScore * 0.35));
-}
-
 function renderStatistics(trades) {
   const statistics = calculateTradeStatistics(trades);
   const closedTrades = getClosedTrades(trades);
   const bestStrategy = getBestStrategy(trades);
   const streak = getCurrentStreak(closedTrades);
-  const consistencyScore = getConsistencyScore(statistics, closedTrades);
+  const consistency = analyzeConsistency(trades);
 
   renderMetric('totalTrades', String(statistics.totalTrades));
   renderMetric('totalPnl', formatCurrency(statistics.totalProfit));
   renderMetric('winRate', `${statistics.winRate}%`);
   renderMetric('currentStreak', streak.label);
   renderMetric('bestStrategy', bestStrategy ? bestStrategy[0] : '—');
-  renderMetric('consistencyScore', String(consistencyScore));
+  renderMetric('consistencyScore', String(Math.round(consistency.score)));
+  renderMetric('consistencyScoreDetail', String(Math.round(consistency.score)));
+  renderMetric('consistencyTrend', consistency.trend.label);
+  renderConsistencyDetails(consistency);
   renderMetric('totalPnlDelta', statistics.totalProfit >= 0 ? 'Portfolio is net profitable' : 'Portfolio is in drawdown');
   renderMetric('currentStreakDelta', streak.result ? `Latest closed trades are ${streak.result}s` : 'Awaiting closed trades');
   renderMetric('bestStrategyDelta', bestStrategy ? `${formatCurrency(bestStrategy[1].pnl)} across ${bestStrategy[1].count} trade${bestStrategy[1].count === 1 ? '' : 's'}` : 'Log strategies to rank setups');
 
   setTone('totalPnl', statistics.totalProfit);
   setTone('currentStreak', streak.result === 'win' ? streak.count : -streak.count);
-  setTone('consistencyScore', consistencyScore - 50);
+  setTone('consistencyScore', consistency.score - 50);
 }
 
 function renderEquityCurve(trades) {
@@ -182,6 +176,34 @@ function renderStrategyPerformance(trades) {
 
 function getWeekLabel(date) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date);
+}
+
+
+function formatFactorLabel(key) {
+  return key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function renderConsistencyDetails(consistency) {
+  const trendEl = document.getElementById('consistencyTrend');
+  if (trendEl) {
+    trendEl.classList.remove('green', 'red', 'blue');
+    trendEl.classList.add(consistency.trend.direction === 'up' ? 'green' : consistency.trend.direction === 'down' ? 'red' : 'blue');
+  }
+
+  const factorsEl = document.getElementById('consistencyFactors');
+  if (factorsEl) {
+    factorsEl.innerHTML = Object.entries(consistency.factors).map(([key, value]) => `
+      <div class="consistency-factor">
+        <div><span>${escapeHtml(formatFactorLabel(key))}</span><strong>${Math.round(value)}</strong></div>
+        <div class="consistency-factor-track"><span style="width:${Math.max(value, 4)}%"></span></div>
+      </div>
+    `).join('');
+  }
+
+  const suggestionsEl = document.getElementById('consistencySuggestions');
+  if (suggestionsEl) {
+    suggestionsEl.innerHTML = consistency.suggestions.map((suggestion) => `<li>${escapeHtml(suggestion)}</li>`).join('');
+  }
 }
 
 function renderTraderDna(trades) {
