@@ -209,6 +209,80 @@
           </div>
         </section>
 
+        <!-- Nifty Beast AI Scanner -->
+        <section class="card scanner-card" aria-labelledby="niftyBeastTitle">
+          <div class="scanner-glow" aria-hidden="true"></div>
+          <div class="card-header scanner-header">
+            <div>
+              <div class="card-title" id="niftyBeastTitle">
+                <div class="card-title-icon scanner-icon">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-5 4 3 5-7"/>
+                  </svg>
+                </div>
+                Nifty Beast AI Scanner
+              </div>
+              <p class="scanner-subtitle">Rule-based Nifty setup scanner with market-data abstraction, alerts, analytics, and Chart.js-ready scoring.</p>
+            </div>
+            <div class="scanner-actions">
+              <span class="card-badge scanner-source" id="scannerSourceBadge">Initializing</span>
+              <button class="btn btn-ghost scanner-refresh" id="scannerRefreshBtn" type="button">Refresh scanner</button>
+            </div>
+          </div>
+          <div class="card-body scanner-body" id="niftyBeastScanner" aria-live="polite">
+            <div class="scanner-status-row">
+              <div class="scanner-bias-card">
+                <span>Current Bias</span>
+                <strong id="scannerBias">Loading…</strong>
+                <small id="scannerBiasMeta">Preparing scanner model.</small>
+              </div>
+              <div class="scanner-metric">
+                <span>Confidence</span>
+                <strong id="scannerConfidence">0%</strong>
+                <div class="scanner-confidence-track"><span id="scannerConfidenceBar" style="width:0%"></span></div>
+              </div>
+              <div class="scanner-metric">
+                <span>Nifty Price</span>
+                <strong id="scannerPrice">—</strong>
+                <small id="scannerPriceChange">Awaiting market data</small>
+              </div>
+              <div class="scanner-metric">
+                <span>Market Status</span>
+                <strong id="scannerMarketStatus">—</strong>
+                <small id="scannerTimestamp">—</small>
+              </div>
+            </div>
+
+            <div class="scanner-grid">
+              <div class="scanner-panel scanner-panel-main">
+                <div class="scanner-panel-title">Top Scanner Signals</div>
+                <div class="scanner-signal-list" id="scannerSignals">
+                  <div class="chart-empty">Loading Nifty Beast scanner signals…</div>
+                </div>
+              </div>
+              <div class="scanner-panel">
+                <div class="scanner-panel-title">AI Score Map</div>
+                <div class="scanner-chart-wrap">
+                  <canvas id="scannerScoreChart" aria-label="Nifty Beast scanner score map" role="img"></canvas>
+                  <div class="chart-empty" id="scannerChartFallback">Score chart will appear when Chart.js is ready.</div>
+                </div>
+              </div>
+              <div class="scanner-panel">
+                <div class="scanner-panel-title">Alerts</div>
+                <div class="scanner-alert-list" id="scannerAlerts">
+                  <div class="chart-empty">No scanner alerts yet.</div>
+                </div>
+              </div>
+              <div class="scanner-panel">
+                <div class="scanner-panel-title">Risk Notes</div>
+                <ul class="scanner-risk-list" id="scannerRiskNotes">
+                  <li>Educational scanner output only — not financial advice.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Analytics charts -->
         <section class="dashboard-grid" aria-label="Trading analytics charts">
           <article class="card dashboard-card dashboard-card-wide">
