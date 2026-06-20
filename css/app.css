@@ -2248,3 +2248,94 @@ body.modal-open { overflow: hidden; }
   .risk-score-panel { align-items: flex-start; flex-direction: column; }
   .risk-metric-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Weekly report engine ─────────────────────────── */
+.weekly-report-card { margin-bottom: 20px; }
+
+.weekly-report-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.weekly-report-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px;
+  border: 1px solid rgba(14,165,233,0.22);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(0,210,106,0.05));
+}
+
+.weekly-report-eyebrow,
+.weekly-report-list-title {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.weekly-report-range {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+.weekly-report-note {
+  max-width: 320px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.weekly-report-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.weekly-report-metric,
+.weekly-report-list-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.025);
+  padding: 14px;
+}
+
+.weekly-report-metric.best { border-color: rgba(0,210,106,0.35); background: rgba(0,210,106,0.07); }
+.weekly-report-metric.worst { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.07); }
+
+.weekly-report-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.weekly-report-list-card.achievements { border-color: rgba(0,210,106,0.24); }
+.weekly-report-list-card.warnings { border-color: rgba(245,158,11,0.28); }
+.weekly-report-list-card.recommendations { border-color: rgba(59,130,246,0.25); }
+
+.weekly-report-list-title { margin-bottom: 12px; }
+
+.weekly-report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .weekly-report-grid,
+  .weekly-report-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .weekly-report-heading { flex-direction: column; }
+  .weekly-report-note { text-align: left; }
+  .weekly-report-grid,
+  .weekly-report-cards { grid-template-columns: 1fr; }
+}

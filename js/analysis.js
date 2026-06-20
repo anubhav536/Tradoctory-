@@ -270,6 +270,165 @@ function renderEmotionAnalytics(trades) {
 }
 
 
+
+
+function getTradeDate(trade) {
+  return trade?.tradeDate || trade?.tradeData?.tradeDate || trade?.createdAt?.slice?.(0, 10) || '';
+}
+
+function getWeekBounds(referenceDate = new Date()) {
+  const date = new Date(referenceDate);
+  date.setHours(0, 0, 0, 0);
+  const day = date.getDay() || 7;
+  const start = new Date(date);
+  start.setDate(date.getDate() - day + 1);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
+
+function getWeekKey(date = new Date()) {
+  const { start } = getWeekBounds(date);
+  const yearStart = new Date(start.getFullYear(), 0, 1);
+  const week = Math.ceil((((start - yearStart) / 86400000) + yearStart.getDay() + 1) / 7);
+  return `${start.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function formatShortDate(date) {
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function isTradeInRange(trade, start, end) {
+  const value = getTradeDate(trade);
+  if (!value) return false;
+  const date = new Date(`${value}T12:00:00`);
+  return Number.isFinite(date.getTime()) && date >= start && date <= end;
+}
+
+function countBy(items, getKey) {
+  return items.reduce((counts, item) => {
+    const key = String(getKey(item) || '').trim();
+    if (key) counts[key] = (counts[key] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function getMostCommon(counts) {
+  return Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0] || null;
+}
+
+function describeTrade(trade) {
+  if (!trade) return 'No closed trade yet.';
+  const name = getTradeDisplayName(trade);
+  const strategy = getStrategyLabel(trade) || 'No strategy';
+  return `${name} · ${strategy} · ${formatCurrency(Number(trade.profitLoss) || 0)}`;
+}
+
+function calculateWeeklyReport(trades, referenceDate = new Date()) {
+  const { start, end } = getWeekBounds(referenceDate);
+  const weeklyTrades = trades.filter((trade) => isTradeInRange(trade, start, end));
+  const closedTrades = getClosedTrades(weeklyTrades);
+  const wins = closedTrades.filter((trade) => trade.tradeResult === 'Win');
+  const losses = closedTrades.filter((trade) => trade.tradeResult === 'Loss');
+  const weeklyPnl = weeklyTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
+  const winRate = closedTrades.length ? Math.round((wins.length / closedTrades.length) * 100) : 0;
+  const bestTrade = [...closedTrades].sort((a, b) => (Number(b.profitLoss) || 0) - (Number(a.profitLoss) || 0))[0] || null;
+  const worstTrade = [...closedTrades].sort((a, b) => (Number(a.profitLoss) || 0) - (Number(b.profitLoss) || 0))[0] || null;
+  const strategyRows = calculateStrategyPerformance(weeklyTrades).filter((row) => row.tradesTaken > 0);
+  const bestStrategy = strategyRows[0] || null;
+  const mostCommonEmotion = getMostCommon(countBy(weeklyTrades, getEmotionLabel));
+
+  const achievements = [];
+  const warnings = [];
+  const recommendations = [];
+
+  if (weeklyPnl > 0) achievements.push(`Finished the week positive at ${formatCurrency(weeklyPnl)}.`);
+  if (winRate >= 60 && closedTrades.length) achievements.push(`Maintained a ${winRate}% win rate across ${closedTrades.length} closed trades.`);
+  if (bestStrategy) achievements.push(`${bestStrategy.strategy} was your top strategy with ${formatCurrency(bestStrategy.totalPnl)} P&L.`);
+  if (!achievements.length) achievements.push('A weekly report was generated. Keep logging trades to unlock stronger achievements.');
+
+  if (weeklyPnl < 0) warnings.push(`Weekly P&L is negative at ${formatCurrency(weeklyPnl)}.`);
+  if (closedTrades.length >= 3 && winRate < 45) warnings.push(`Win rate is below target at ${winRate}%.`);
+  if (losses.length > wins.length && closedTrades.length) warnings.push('Losses outnumbered wins this week.');
+  if (!weeklyTrades.length) warnings.push('No trades were logged for the current week.');
+  if (!warnings.length) warnings.push('No major weekly warnings detected.');
+
+  if (bestStrategy) recommendations.push(`Prioritize ${bestStrategy.strategy} setups next week and document why they worked.`);
+  if (worstTrade && Number(worstTrade.profitLoss) < 0) recommendations.push(`Review ${getTradeDisplayName(worstTrade)} before the next session to identify the avoidable mistake.`);
+  if (mostCommonEmotion) recommendations.push(`Your most common emotion was ${mostCommonEmotion[0]}; compare it against trade quality before increasing size.`);
+  recommendations.push('Schedule a weekly review at market close to update rules, screenshots, and lessons learned.');
+
+  return {
+    schemaVersion: 'tradoctory.weekly-report.v1',
+    generatedAt: new Date().toISOString(),
+    weekKey: getWeekKey(referenceDate),
+    dateRange: `${formatShortDate(start)} – ${formatShortDate(end)}`,
+    weeklyTrades,
+    closedTrades,
+    weeklyPnl,
+    winRate,
+    bestTrade,
+    worstTrade,
+    bestStrategy,
+    mostCommonEmotion: mostCommonEmotion ? { emotion: mostCommonEmotion[0], count: mostCommonEmotion[1] } : null,
+    achievements,
+    warnings,
+    recommendations
+  };
+}
+
+function persistWeeklyReport(report) {
+  try {
+    const storageKey = `tradoctory.weeklyReports.${user.id || user.email}`;
+    const reports = JSON.parse(window.localStorage.getItem(storageKey) || '{}');
+    reports[report.weekKey] = {
+      schemaVersion: report.schemaVersion,
+      generatedAt: report.generatedAt,
+      dateRange: report.dateRange,
+      weeklyPnl: report.weeklyPnl,
+      winRate: report.winRate,
+      tradeCount: report.weeklyTrades.length,
+      closedTradeCount: report.closedTrades.length,
+      bestTradeId: report.bestTrade?.id || null,
+      worstTradeId: report.worstTrade?.id || null,
+      bestStrategy: report.bestStrategy?.strategy || null,
+      mostCommonEmotion: report.mostCommonEmotion?.emotion || null
+    };
+    window.localStorage.setItem(storageKey, JSON.stringify(reports));
+  } catch (error) {
+    console.warn('Unable to persist weekly report snapshot.', error);
+  }
+}
+
+function renderReportList(containerId, items, severity = 'positive') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = items.map((message) => renderObservation({ severity, message })).join('');
+}
+
+function renderWeeklyReportEngine(trades) {
+  const report = calculateWeeklyReport(trades);
+  persistWeeklyReport(report);
+  document.getElementById('weeklyReportBadge')?.replaceChildren(`${report.weekKey} · Auto-generated`);
+  document.getElementById('weeklyReportRange')?.replaceChildren(report.dateRange);
+  document.getElementById('weeklyPnlStat')?.replaceChildren(formatCurrency(report.weeklyPnl));
+  document.getElementById('weeklyPnlMeta')?.replaceChildren(`${report.weeklyTrades.length} trades this week`);
+  document.getElementById('weeklyWinRateStat')?.replaceChildren(`${report.winRate}%`);
+  document.getElementById('weeklyWinRateMeta')?.replaceChildren(`${report.closedTrades.length} closed · breakeven included in denominator`);
+  document.getElementById('weeklyBestTradeStat')?.replaceChildren(report.bestTrade ? getTradeDisplayName(report.bestTrade) : '—');
+  document.getElementById('weeklyBestTradeMeta')?.replaceChildren(describeTrade(report.bestTrade));
+  document.getElementById('weeklyWorstTradeStat')?.replaceChildren(report.worstTrade ? getTradeDisplayName(report.worstTrade) : '—');
+  document.getElementById('weeklyWorstTradeMeta')?.replaceChildren(describeTrade(report.worstTrade));
+  document.getElementById('weeklyBestStrategyStat')?.replaceChildren(report.bestStrategy?.strategy || '—');
+  document.getElementById('weeklyBestStrategyMeta')?.replaceChildren(report.bestStrategy ? `${formatCurrency(report.bestStrategy.totalPnl)} P&L · ${report.bestStrategy.winRate}% win rate` : 'No strategy trades this week.');
+  document.getElementById('weeklyEmotionStat')?.replaceChildren(report.mostCommonEmotion?.emotion || '—');
+  document.getElementById('weeklyEmotionMeta')?.replaceChildren(report.mostCommonEmotion ? `${report.mostCommonEmotion.count} trade${report.mostCommonEmotion.count === 1 ? '' : 's'} logged with this emotion` : 'No emotion-tagged trades this week.');
+  renderReportList('weeklyAchievementsList', report.achievements, 'positive');
+  renderReportList('weeklyWarningsList', report.warnings, report.warnings.some((item) => !item.startsWith('No major')) ? 'warning' : 'positive');
+  renderReportList('weeklyRecommendationsList', report.recommendations, 'positive');
+}
+
 function roundTo(value, precision = 2) {
   const multiplier = 10 ** precision;
   return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
@@ -472,6 +631,7 @@ function renderReport(report, trades) {
   }
 
   renderStrategyPerformanceDashboard(trades);
+  renderWeeklyReportEngine(trades);
   renderEmotionAnalytics(trades);
   renderRiskAnalytics(trades);
   renderTimeAnalysis(trades);

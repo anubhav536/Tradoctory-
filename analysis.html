@@ -125,6 +125,76 @@
           </div>
         </div>
 
+        <!-- Weekly report engine -->
+        <div class="card weekly-report-card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="card-title-icon" style="background:rgba(14,165,233,0.15);color:#0ea5e9;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+              </div>
+              Weekly Report Engine
+            </div>
+            <span class="card-badge" id="weeklyReportBadge">Auto-generated weekly</span>
+          </div>
+          <div class="card-body weekly-report-body">
+            <div class="weekly-report-heading">
+              <div>
+                <div class="weekly-report-eyebrow">Current Weekly Report</div>
+                <div class="weekly-report-range" id="weeklyReportRange">Loading week…</div>
+              </div>
+              <div class="weekly-report-note">Automatically refreshes from saved journal trades every week.</div>
+            </div>
+            <div class="weekly-report-grid">
+              <div class="weekly-report-metric">
+                <div class="emotion-metric-label">Weekly P&amp;L</div>
+                <div class="emotion-metric-value" id="weeklyPnlStat">$0</div>
+                <div class="emotion-metric-meta" id="weeklyPnlMeta">0 trades this week</div>
+              </div>
+              <div class="weekly-report-metric">
+                <div class="emotion-metric-label">Win Rate</div>
+                <div class="emotion-metric-value" id="weeklyWinRateStat">0%</div>
+                <div class="emotion-metric-meta" id="weeklyWinRateMeta">0 closed trades</div>
+              </div>
+              <div class="weekly-report-metric best">
+                <div class="emotion-metric-label">Best Trade</div>
+                <div class="emotion-metric-value" id="weeklyBestTradeStat">—</div>
+                <div class="emotion-metric-meta" id="weeklyBestTradeMeta">No closed trade yet.</div>
+              </div>
+              <div class="weekly-report-metric worst">
+                <div class="emotion-metric-label">Worst Trade</div>
+                <div class="emotion-metric-value" id="weeklyWorstTradeStat">—</div>
+                <div class="emotion-metric-meta" id="weeklyWorstTradeMeta">No closed trade yet.</div>
+              </div>
+              <div class="weekly-report-metric best">
+                <div class="emotion-metric-label">Best Strategy</div>
+                <div class="emotion-metric-value" id="weeklyBestStrategyStat">—</div>
+                <div class="emotion-metric-meta" id="weeklyBestStrategyMeta">No strategy trades this week.</div>
+              </div>
+              <div class="weekly-report-metric">
+                <div class="emotion-metric-label">Most Common Emotion</div>
+                <div class="emotion-metric-value" id="weeklyEmotionStat">—</div>
+                <div class="emotion-metric-meta" id="weeklyEmotionMeta">No emotion-tagged trades this week.</div>
+              </div>
+            </div>
+            <div class="weekly-report-cards">
+              <div class="weekly-report-list-card achievements">
+                <div class="weekly-report-list-title">Achievements</div>
+                <div id="weeklyAchievementsList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading achievements…</div></div></div>
+              </div>
+              <div class="weekly-report-list-card warnings">
+                <div class="weekly-report-list-title">Warnings</div>
+                <div id="weeklyWarningsList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading warnings…</div></div></div>
+              </div>
+              <div class="weekly-report-list-card recommendations">
+                <div class="weekly-report-list-title">Recommendations</div>
+                <div id="weeklyRecommendationsList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading recommendations…</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="content-grid two-col">
 
           <!-- Left col -->
