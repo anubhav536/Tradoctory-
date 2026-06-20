@@ -1969,3 +1969,49 @@ body.modal-open { overflow: hidden; }
   .consistency-score-large { width: 100%; }
   .consistency-factor-grid { grid-template-columns: 1fr; }
 }
+
+.equity-chart-system {
+  min-height: clamp(300px, 42vw, 430px);
+  padding: 14px;
+}
+
+.equity-chart-system canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 270px;
+}
+
+.equity-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.equity-insights div {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.035);
+  padding: 12px;
+}
+
+.equity-insights span,
+.equity-insights small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.equity-insights strong {
+  display: block;
+  margin: 5px 0 3px;
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .equity-insights { grid-template-columns: 1fr; }
+  .equity-chart-system { min-height: 320px; padding: 10px; }
+}
