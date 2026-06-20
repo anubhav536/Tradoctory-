@@ -88,6 +88,71 @@ function renderStats(report, trades) {
   document.getElementById('avgRiskRewardStat')?.replaceChildren(`${averageRiskReward(trades)}:1`);
 }
 
+const TRACKED_STRATEGIES = ['Breakout', 'VWAP', 'ORB', 'Pullback', 'Support Resistance'];
+
+function getStrategyLabel(trade) {
+  return String(trade?.strategy || trade?.tradeData?.strategy || '').trim();
+}
+
+function getClosedTrades(trades) {
+  return trades.filter((trade) => ['Win', 'Loss', 'Breakeven'].includes(trade.tradeResult));
+}
+
+function calculateStrategyPerformance(trades) {
+  return TRACKED_STRATEGIES.map((strategy) => {
+    const strategyTrades = trades.filter((trade) => getStrategyLabel(trade).toLowerCase() === strategy.toLowerCase());
+    const closedTrades = getClosedTrades(strategyTrades);
+    const winningTrades = closedTrades.filter((trade) => trade.tradeResult === 'Win');
+    const losingTrades = closedTrades.filter((trade) => trade.tradeResult === 'Loss');
+    const totalPnl = strategyTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
+    const winningPnl = winningTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
+    const losingPnl = losingTrades.reduce((sum, trade) => sum + (Number(trade.profitLoss) || 0), 0);
+
+    return {
+      strategy,
+      tradesTaken: strategyTrades.length,
+      closedTrades: closedTrades.length,
+      winRate: closedTrades.length ? Math.round((winningTrades.length / closedTrades.length) * 100) : 0,
+      averageProfit: winningTrades.length ? winningPnl / winningTrades.length : 0,
+      averageLoss: losingTrades.length ? losingPnl / losingTrades.length : 0,
+      totalPnl
+    };
+  }).sort((a, b) => b.totalPnl - a.totalPnl || b.winRate - a.winRate || b.tradesTaken - a.tradesTaken || a.strategy.localeCompare(b.strategy));
+}
+
+function renderStrategyPerformanceDashboard(trades) {
+  const tableBody = document.getElementById('strategyPerformanceTableBody');
+  if (!tableBody) return;
+
+  const rankedStrategies = calculateStrategyPerformance(trades);
+  const activeStrategies = rankedStrategies.filter((strategy) => strategy.tradesTaken > 0);
+  const bestStrategy = activeStrategies[0];
+  const worstStrategy = activeStrategies.at(-1);
+
+  document.getElementById('bestStrategyHighlight')?.replaceChildren(bestStrategy?.strategy || '—');
+  document.getElementById('bestStrategyMeta')?.replaceChildren(bestStrategy ? `${formatCurrency(bestStrategy.totalPnl)} total P&L · ${bestStrategy.winRate}% win rate · ${bestStrategy.tradesTaken} trades` : 'Add trades to rank strategies.');
+  document.getElementById('worstStrategyHighlight')?.replaceChildren(worstStrategy?.strategy || '—');
+  document.getElementById('worstStrategyMeta')?.replaceChildren(worstStrategy ? `${formatCurrency(worstStrategy.totalPnl)} total P&L · ${worstStrategy.winRate}% win rate · ${worstStrategy.tradesTaken} trades` : 'Add trades to rank strategies.');
+  document.getElementById('strategyRankingBadge')?.replaceChildren(activeStrategies.length ? `${activeStrategies.length}/${TRACKED_STRATEGIES.length} active strategies` : 'Ranked by Total P&L');
+
+  tableBody.innerHTML = rankedStrategies.map((row, index) => {
+    const isBest = bestStrategy && row.strategy === bestStrategy.strategy;
+    const isWorst = worstStrategy && row.strategy === worstStrategy.strategy && activeStrategies.length > 1;
+    const rowClass = isBest ? 'best-strategy-row' : isWorst ? 'worst-strategy-row' : '';
+    const totalPnlColor = row.totalPnl >= 0 ? 'var(--accent)' : 'var(--red)';
+    const winRateColor = row.winRate >= 50 ? 'var(--accent)' : row.closedTrades ? 'var(--red)' : 'var(--text-muted)';
+    return `<tr class="${rowClass}">
+      <td><span class="rank-pill">#${index + 1}</span></td>
+      <td style="color:var(--text-primary);font-weight:700;">${escapeHtml(row.strategy)}${isBest ? ' <span class="tag win">Best</span>' : ''}${isWorst ? ' <span class="tag loss">Worst</span>' : ''}</td>
+      <td>${row.tradesTaken}</td>
+      <td style="color:${winRateColor};font-weight:700;">${row.winRate}%</td>
+      <td style="color:var(--accent);font-weight:600;">${formatCurrency(row.averageProfit)}</td>
+      <td style="color:${row.averageLoss < 0 ? 'var(--red)' : 'var(--text-muted)'};font-weight:600;">${formatCurrency(row.averageLoss)}</td>
+      <td style="color:${totalPnlColor};font-weight:800;">${formatCurrency(row.totalPnl)}</td>
+    </tr>`;
+  }).join('');
+}
+
 function renderPerformanceByPair(trades) {
   const tableBody = document.getElementById('performanceTableBody');
   if (!tableBody) return;
@@ -148,6 +213,7 @@ function renderReport(report, trades) {
     psychology.innerHTML = psychologyObservations.length ? psychologyObservations.map(renderObservation).join('') : renderObservation({ severity: 'positive', message: 'No psychology risk pattern has enough evidence yet.' });
   }
 
+  renderStrategyPerformanceDashboard(trades);
   renderPerformanceByPair(trades);
   renderImprovementPlan(report);
 }
