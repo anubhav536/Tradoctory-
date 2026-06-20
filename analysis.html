@@ -247,6 +247,61 @@
               </div>
             </div>
 
+            <!-- Time analysis engine -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon" style="background:rgba(14,165,233,0.15);color:#0ea5e9;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  Time Analysis Engine
+                </div>
+                <span class="card-badge" id="timeAnalysisBadge">Historical timestamps</span>
+              </div>
+              <div class="card-body emotion-analytics-body">
+                <div class="emotion-card-grid">
+                  <div class="emotion-metric-card best">
+                    <div class="emotion-metric-label">Most Profitable Hour</div>
+                    <div class="emotion-metric-value" id="mostProfitableHourStat">—</div>
+                    <div class="emotion-metric-meta" id="mostProfitableHourMeta">Add timestamped trades to unlock this metric.</div>
+                  </div>
+                  <div class="emotion-metric-card worst">
+                    <div class="emotion-metric-label">Least Profitable Hour</div>
+                    <div class="emotion-metric-value" id="leastProfitableHourStat">—</div>
+                    <div class="emotion-metric-meta" id="leastProfitableHourMeta">Add timestamped trades to unlock this metric.</div>
+                  </div>
+                  <div class="emotion-metric-card best">
+                    <div class="emotion-metric-label">Most Profitable Day</div>
+                    <div class="emotion-metric-value" id="mostProfitableDayStat">—</div>
+                    <div class="emotion-metric-meta" id="mostProfitableDayMeta">Add dated trades to unlock this metric.</div>
+                  </div>
+                  <div class="emotion-metric-card worst">
+                    <div class="emotion-metric-label">Worst Trading Day</div>
+                    <div class="emotion-metric-value" id="worstTradingDayStat">—</div>
+                    <div class="emotion-metric-meta" id="worstTradingDayMeta">Add dated trades to unlock this metric.</div>
+                  </div>
+                </div>
+                <div id="timeRecommendationsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                <div class="strategy-table-wrap">
+                  <table class="trade-table">
+                    <thead>
+                      <tr>
+                        <th>Hour Window</th>
+                        <th>Trades</th>
+                        <th>Win Rate</th>
+                        <th>Total P&amp;L</th>
+                      </tr>
+                    </thead>
+                    <tbody id="timeHourlyTableBody">
+                      <tr><td colspan="4">Loading time analysis…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- Risk analytics -->
             <div class="card">
               <div class="card-header">

@@ -142,7 +142,8 @@ export function createTrade(input = {}) {
   const tradeResult = calculateTradeResult(profitLoss, exitPrice);
   const tags = normalizeTradeTags(input.tags);
   const executionTimestamps = ['executedAt', 'executionTime', 'entryTime', 'openedAt'].reduce((timestamps, field) => {
-    if (input[field]) timestamps[field] = input[field];
+    const timestamp = input[field] || input.tradeData?.[field];
+    if (timestamp) timestamps[field] = timestamp;
     return timestamps;
   }, {});
 

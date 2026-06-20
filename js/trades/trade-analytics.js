@@ -2,6 +2,7 @@
 
 import { isClosedTrade, toNumber } from './trade.js';
 import { analyzeConsistency } from './consistency-analysis.js';
+import { analyzeTradeTime } from './time-analysis.js';
 
 export const TRADE_ANALYTICS_SCHEMA_VERSION = 'tradoctory.trade-analytics.v1';
 
@@ -153,6 +154,7 @@ export function generateTradeAnalytics(trades = []) {
     worstStrategy: strategyRanking.at(-1)?.label || '',
     averageRiskReward: riskRewards.length ? roundTo(riskRewards.reduce((sum, ratio) => sum + ratio, 0) / riskRewards.length) : 0,
     riskAnalytics: getRiskAnalytics(validTrades),
+    timeAnalysis: analyzeTradeTime(validTrades),
     mostProfitableDay: getMostProfitableDay(validTrades),
     mostCommonEmotion: getMostCommon(emotions),
     consistencyScore: consistency.score,
@@ -166,6 +168,7 @@ export function generateTradeAnalytics(trades = []) {
       weeklyReports: true,
       performanceInsights: true,
       riskAnalytics: true,
+      timeAnalysis: true,
       machineLearningReady: true
     }
   };
