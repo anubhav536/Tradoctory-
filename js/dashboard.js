@@ -9,6 +9,7 @@ import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
 import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
 import { analyzeConsistency } from './trades/consistency-analysis.js';
+import { isClosedTrade } from './trades/trade.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -37,6 +38,9 @@ const tradeRepository = new LocalTradeRepository({ userId: user.id || user.email
 const tradeService = new TradeService({ repository: tradeRepository, userId: user.id || user.email });
 
 const equityCurveChart = document.getElementById('equityCurveChart');
+const equityCurveCanvas = document.getElementById('equityCurveCanvas');
+const equityCurveInsights = document.getElementById('equityCurveInsights');
+let equityCurveInstance = null;
 const winLossPieChart = document.getElementById('winLossPieChart');
 const winLossLegend = document.getElementById('winLossLegend');
 const strategyPerformanceChart = document.getElementById('strategyPerformanceChart');
@@ -120,26 +124,179 @@ function renderStatistics(trades) {
   setTone('consistencyScore', consistency.score - 50);
 }
 
+function getTradeLabel(trade, index) {
+  return trade.tradeDate || trade.createdAt?.slice(0, 10) || `Trade ${index + 1}`;
+}
+
+function getPeriodLabel(points, period) {
+  if (!period || period.startIndex < 0 || period.endIndex < 0) return 'Not enough closed trades';
+  return `${points[period.startIndex]?.label || 'Start'} → ${points[period.endIndex]?.label || 'End'}`;
+}
+
+function buildEquityCurveModel(trades) {
+  const closedTrades = [...trades]
+    .filter(isClosedTrade)
+    .sort((a, b) => parseTradeDate(a) - parseTradeDate(b));
+  let runningCapital = 0;
+  let peak = 0;
+  let openDrawdownStart = null;
+  const points = closedTrades.map((trade, index) => {
+    runningCapital += Number(trade.profitLoss) || 0;
+    if (runningCapital >= peak) {
+      peak = runningCapital;
+      openDrawdownStart = null;
+    } else if (openDrawdownStart === null) {
+      openDrawdownStart = index;
+    }
+    return {
+      label: getTradeLabel(trade, index),
+      growth: Number(runningCapital.toFixed(2)),
+      drawdown: Number(Math.min(runningCapital - peak, 0).toFixed(2)),
+      recovering: openDrawdownStart !== null
+    };
+  });
+
+  let bestGrowth = { startIndex: -1, endIndex: -1, value: 0 };
+  let minCapital = 0;
+  let minIndex = -1;
+  points.forEach((point, index) => {
+    const growth = point.growth - minCapital;
+    if (growth > bestGrowth.value) bestGrowth = { startIndex: minIndex + 1, endIndex: index, value: growth };
+    if (point.growth < minCapital) {
+      minCapital = point.growth;
+      minIndex = index;
+    }
+  });
+
+  let worstDrawdown = { startIndex: -1, endIndex: -1, value: 0 };
+  let peakCapital = 0;
+  let peakIndex = -1;
+  points.forEach((point, index) => {
+    if (point.growth > peakCapital) {
+      peakCapital = point.growth;
+      peakIndex = index;
+    }
+    const drawdown = point.growth - peakCapital;
+    if (drawdown < worstDrawdown.value) worstDrawdown = { startIndex: peakIndex + 1, endIndex: index, value: drawdown };
+  });
+
+  const recoveryPeriods = [];
+  let recoveryStart = null;
+  points.forEach((point, index) => {
+    if (point.drawdown < 0 && recoveryStart === null) recoveryStart = index;
+    if (recoveryStart !== null && point.drawdown === 0) {
+      recoveryPeriods.push({ startIndex: recoveryStart, endIndex: index });
+      recoveryStart = null;
+    }
+  });
+  if (recoveryStart !== null) recoveryPeriods.push({ startIndex: recoveryStart, endIndex: points.length - 1, open: true });
+
+  return { points, bestGrowth, worstDrawdown, recoveryPeriods };
+}
+
+const equityHighlightPlugin = {
+  id: 'tradoctoryEquityHighlights',
+  beforeDatasetsDraw(chart, args, options) {
+    const { ctx, chartArea, scales } = chart;
+    const periods = options?.periods || [];
+    if (!chartArea || !periods.length) return;
+    ctx.save();
+    periods.forEach((period) => {
+      if (period.startIndex < 0 || period.endIndex < 0) return;
+      const xStart = scales.x.getPixelForValue(period.startIndex);
+      const xEnd = scales.x.getPixelForValue(period.endIndex);
+      ctx.fillStyle = period.color;
+      ctx.fillRect(Math.min(xStart, xEnd), chartArea.top, Math.max(Math.abs(xEnd - xStart), 8), chartArea.bottom - chartArea.top);
+    });
+    ctx.restore();
+  }
+};
+
 function renderEquityCurve(trades) {
   if (!equityCurveChart) return;
-  const sortedTrades = [...trades].sort((a, b) => parseTradeDate(a) - parseTradeDate(b));
-  let runningTotal = 0;
-  const points = sortedTrades.map((trade) => {
-    runningTotal += Number(trade.profitLoss) || 0;
-    return runningTotal;
-  });
+  const model = buildEquityCurveModel(trades);
+  const { points, bestGrowth, worstDrawdown, recoveryPeriods } = model;
   if (!points.length) {
-    equityCurveChart.innerHTML = '<div class="chart-empty">Log trades in your journal to build an equity curve.</div>';
+    if (equityCurveInstance) {
+      equityCurveInstance.destroy();
+      equityCurveInstance = null;
+    }
+    equityCurveChart.innerHTML = '<div class="chart-empty">Log closed trades in your journal to build an equity curve.</div>';
+    equityCurveInsights?.replaceChildren();
     return;
   }
-  const min = Math.min(...points, 0);
-  const max = Math.max(...points, 1);
-  const range = Math.max(max - min, 1);
-  equityCurveChart.innerHTML = points.map((value, index) => {
-    const height = ((value - min) / range) * 100;
-    const left = points.length === 1 ? 50 : (index / (points.length - 1)) * 100;
-    return `<span class="equity-point ${value >= 0 ? 'green' : 'red'}" style="left:${left}%;bottom:${height}%" title="${formatCurrency(value)}"></span>`;
-  }).join('');
+
+  if (!equityCurveCanvas?.isConnected) {
+    equityCurveChart.innerHTML = '<canvas id="equityCurveCanvas" aria-label="Equity curve showing growth, drawdowns, and recovery periods" role="img"></canvas>';
+  }
+  const canvas = document.getElementById('equityCurveCanvas');
+  if (!window.Chart || !canvas) {
+    equityCurveChart.innerHTML = '<div class="chart-empty">Equity chart library is still loading. Refresh to view the responsive curve.</div>';
+    return;
+  }
+
+  const highlightPeriods = [
+    ...recoveryPeriods.map((period) => ({ ...period, color: 'rgba(59, 130, 246, 0.08)' })),
+    { ...bestGrowth, color: 'rgba(0, 210, 106, 0.10)' },
+    { ...worstDrawdown, color: 'rgba(255, 77, 109, 0.12)' }
+  ];
+  const chartData = {
+    labels: points.map((point) => point.label),
+    datasets: [
+      {
+        label: 'Growth',
+        data: points.map((point) => point.growth),
+        borderColor: '#00d26a',
+        backgroundColor: 'rgba(0, 210, 106, 0.14)',
+        fill: true,
+        tension: 0.32,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        yAxisID: 'y'
+      },
+      {
+        label: 'Drawdown',
+        data: points.map((point) => point.drawdown),
+        borderColor: '#ff4d6d',
+        backgroundColor: 'rgba(255, 77, 109, 0.18)',
+        fill: true,
+        tension: 0.25,
+        pointRadius: 0,
+        yAxisID: 'y1'
+      }
+    ]
+  };
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#c9d4e5', usePointStyle: true } },
+      tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${formatCurrency(context.parsed.y)}` } },
+      tradoctoryEquityHighlights: { periods: highlightPeriods }
+    },
+    scales: {
+      x: { ticks: { color: '#8090a8', maxRotation: 0, autoSkip: true }, grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { ticks: { color: '#8090a8', callback: (value) => formatCurrency(value) }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y1: { position: 'right', ticks: { color: '#ff8aa0', callback: (value) => formatCurrency(value) }, grid: { drawOnChartArea: false } }
+    }
+  };
+
+  if (equityCurveInstance) {
+    equityCurveInstance.data = chartData;
+    equityCurveInstance.options = chartOptions;
+    equityCurveInstance.update();
+  } else {
+    equityCurveInstance = new window.Chart(canvas.getContext('2d'), { type: 'line', data: chartData, options: chartOptions, plugins: [equityHighlightPlugin] });
+  }
+
+  if (equityCurveInsights) {
+    equityCurveInsights.innerHTML = `
+      <div><span>Best Growth Period</span><strong class="green">${formatCurrency(bestGrowth.value)}</strong><small>${escapeHtml(getPeriodLabel(points, bestGrowth))}</small></div>
+      <div><span>Worst Drawdown</span><strong class="red">${formatCurrency(worstDrawdown.value)}</strong><small>${escapeHtml(getPeriodLabel(points, worstDrawdown))}</small></div>
+      <div><span>Recovery Periods</span><strong class="blue">${recoveryPeriods.length}</strong><small>${recoveryPeriods.length ? `${recoveryPeriods.filter((period) => period.open).length} still recovering` : 'No drawdown recoveries yet'}</small></div>
+    `;
+  }
 }
 
 function renderWinLossPie(trades) {
@@ -192,12 +349,16 @@ function renderConsistencyDetails(consistency) {
 
   const factorsEl = document.getElementById('consistencyFactors');
   if (factorsEl) {
-    factorsEl.innerHTML = Object.entries(consistency.factors).map(([key, value]) => `
+    if (!consistency.sampleSize) {
+      factorsEl.innerHTML = '<div class="chart-empty">Log closed trades to build your consistency factors.</div>';
+    } else {
+      factorsEl.innerHTML = Object.entries(consistency.factors).map(([key, value]) => `
       <div class="consistency-factor">
         <div><span>${escapeHtml(formatFactorLabel(key))}</span><strong>${Math.round(value)}</strong></div>
         <div class="consistency-factor-track"><span style="width:${Math.max(value, 4)}%"></span></div>
       </div>
     `).join('');
+    }
   }
 
   const suggestionsEl = document.getElementById('consistencySuggestions');

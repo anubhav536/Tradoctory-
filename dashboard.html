@@ -224,7 +224,10 @@
               <span class="card-badge">Cumulative P&amp;L</span>
             </div>
             <div class="card-body">
-              <div class="equity-chart" id="equityCurveChart" aria-live="polite"></div>
+              <div class="equity-chart equity-chart-system" id="equityCurveChart" aria-live="polite">
+                <canvas id="equityCurveCanvas" aria-label="Equity curve showing growth, drawdowns, and recovery periods" role="img"></canvas>
+              </div>
+              <div class="equity-insights" id="equityCurveInsights" aria-live="polite"></div>
             </div>
           </article>
 
@@ -287,6 +290,7 @@
 
   </div><!-- /app-shell -->
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

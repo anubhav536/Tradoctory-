@@ -85,6 +85,20 @@ function getTrend(currentScore, previousScore) {
   return { label: `Stable ${delta >= 0 ? '+' : ''}${delta}`, direction: 'flat', delta };
 }
 
+function getEmptyConsistencyResult() {
+  return {
+    score: 0,
+    factors: {
+      winRate: 0,
+      riskManagement: 0,
+      tradeFrequency: 0,
+      emotionalStability: 0,
+      strategyDiscipline: 0
+    },
+    suggestions: ['Log closed trades to build your consistency baseline.']
+  };
+}
+
 function buildSuggestions(factors) {
   const suggestions = [];
   if (factors.winRate < 50) suggestions.push('Review losing setups and pause strategies that remain below a 50% win rate.');
@@ -116,6 +130,20 @@ function scoreTrades(trades) {
 export function analyzeConsistency(trades = []) {
   const validTrades = Array.isArray(trades) ? trades.filter(Boolean) : [];
   const closedTrades = validTrades.filter(isClosedTrade).sort((a, b) => parseTradeTime(a) - parseTradeTime(b));
+
+  if (!closedTrades.length) {
+    const empty = getEmptyConsistencyResult();
+    return {
+      schemaVersion: CONSISTENCY_SCHEMA_VERSION,
+      generatedAt: new Date().toISOString(),
+      score: empty.score,
+      trend: getTrend(empty.score, null),
+      factors: empty.factors,
+      suggestions: empty.suggestions,
+      sampleSize: 0
+    };
+  }
+
   const current = scoreTrades(closedTrades);
   const midpoint = Math.floor(closedTrades.length / 2);
   const previousScore = midpoint >= 3 ? scoreTrades(closedTrades.slice(0, midpoint)).score : null;
