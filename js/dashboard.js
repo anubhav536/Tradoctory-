@@ -30,35 +30,32 @@ signOutBtn?.addEventListener('click', () => signOutAndRedirect('index.html'));
 /* ── 4. Mobile sidebar toggle ────────────────────── */
 menuToggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
 
-/* ── 5. Auto-calculated dashboard statistics ─────── */
+/* ── 5. Premium fintech dashboard ────────────────── */
 const tradeRepository = new LocalTradeRepository({ userId: user.id || user.email });
 const tradeService = new TradeService({ repository: tradeRepository, userId: user.id || user.email });
 
-const recentTradesBody = document.getElementById('recentTradesBody');
-const emptyRecentTrades = document.getElementById('emptyRecentTrades');
-const chartArea = document.getElementById('profitChart');
+const equityCurveChart = document.getElementById('equityCurveChart');
+const winLossPieChart = document.getElementById('winLossPieChart');
+const winLossLegend = document.getElementById('winLossLegend');
+const strategyPerformanceChart = document.getElementById('strategyPerformanceChart');
+const weeklyPerformanceChart = document.getElementById('weeklyPerformanceChart');
 
 function formatCurrency(value) {
-  const sign = value >= 0 ? '+' : '−';
-  return `${sign}$${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  const numericValue = Number(value) || 0;
+  const sign = numericValue >= 0 ? '+' : '−';
+  return `${sign}$${Math.abs(numericValue).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 }
 
 function renderMetric(id, value) {
   document.getElementById(id)?.replaceChildren(value);
 }
 
-function getCurrencyClass(value) {
-  if (value > 0) return 'green';
-  if (value < 0) return 'red';
-  return '';
-}
-
-function setValueClass(id, value) {
+function setTone(id, value) {
   const element = document.getElementById(id);
   if (!element) return;
   element.classList.remove('green', 'red', 'blue');
-  const className = getCurrencyClass(value);
-  if (className) element.classList.add(className);
+  if (value > 0) element.classList.add('green');
+  if (value < 0) element.classList.add('red');
 }
 
 function escapeHtml(value) {
@@ -67,62 +64,161 @@ function escapeHtml(value) {
   return element.innerHTML;
 }
 
+function getClosedTrades(trades) {
+  return trades.filter((trade) => ['win', 'loss'].includes(String(trade.tradeResult).toLowerCase()));
+}
+
+function parseTradeDate(trade) {
+  const rawDate = trade.tradeDate || trade.createdAt;
+  if (!rawDate) return new Date(0);
+  return new Date(String(rawDate).includes('T') ? rawDate : `${rawDate}T00:00:00`);
+}
+
+function getBestStrategy(trades) {
+  const strategyMap = new Map();
+  trades.forEach((trade) => {
+    const strategy = trade.strategy || 'Unlabeled';
+    const existing = strategyMap.get(strategy) || { pnl: 0, count: 0 };
+    strategyMap.set(strategy, { pnl: existing.pnl + (Number(trade.profitLoss) || 0), count: existing.count + 1 });
+  });
+  return [...strategyMap.entries()].sort((a, b) => b[1].pnl - a[1].pnl)[0];
+}
+
+function getCurrentStreak(closedTrades) {
+  const sortedTrades = [...closedTrades].sort((a, b) => parseTradeDate(b) - parseTradeDate(a));
+  const latestResult = sortedTrades[0]?.tradeResult?.toLowerCase();
+  if (!latestResult) return { label: '—', count: 0, result: '' };
+  const count = sortedTrades.findIndex((trade) => trade.tradeResult.toLowerCase() !== latestResult);
+  const streakCount = count === -1 ? sortedTrades.length : count;
+  return { label: `${streakCount} ${latestResult}${streakCount === 1 ? '' : 's'}`, count: streakCount, result: latestResult };
+}
+
+function getConsistencyScore(statistics, closedTrades) {
+  if (!closedTrades.length) return 0;
+  const pnlValues = closedTrades.map((trade) => Number(trade.profitLoss) || 0);
+  const average = pnlValues.reduce((sum, value) => sum + value, 0) / pnlValues.length;
+  const variance = pnlValues.reduce((sum, value) => sum + ((value - average) ** 2), 0) / pnlValues.length;
+  const standardDeviation = Math.sqrt(variance);
+  const stabilityScore = Math.max(0, 100 - Math.min(100, (standardDeviation / Math.max(Math.abs(average), 1)) * 18));
+  return Math.round((statistics.winRate * 0.65) + (stabilityScore * 0.35));
+}
+
 function renderStatistics(trades) {
   const statistics = calculateTradeStatistics(trades);
+  const closedTrades = getClosedTrades(trades);
+  const bestStrategy = getBestStrategy(trades);
+  const streak = getCurrentStreak(closedTrades);
+  const consistencyScore = getConsistencyScore(statistics, closedTrades);
 
   renderMetric('totalTrades', String(statistics.totalTrades));
-  renderMetric('winningTrades', String(statistics.winningTrades));
-  renderMetric('losingTrades', String(statistics.losingTrades));
+  renderMetric('totalPnl', formatCurrency(statistics.totalProfit));
   renderMetric('winRate', `${statistics.winRate}%`);
-  renderMetric('totalProfit', formatCurrency(statistics.totalProfit));
-  renderMetric('averageProfit', formatCurrency(statistics.averageProfit));
-  renderMetric('averageLoss', formatCurrency(statistics.averageLoss));
-  renderMetric('bestTrade', formatCurrency(statistics.bestTrade));
-  renderMetric('worstTrade', formatCurrency(statistics.worstTrade));
+  renderMetric('currentStreak', streak.label);
+  renderMetric('bestStrategy', bestStrategy ? bestStrategy[0] : '—');
+  renderMetric('consistencyScore', String(consistencyScore));
+  renderMetric('totalPnlDelta', statistics.totalProfit >= 0 ? 'Portfolio is net profitable' : 'Portfolio is in drawdown');
+  renderMetric('currentStreakDelta', streak.result ? `Latest closed trades are ${streak.result}s` : 'Awaiting closed trades');
+  renderMetric('bestStrategyDelta', bestStrategy ? `${formatCurrency(bestStrategy[1].pnl)} across ${bestStrategy[1].count} trade${bestStrategy[1].count === 1 ? '' : 's'}` : 'Log strategies to rank setups');
 
-  ['totalProfit', 'averageProfit', 'averageLoss', 'bestTrade', 'worstTrade'].forEach((id) => {
-    const valueKey = id;
-    setValueClass(id, statistics[valueKey]);
+  setTone('totalPnl', statistics.totalProfit);
+  setTone('currentStreak', streak.result === 'win' ? streak.count : -streak.count);
+  setTone('consistencyScore', consistencyScore - 50);
+}
+
+function renderEquityCurve(trades) {
+  if (!equityCurveChart) return;
+  const sortedTrades = [...trades].sort((a, b) => parseTradeDate(a) - parseTradeDate(b));
+  let runningTotal = 0;
+  const points = sortedTrades.map((trade) => {
+    runningTotal += Number(trade.profitLoss) || 0;
+    return runningTotal;
   });
-}
-
-function renderRecentTrades(trades) {
-  if (!recentTradesBody) return;
-
-  const rows = trades.slice(0, 5).map((trade) => {
-    const tagClass = trade.tradeResult.toLowerCase();
-    const pnlClass = getCurrencyClass(trade.profitLoss) || 'blue';
-    return `
-      <tr>
-        <td style="color:var(--text-primary);font-weight:600;">${escapeHtml(trade.tradeName || 'Untitled')}</td>
-        <td>${escapeHtml(trade.direction)}</td>
-        <td><span class="tag ${tagClass}">${escapeHtml(trade.tradeResult.toUpperCase())}</span></td>
-        <td class="${pnlClass}" style="font-weight:600;">${formatCurrency(trade.profitLoss)}</td>
-      </tr>
-    `;
+  if (!points.length) {
+    equityCurveChart.innerHTML = '<div class="chart-empty">Log trades in your journal to build an equity curve.</div>';
+    return;
+  }
+  const min = Math.min(...points, 0);
+  const max = Math.max(...points, 1);
+  const range = Math.max(max - min, 1);
+  equityCurveChart.innerHTML = points.map((value, index) => {
+    const height = ((value - min) / range) * 100;
+    const left = points.length === 1 ? 50 : (index / (points.length - 1)) * 100;
+    return `<span class="equity-point ${value >= 0 ? 'green' : 'red'}" style="left:${left}%;bottom:${height}%" title="${formatCurrency(value)}"></span>`;
   }).join('');
-
-  recentTradesBody.innerHTML = rows;
-  if (emptyRecentTrades) emptyRecentTrades.hidden = trades.length > 0;
 }
 
-function renderProfitChart(trades) {
-  if (!chartArea) return;
-  const chartTrades = trades.slice(0, 12).reverse();
-  const largestMove = Math.max(...chartTrades.map((trade) => Math.abs(trade.profitLoss)), 1);
+function renderWinLossPie(trades) {
+  const statistics = calculateTradeStatistics(trades);
+  const closedTotal = statistics.winningTrades + statistics.losingTrades;
+  const winPercent = closedTotal ? Math.round((statistics.winningTrades / closedTotal) * 100) : 0;
+  if (winLossPieChart) {
+    winLossPieChart.style.setProperty('--win-percent', `${winPercent}%`);
+    winLossPieChart.innerHTML = `<span>${winPercent}%</span><small>Win rate</small>`;
+  }
+  if (winLossLegend) {
+    winLossLegend.innerHTML = `
+      <div><span class="legend-dot green"></span><strong>${statistics.winningTrades}</strong> Wins</div>
+      <div><span class="legend-dot red"></span><strong>${statistics.losingTrades}</strong> Losses</div>
+    `;
+  }
+}
 
-  chartArea.innerHTML = chartTrades.map((trade) => {
-    const height = Math.max((Math.abs(trade.profitLoss) / largestMove) * 100, 8);
-    const colorClass = trade.profitLoss >= 0 ? 'green' : 'red';
-    return `<div class="chart-bar ${colorClass}" style="height:${height}%" title="${escapeHtml(trade.tradeName)} ${formatCurrency(trade.profitLoss)}"></div>`;
-  }).join('') || '<div class="chart-empty">Log trades in your journal to build this chart.</div>';
+function renderStrategyPerformance(trades) {
+  if (!strategyPerformanceChart) return;
+  const strategies = [...trades.reduce((map, trade) => {
+    const strategy = trade.strategy || 'Unlabeled';
+    map.set(strategy, (map.get(strategy) || 0) + (Number(trade.profitLoss) || 0));
+    return map;
+  }, new Map()).entries()].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 5);
+  const max = Math.max(...strategies.map(([, pnl]) => Math.abs(pnl)), 1);
+  strategyPerformanceChart.innerHTML = strategies.map(([strategy, pnl]) => `
+    <div class="horizontal-row">
+      <div class="horizontal-label"><span>${escapeHtml(strategy)}</span><strong class="${pnl >= 0 ? 'green' : 'red'}">${formatCurrency(pnl)}</strong></div>
+      <div class="horizontal-track"><span class="${pnl >= 0 ? 'green' : 'red'}" style="width:${Math.max((Math.abs(pnl) / max) * 100, 4)}%"></span></div>
+    </div>
+  `).join('') || '<div class="chart-empty">Add strategies to compare performance.</div>';
+}
+
+function getWeekLabel(date) {
+  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date);
+}
+
+function renderWeeklyPerformance(trades) {
+  if (!weeklyPerformanceChart) return;
+  const buckets = new Map();
+  const now = new Date();
+  for (let i = 7; i >= 0; i -= 1) {
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - (now.getDay() + (i * 7)));
+    weekStart.setHours(0, 0, 0, 0);
+    buckets.set(weekStart.toISOString().slice(0, 10), { label: getWeekLabel(weekStart), pnl: 0 });
+  }
+  trades.forEach((trade) => {
+    const tradeDate = parseTradeDate(trade);
+    if (Number.isNaN(tradeDate.getTime())) return;
+    const weekStart = new Date(tradeDate);
+    weekStart.setDate(tradeDate.getDate() - tradeDate.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const key = weekStart.toISOString().slice(0, 10);
+    if (buckets.has(key)) buckets.get(key).pnl += Number(trade.profitLoss) || 0;
+  });
+  const weeks = [...buckets.values()];
+  const max = Math.max(...weeks.map((week) => Math.abs(week.pnl)), 1);
+  weeklyPerformanceChart.innerHTML = weeks.map((week) => `
+    <div class="weekly-bar-wrap">
+      <div class="weekly-bar ${week.pnl >= 0 ? 'green' : 'red'}" style="height:${Math.max((Math.abs(week.pnl) / max) * 100, 6)}%" title="${formatCurrency(week.pnl)}"></div>
+      <span>${escapeHtml(week.label)}</span>
+    </div>
+  `).join('');
 }
 
 async function refreshDashboard() {
   const trades = await tradeService.listTrades();
   renderStatistics(trades);
-  renderRecentTrades(trades);
-  renderProfitChart(trades);
+  renderEquityCurve(trades);
+  renderWinLossPie(trades);
+  renderStrategyPerformance(trades);
+  renderWeeklyPerformance(trades);
 }
 
 window.addEventListener('storage', (event) => {
