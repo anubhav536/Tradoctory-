@@ -10,6 +10,11 @@ import { calculateTradeStatistics } from './trades/trade-statistics.js';
 import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
 import { analyzeConsistency } from './trades/consistency-analysis.js';
 import { isClosedTrade } from './trades/trade.js';
+import { MarketDataProvider } from './market/market-data-provider.js';
+import { ScannerProvider } from './scanner/scanner-provider.js';
+import { AlertProvider } from './scanner/alert-provider.js';
+import { AnalyticsProvider } from './scanner/analytics-provider.js';
+import { ChartProvider } from './scanner/chart-provider.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -45,6 +50,12 @@ const winLossPieChart = document.getElementById('winLossPieChart');
 const winLossLegend = document.getElementById('winLossLegend');
 const strategyPerformanceChart = document.getElementById('strategyPerformanceChart');
 const weeklyPerformanceChart = document.getElementById('weeklyPerformanceChart');
+const scannerRefreshBtn = document.getElementById('scannerRefreshBtn');
+const marketDataProvider = new MarketDataProvider();
+const scannerProvider = new ScannerProvider({ marketDataProvider });
+const alertProvider = new AlertProvider();
+const scannerAnalyticsProvider = new AnalyticsProvider();
+const scannerChartProvider = new ChartProvider({ chartGlobal: window.Chart });
 
 function formatCurrency(value) {
   const numericValue = Number(value) || 0;
@@ -68,6 +79,21 @@ function escapeHtml(value) {
   const element = document.createElement('span');
   element.textContent = String(value ?? '');
   return element.innerHTML;
+}
+
+function formatCompactNumber(value) {
+  return Number(value || 0).toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 });
+}
+
+function formatMarketTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Timestamp unavailable';
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
 }
 
 function getClosedTrades(trades) {
@@ -419,6 +445,110 @@ function renderWeeklyPerformance(trades) {
   `).join('');
 }
 
+function getScannerTone(value) {
+  const normalized = String(value || '').toLowerCase();
+  if (normalized.includes('bull') || normalized === 'long' || normalized === 'success') return 'green';
+  if (normalized.includes('bear') || normalized === 'short' || normalized === 'danger') return 'red';
+  if (normalized === 'warning') return 'warning';
+  return 'blue';
+}
+
+function renderScannerSignals(signals = []) {
+  const signalsEl = document.getElementById('scannerSignals');
+  if (!signalsEl) return;
+  signalsEl.innerHTML = signals.map((signal) => {
+    const tone = getScannerTone(signal.direction || signal.severity);
+    return `<article class="scanner-signal ${tone}">
+      <div>
+        <div class="scanner-signal-title">
+          <span>${escapeHtml(signal.title)}</span>
+          <strong>${escapeHtml(signal.direction)}</strong>
+        </div>
+        <p>${escapeHtml(signal.message)}</p>
+        <div class="scanner-signal-meta">
+          <span>Trigger: ${escapeHtml(signal.trigger)}</span>
+          <span>Risk: ${escapeHtml(signal.risk)}</span>
+        </div>
+      </div>
+      <div class="scanner-signal-score">${Math.round(signal.confidence || 0)}%</div>
+    </article>`;
+  }).join('') || '<div class="chart-empty">No scanner signals available.</div>';
+}
+
+function renderScannerAlerts(alerts = []) {
+  const alertsEl = document.getElementById('scannerAlerts');
+  if (!alertsEl) return;
+  alertsEl.innerHTML = alerts.map((alert) => {
+    const tone = getScannerTone(alert.severity);
+    return `<div class="scanner-alert ${tone}">
+      <strong>${escapeHtml(alert.title)}</strong>
+      <span>${escapeHtml(alert.message)}</span>
+    </div>`;
+  }).join('') || '<div class="chart-empty">No scanner alerts yet.</div>';
+}
+
+function renderScannerRiskNotes(notes = []) {
+  const riskNotesEl = document.getElementById('scannerRiskNotes');
+  if (!riskNotesEl) return;
+  riskNotesEl.innerHTML = notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('');
+}
+
+function renderScannerSummary(scanResult, alerts, analytics) {
+  const market = scanResult.market || {};
+  const priceChangeClass = Number(market.change || 0) >= 0 ? 'green' : 'red';
+  const confidence = Math.round(scanResult.confidence || 0);
+  const biasEl = document.getElementById('scannerBias');
+  const confidenceBar = document.getElementById('scannerConfidenceBar');
+  const sourceBadge = document.getElementById('scannerSourceBadge');
+
+  if (biasEl) {
+    biasEl.classList.remove('green', 'red', 'blue');
+    biasEl.classList.add(getScannerTone(scanResult.bias));
+    biasEl.replaceChildren(scanResult.bias || 'Neutral');
+  }
+
+  document.getElementById('scannerBiasMeta')?.replaceChildren(`${analytics.headline} · ${analytics.signalCount} signal${analytics.signalCount === 1 ? '' : 's'}`);
+  document.getElementById('scannerConfidence')?.replaceChildren(`${confidence}%`);
+  if (confidenceBar) confidenceBar.style.width = `${Math.max(Math.min(confidence, 100), 4)}%`;
+  document.getElementById('scannerPrice')?.replaceChildren(`${Number(market.price || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
+  const priceChangeEl = document.getElementById('scannerPriceChange');
+  if (priceChangeEl) {
+    priceChangeEl.classList.remove('green', 'red');
+    priceChangeEl.classList.add(priceChangeClass);
+    priceChangeEl.replaceChildren(`${Number(market.change || 0) >= 0 ? '+' : ''}${Number(market.change || 0).toFixed(2)} (${Number(market.changePercent || 0).toFixed(2)}%) · Vol ${formatCompactNumber(market.volume)}`);
+  }
+  document.getElementById('scannerMarketStatus')?.replaceChildren(String(market.marketStatus || 'unknown').toUpperCase());
+  document.getElementById('scannerTimestamp')?.replaceChildren(formatMarketTime(market.timestamp));
+  if (sourceBadge) {
+    sourceBadge.replaceChildren(`${analytics.status} · ${market.source || 'model'}`);
+    sourceBadge.classList.toggle('muted', market.cacheStatus !== 'live');
+  }
+  renderScannerSignals(scanResult.signals);
+  renderScannerAlerts(alerts);
+  renderScannerRiskNotes(scanResult.riskNotes);
+}
+
+async function refreshScanner({ forceRefresh = false } = {}) {
+  scannerRefreshBtn?.setAttribute('disabled', 'true');
+  scannerRefreshBtn?.classList.add('is-loading');
+  try {
+    const scanResult = await scannerProvider.scan({ forceRefresh });
+    const alerts = alertProvider.evaluate(scanResult);
+    const analytics = scannerAnalyticsProvider.summarize(scanResult, alerts);
+    renderScannerSummary(scanResult, alerts, analytics);
+    const chartCanvas = document.getElementById('scannerScoreChart');
+    const chartFallback = document.getElementById('scannerChartFallback');
+    const chartRendered = scannerChartProvider.renderConfidenceChart(chartCanvas, scanResult);
+    if (chartFallback) chartFallback.style.display = chartRendered ? 'none' : 'flex';
+  } catch (error) {
+    console.error('[Tradoctory] Nifty Beast scanner failed.', error);
+    document.getElementById('scannerSignals')?.replaceChildren('Scanner temporarily unavailable. Please refresh the dashboard.');
+  } finally {
+    scannerRefreshBtn?.removeAttribute('disabled');
+    scannerRefreshBtn?.classList.remove('is-loading');
+  }
+}
+
 async function refreshDashboard() {
   const trades = await tradeService.listTrades();
   renderStatistics(trades);
@@ -434,3 +564,5 @@ window.addEventListener('storage', (event) => {
 });
 
 refreshDashboard();
+refreshScanner();
+scannerRefreshBtn?.addEventListener('click', () => refreshScanner({ forceRefresh: true }));
