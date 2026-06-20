@@ -133,10 +133,42 @@
           <article class="stat-card premium-stat-card">
             <div class="stat-label">Consistency Score</div>
             <div class="stat-value" id="consistencyScore">0</div>
-            <div class="stat-delta">Win rate + discipline blend</div>
+            <div class="stat-delta">Win rate + risk + discipline</div>
           </article>
         </section>
 
+
+        <!-- Consistency Analysis -->
+        <section class="card consistency-card" aria-labelledby="consistencyTitle">
+          <div class="card-header">
+            <div class="card-title" id="consistencyTitle">
+              <div class="card-title-icon">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-3 3 2 5-7"/>
+                </svg>
+              </div>
+              Consistency Score
+            </div>
+            <span class="card-badge" id="consistencyTrend">Building baseline</span>
+          </div>
+          <div class="card-body consistency-body">
+            <div class="consistency-summary">
+              <div>
+                <div class="trader-dna-label">Consistency Trend</div>
+                <p>Updates automatically after every logged trade using win rate, risk management, trade frequency, emotional stability, and strategy discipline.</p>
+              </div>
+              <div class="trader-dna-score consistency-score-large" aria-label="Consistency score out of 100">
+                <span id="consistencyScoreDetail">0</span>
+                <small>Out of 100</small>
+              </div>
+            </div>
+            <div class="consistency-factor-grid" id="consistencyFactors" aria-live="polite"></div>
+            <div class="consistency-suggestions">
+              <h3>Improvement Suggestions</h3>
+              <ul id="consistencySuggestions"><li>Log trades to generate suggestions.</li></ul>
+            </div>
+          </div>
+        </section>
 
         <!-- Trader DNA Analysis Engine -->
         <section class="card trader-dna-card" aria-labelledby="traderDnaTitle">

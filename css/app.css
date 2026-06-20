@@ -1857,3 +1857,115 @@ body.modal-open { overflow: hidden; }
   .trader-dna-score { width: 100%; }
   .trader-dna-columns { grid-template-columns: 1fr; }
 }
+
+/* ── Consistency score dashboard card ───────────────────── */
+.consistency-card {
+  margin-bottom: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(0,210,106,0.16), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,0.04), transparent 44%),
+    var(--bg-card);
+}
+
+.consistency-body,
+.consistency-suggestions ul {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.consistency-summary {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.consistency-summary p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.consistency-score-large {
+  background: rgba(0,210,106,0.12);
+  border-color: rgba(0,210,106,0.25);
+  color: var(--accent);
+}
+
+.consistency-factor-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+}
+
+.consistency-factor {
+  background: rgba(8,12,20,0.46);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.consistency-factor div:first-child {
+  align-items: center;
+  color: var(--text-secondary);
+  display: flex;
+  font-size: 12px;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.consistency-factor strong {
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.consistency-factor-track {
+  background: rgba(255,255,255,0.055);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.consistency-factor-track span {
+  background: linear-gradient(90deg, var(--accent), var(--blue));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+}
+
+.consistency-suggestions {
+  background: rgba(8,12,20,0.46);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.consistency-suggestions h3 {
+  color: var(--text-primary);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.consistency-suggestions ul {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  list-style-position: inside;
+}
+
+.card-badge.green { color: var(--accent); }
+.card-badge.red { color: var(--red); }
+.card-badge.blue { color: var(--blue); }
+
+@media (max-width: 900px) {
+  .consistency-factor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .consistency-summary { align-items: flex-start; flex-direction: column; }
+  .consistency-score-large { width: 100%; }
+  .consistency-factor-grid { grid-template-columns: 1fr; }
+}
