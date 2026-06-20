@@ -7,6 +7,7 @@ import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
+import { generateTradeAnalytics, TRADE_ANALYTICS_SCHEMA_VERSION } from './trades/trade-analytics.js';
 import { AI_LEARNING_SCHEMA_VERSION, TRADE_SCHEMA_VERSION, TRADE_TAGS } from './trades/trade.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
@@ -468,11 +469,12 @@ function getAiImportManifest(exportTrades) {
     exportSchemaVersion: 'tradoctory.trade-export.v1',
     tradeSchemaVersion: TRADE_SCHEMA_VERSION,
     aiLearningSchemaVersion: AI_LEARNING_SCHEMA_VERSION,
+    analyticsSchemaVersion: TRADE_ANALYTICS_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     recordCount: exportTrades.length,
     compatibility: {
       intendedUse: 'Future AI trade import, learning, clustering, and recommendation workflows.',
-      recordFormat: 'Records are normalized Tradoctory trade objects with aiLearningProfile included.',
+      recordFormat: 'Records are normalized Tradoctory trade objects with tradeData, emotionData, riskData, performanceData, and aiLearningProfile included.',
       source: 'journal.all-trades'
     }
   };
@@ -482,6 +484,7 @@ function exportTradesAsJson() {
   const exportTrades = getExportTrades();
   const payload = {
     manifest: getAiImportManifest(exportTrades),
+    analytics: generateTradeAnalytics(exportTrades),
     trades: exportTrades
   };
 
@@ -514,6 +517,7 @@ function exportTradesAsCsv() {
     'exportSchemaVersion',
     'tradeSchemaVersion',
     'aiLearningSchemaVersion',
+    'analyticsSchemaVersion',
     'exportedAt',
     'schemaVersion',
     'id',
@@ -536,6 +540,10 @@ function exportTradesAsCsv() {
     'emotion',
     'notes',
     'screenshot',
+    'tradeData',
+    'emotionData',
+    'riskData',
+    'performanceData',
     'aiLearningProfile'
   ];
   const csvRows = [
@@ -544,6 +552,7 @@ function exportTradesAsCsv() {
       exportSchemaVersion: 'tradoctory.trade-export.v1',
       tradeSchemaVersion: TRADE_SCHEMA_VERSION,
       aiLearningSchemaVersion: AI_LEARNING_SCHEMA_VERSION,
+      analyticsSchemaVersion: TRADE_ANALYTICS_SCHEMA_VERSION,
       exportedAt,
       ...trade
     })[header])))
