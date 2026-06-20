@@ -7,6 +7,7 @@ import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
+import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -183,6 +184,29 @@ function getWeekLabel(date) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date);
 }
 
+function renderTraderDna(trades) {
+  const profile = analyzeTraderDna(trades);
+  const typeEl = document.getElementById('traderDnaType');
+  const subtitleEl = document.getElementById('traderDnaSubtitle');
+  const confidenceEl = document.getElementById('traderDnaConfidence');
+  const strengthsEl = document.getElementById('traderDnaStrengths');
+  const weaknessesEl = document.getElementById('traderDnaWeaknesses');
+
+  typeEl?.replaceChildren(profile.traderType);
+  subtitleEl?.replaceChildren(profile.metrics.totalTrades
+    ? `${profile.engine} classification across ${profile.metrics.totalTrades} trade${profile.metrics.totalTrades === 1 ? '' : 's'} · prepared for future AI upgrades`
+    : 'Log trades in your journal to generate a DNA profile.');
+  confidenceEl?.replaceChildren(`${profile.confidenceScore}%`);
+
+  if (strengthsEl) {
+    strengthsEl.innerHTML = profile.strengths.map((strength) => `<li>${escapeHtml(strength)}</li>`).join('');
+  }
+
+  if (weaknessesEl) {
+    weaknessesEl.innerHTML = profile.weaknesses.map((weakness) => `<li>${escapeHtml(weakness)}</li>`).join('');
+  }
+}
+
 function renderWeeklyPerformance(trades) {
   if (!weeklyPerformanceChart) return;
   const buckets = new Map();
@@ -219,6 +243,7 @@ async function refreshDashboard() {
   renderWinLossPie(trades);
   renderStrategyPerformance(trades);
   renderWeeklyPerformance(trades);
+  renderTraderDna(trades);
 }
 
 window.addEventListener('storage', (event) => {
