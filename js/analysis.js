@@ -7,6 +7,7 @@ import { guardRoute, signOutAndRedirect } from './route-guard.js';
 import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { analyzeTradeBehavior } from './trades/trade-behavior-analysis.js';
+import { analyzeTradeTime } from './trades/time-analysis.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -352,6 +353,40 @@ function buildRiskRecommendations(analytics) {
   return recommendations;
 }
 
+
+function describeTimeMetric(metric, emptyText = 'Add timestamped trades to unlock this metric.') {
+  if (!metric) return emptyText;
+  const label = metric.windowLabel || metric.label || metric.date || '—';
+  return `${label} · ${formatCurrency(metric.totalProfit)} total P&L · ${metric.winRate}% win rate · ${metric.trades} trade${metric.trades === 1 ? '' : 's'}`;
+}
+
+function renderTimeAnalysis(trades) {
+  const analysis = analyzeTradeTime(trades);
+  document.getElementById('mostProfitableHourStat')?.replaceChildren(analysis.mostProfitableHour?.windowLabel || '—');
+  document.getElementById('mostProfitableHourMeta')?.replaceChildren(describeTimeMetric(analysis.mostProfitableHour));
+  document.getElementById('leastProfitableHourStat')?.replaceChildren(analysis.leastProfitableHour?.windowLabel || '—');
+  document.getElementById('leastProfitableHourMeta')?.replaceChildren(describeTimeMetric(analysis.leastProfitableHour));
+  document.getElementById('mostProfitableDayStat')?.replaceChildren(analysis.mostProfitableDay?.label || '—');
+  document.getElementById('mostProfitableDayMeta')?.replaceChildren(describeTimeMetric(analysis.mostProfitableDay, 'Add dated trades to unlock this metric.'));
+  document.getElementById('worstTradingDayStat')?.replaceChildren(analysis.worstTradingDay?.date || '—');
+  document.getElementById('worstTradingDayMeta')?.replaceChildren(analysis.worstTradingDay ? `${analysis.worstTradingDay.weekday} · ${formatCurrency(analysis.worstTradingDay.totalProfit)} total P&L · ${analysis.worstTradingDay.trades} trade${analysis.worstTradingDay.trades === 1 ? '' : 's'}` : 'Add dated trades to unlock this metric.');
+  document.getElementById('timeAnalysisBadge')?.replaceChildren(`${analysis.timestampedTrades}/${analysis.sampleSize} timestamped trades`);
+
+  const recommendations = document.getElementById('timeRecommendationsList');
+  if (recommendations) recommendations.innerHTML = analysis.recommendations.map((message) => renderObservation({ severity: message.toLowerCase().includes('avoid') || message.toLowerCase().includes('worst') ? 'warning' : 'positive', message })).join('');
+
+  const tableBody = document.getElementById('timeHourlyTableBody');
+  if (tableBody) {
+    const rows = analysis.hourlyRanking.slice(0, 6);
+    tableBody.innerHTML = rows.length ? rows.map((row) => `<tr>
+      <td style="color:var(--text-primary);font-weight:700;">${escapeHtml(row.windowLabel)}</td>
+      <td>${row.trades}</td>
+      <td style="color:${row.winRate >= 50 ? 'var(--accent)' : 'var(--red)'};font-weight:700;">${row.winRate}%</td>
+      <td style="color:${row.totalProfit >= 0 ? 'var(--accent)' : 'var(--red)'};font-weight:800;">${formatCurrency(row.totalProfit)}</td>
+    </tr>`).join('') : '<tr><td colspan="4">No timestamped trades yet.</td></tr>';
+  }
+}
+
 function renderRiskAnalytics(trades) {
   const analytics = calculateRiskAnalytics(trades);
   const scoreEl = document.getElementById('riskScoreLabel');
@@ -439,6 +474,7 @@ function renderReport(report, trades) {
   renderStrategyPerformanceDashboard(trades);
   renderEmotionAnalytics(trades);
   renderRiskAnalytics(trades);
+  renderTimeAnalysis(trades);
   renderPerformanceByPair(trades);
   renderImprovementPlan(report);
 }
