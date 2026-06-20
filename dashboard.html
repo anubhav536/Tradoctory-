@@ -137,6 +137,46 @@
           </article>
         </section>
 
+
+        <!-- Trader DNA Analysis Engine -->
+        <section class="card trader-dna-card" aria-labelledby="traderDnaTitle">
+          <div class="card-header">
+            <div class="card-title" id="traderDnaTitle">
+              <div class="card-title-icon blue-icon">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a5 5 0 0 0-5 5v2H5a2 2 0 0 0-2 2v7a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4v-7a2 2 0 0 0-2-2h-2V7a5 5 0 0 0-5-5z"/>
+                  <path d="M9 14h.01M15 14h.01M9 18c1.6 1 4.4 1 6 0"/>
+                </svg>
+              </div>
+              Trader DNA Analysis
+            </div>
+            <span class="card-badge">Rule Engine · AI Ready</span>
+          </div>
+          <div class="card-body trader-dna-body">
+            <div class="trader-dna-hero">
+              <div>
+                <div class="trader-dna-label">Trader Type</div>
+                <div class="trader-dna-type" id="traderDnaType">Analyzing…</div>
+                <div class="trader-dna-subtitle" id="traderDnaSubtitle">Classifying behavior from your full trade history.</div>
+              </div>
+              <div class="trader-dna-score" aria-label="Trader DNA confidence score">
+                <span id="traderDnaConfidence">0%</span>
+                <small>Confidence</small>
+              </div>
+            </div>
+            <div class="trader-dna-columns">
+              <div>
+                <h3>Strengths</h3>
+                <ul id="traderDnaStrengths"><li>Loading strengths…</li></ul>
+              </div>
+              <div>
+                <h3>Weaknesses</h3>
+                <ul id="traderDnaWeaknesses"><li>Loading weaknesses…</li></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Analytics charts -->
         <section class="dashboard-grid" aria-label="Trading analytics charts">
           <article class="card dashboard-card dashboard-card-wide">

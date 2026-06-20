@@ -1754,3 +1754,106 @@ body.modal-open { overflow: hidden; }
   .weekly-bar-wrap { height: 190px; }
   .card-body { padding: 16px; }
 }
+
+/* ── Trader DNA dashboard card ───────────────────── */
+.trader-dna-card {
+  margin-bottom: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(59,130,246,0.16), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,0.04), transparent 44%),
+    var(--bg-card);
+}
+
+.trader-dna-body { display: flex; flex-direction: column; gap: 20px; }
+
+.trader-dna-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.trader-dna-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.trader-dna-type {
+  color: var(--text-primary);
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.trader-dna-subtitle {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+.trader-dna-score {
+  align-items: center;
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 18px;
+  color: var(--blue);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 112px;
+  min-width: 132px;
+}
+
+.trader-dna-score span {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.trader-dna-score small {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.trader-dna-columns {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.trader-dna-columns > div {
+  background: rgba(8,12,20,0.46);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.trader-dna-columns h3 {
+  color: var(--text-primary);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.trader-dna-columns ul {
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 8px;
+  line-height: 1.5;
+  list-style-position: inside;
+}
+
+@media (max-width: 700px) {
+  .trader-dna-hero { align-items: flex-start; flex-direction: column; }
+  .trader-dna-score { width: 100%; }
+  .trader-dna-columns { grid-template-columns: 1fr; }
+}
