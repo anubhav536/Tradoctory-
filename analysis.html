@@ -149,6 +149,53 @@
               </div>
             </div>
 
+            <!-- Strategy performance dashboard -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-icon" style="background:rgba(0,210,106,0.15);color:var(--accent);">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-7"/>
+                    </svg>
+                  </div>
+                  Strategy Performance Dashboard
+                </div>
+                <span class="card-badge" id="strategyRankingBadge">Ranked by Total P&amp;L</span>
+              </div>
+              <div class="card-body strategy-dashboard-body">
+                <div class="strategy-highlight-grid">
+                  <div class="strategy-highlight-card best">
+                    <div class="strategy-highlight-label">Best Strategy</div>
+                    <div class="strategy-highlight-value" id="bestStrategyHighlight">—</div>
+                    <div class="strategy-highlight-meta" id="bestStrategyMeta">Add trades to rank strategies.</div>
+                  </div>
+                  <div class="strategy-highlight-card worst">
+                    <div class="strategy-highlight-label">Worst Strategy</div>
+                    <div class="strategy-highlight-value" id="worstStrategyHighlight">—</div>
+                    <div class="strategy-highlight-meta" id="worstStrategyMeta">Add trades to rank strategies.</div>
+                  </div>
+                </div>
+                <div class="strategy-table-wrap">
+                  <table class="trade-table strategy-performance-table">
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Strategy</th>
+                        <th>Trades Taken</th>
+                        <th>Win Rate</th>
+                        <th>Average Profit</th>
+                        <th>Average Loss</th>
+                        <th>Total P&amp;L</th>
+                      </tr>
+                    </thead>
+                    <tbody id="strategyPerformanceTableBody">
+                      <tr><td colspan="7">Loading strategy performance…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- Performance by pair -->
             <div class="card">
               <div class="card-header">

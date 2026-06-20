@@ -2015,3 +2015,71 @@ body.modal-open { overflow: hidden; }
   .equity-insights { grid-template-columns: 1fr; }
   .equity-chart-system { min-height: 320px; padding: 10px; }
 }
+
+/* ── Strategy performance dashboard ───────────────── */
+.strategy-dashboard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+}
+
+.strategy-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.strategy-highlight-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255,255,255,0.025);
+}
+
+.strategy-highlight-card.best { border-color: rgba(0,210,106,0.35); background: rgba(0,210,106,0.07); }
+.strategy-highlight-card.worst { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.07); }
+
+.strategy-highlight-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.strategy-highlight-value {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.strategy-highlight-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.strategy-table-wrap { overflow-x: auto; }
+.strategy-performance-table th,
+.strategy-performance-table td { white-space: nowrap; }
+.strategy-performance-table tr.best-strategy-row td { background: rgba(0,210,106,0.06); }
+.strategy-performance-table tr.worst-strategy-row td { background: rgba(239,68,68,0.06); }
+.strategy-performance-table .rank-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .strategy-highlight-grid { grid-template-columns: 1fr; }
+}
