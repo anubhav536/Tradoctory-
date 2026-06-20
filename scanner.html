@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tradoctory Nifty Beast AI Scanner — Live market scanning with AI-powered setup detection." />
+  <title>Nifty Beast AI Scanner — Tradoctory</title>
+
+  <script>document.documentElement.classList.add('guard-loading');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/scanner.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <a href="dashboard.html" class="sidebar-logo">
+        <div class="sidebar-logo-icon">▲</div>
+        Tradoctory
+      </a>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+
+        <a href="dashboard.html" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          Dashboard
+        </a>
+
+        <a href="journal.html" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Journal
+        </a>
+
+        <a href="analysis.html" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          AI Analysis
+        </a>
+
+        <a href="scanner.html" class="nav-item active">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+          AI Scanner
+          <span style="margin-left:auto;font-size:9px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:4px;border:1px solid rgba(245,158,11,0.25);">NEW</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-row" id="sidebarUser">
+          <div class="user-avatar" id="userAvatarInitial">?</div>
+          <div class="user-info">
+            <div class="user-name" id="userDisplayName">Loading…</div>
+            <div class="user-plan" id="userDisplayPlan">Free plan</div>
+          </div>
+        </div>
+        <button class="signout-btn" id="signOutBtn">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main-content scanner-page">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-title">Nifty Beast AI Scanner</div>
+          <div class="scanner-topbar-meta">
+            <div class="scanner-live-badge">
+              <span class="live-dot"></span>
+              Live
+            </div>
+            <div class="scanner-data-badge" id="dataBadge">Initializing…</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="scanner-refresh-btn" id="scannerRefreshBtn" type="button">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Refresh Scan
+          </button>
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page body -->
+      <div class="page-body">
+
+        <!-- ── 1. Market Mood Bar ────────────────────── -->
+        <section class="mood-bar" id="moodBar" aria-label="Market mood indicators">
+          <div class="mood-card" style="--mood-color:#8090a8;">
+            <div class="mood-card-label">Market Regime</div>
+            <div class="mood-card-value"><span id="regimeEmoji" class="mood-card-emoji">⚪</span><span id="regimeLabel">Loading…</span></div>
+            <div class="mood-card-sub" id="regimeDesc">Scanning market conditions…</div>
+          </div>
+          <div class="mood-card" style="--mood-color:#8090a8;">
+            <div class="mood-card-label">Market Mood</div>
+            <div class="mood-card-value"><span id="moodEmoji" class="mood-card-emoji">⚪</span><span id="moodLabel">Loading…</span></div>
+            <div class="mood-card-sub" id="moodBias">Analysing direction…</div>
+          </div>
+          <div class="mood-card" style="--mood-color:#8090a8;">
+            <div class="mood-card-label">Nifty 50</div>
+            <div class="mood-card-value" id="niftyPriceDisplay">—</div>
+            <div class="mood-card-sub" id="niftyChangeSub">Awaiting data</div>
+          </div>
+          <div class="mood-card" style="--mood-color:#8090a8;">
+            <div class="mood-card-label">Strongest Sector</div>
+            <div class="mood-card-value" id="strongestSector">—</div>
+            <div class="mood-card-sub" id="weakestSector">—</div>
+          </div>
+          <div class="mood-card" style="--mood-color:#8090a8;">
+            <div class="mood-card-label">Scan Summary</div>
+            <div class="mood-card-value" id="scanSummaryValue">—</div>
+            <div class="mood-card-sub" id="scanSummarySub">—</div>
+          </div>
+        </section>
+
+        <!-- ── 2. Live Charts ─────────────────────────── -->
+        <section aria-label="Live market charts">
+          <div class="chart-section-header" style="margin-bottom:12px;">
+            <div class="chart-section-title">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Live Charts
+            </div>
+            <div class="timeframe-tabs" id="timeframeTabs" role="tablist" aria-label="Chart timeframe">
+              <button class="tf-tab" data-tf="1m">1m</button>
+              <button class="tf-tab" data-tf="5m">5m</button>
+              <button class="tf-tab active" data-tf="15m">15m</button>
+              <button class="tf-tab" data-tf="1H">1H</button>
+              <button class="tf-tab" data-tf="4H">4H</button>
+              <button class="tf-tab" data-tf="Daily">Daily</button>
+            </div>
+          </div>
+          <div class="charts-grid" id="chartsGrid">
+            <!-- Chart tiles injected by JS -->
+            <div class="chart-tile" style="height:270px;">
+              <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;">Loading charts…</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── 3. Scanner Engine ──────────────────────── -->
+        <section aria-label="Scanner engine output">
+
+          <!-- Scan stats row -->
+          <div class="scan-stats-row" id="scanStatsRow" style="margin-bottom:16px;">
+            <div class="scan-stat">
+              <span>Scanned:</span><strong id="statScanned">—</strong>
+            </div>
+            <div class="scan-stat-divider"></div>
+            <div class="scan-stat">
+              <span>Accepted:</span><strong id="statAccepted">—</strong>
+            </div>
+            <div class="scan-stat-divider"></div>
+            <div class="scan-stat">🔥 S-Tier:</div><strong id="statSTier">—</strong>
+            <div class="scan-stat-divider"></div>
+            <div class="scan-stat">✅ A-Tier:</div><strong id="statATier">—</strong>
+            <div class="scan-stat-divider"></div>
+            <div class="scan-stat">📊 B-Tier:</div><strong id="statBTier">—</strong>
+            <div class="scan-stat-divider"></div>
+            <div class="scan-stat"><span>Updated:</span><strong id="statUpdated">—</strong></div>
+          </div>
+
+          <div class="scanner-engine-grid">
+
+            <!-- Left: Best Setup + Opportunities -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+              <!-- Best Setup Card -->
+              <div id="bestSetupCard">
+                <div class="best-setup-card no-trade">
+                  <div class="best-setup-inner">
+                    <div class="no-trade-state">
+                      <div class="no-trade-icon">🔍</div>
+                      <div class="no-trade-title">Scanning Markets…</div>
+                      <div class="no-trade-sub">Running the Nifty Beast AI Scanner across all assets. This takes a few seconds.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Opportunities List -->
+              <div class="opportunities-section">
+                <div class="opp-header">
+                  <div class="opp-title">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Top Opportunities
+                    <span class="opp-count-badge" id="oppCountBadge">—</span>
+                  </div>
+                  <div class="opp-filter-tabs" id="oppFilterTabs">
+                    <button class="opp-tab active" data-filter="top10">Top 10</button>
+                    <button class="opp-tab" data-filter="top5">Top 5</button>
+                    <button class="opp-tab" data-filter="top3">Top 3</button>
+                    <button class="opp-tab" data-filter="s-tier">S-Tier</button>
+                  </div>
+                </div>
+                <div class="opp-list" id="oppList">
+                  <div class="chart-empty" style="padding:24px;text-align:center;color:var(--text-muted);">Awaiting scan results…</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: Sidebar panels -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
+
+              <!-- Sector Leaderboard -->
+              <div class="watchlist-panel">
+                <div class="watchlist-header">
+                  <div class="watchlist-title">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="18 20 22 16 18 12"/><polyline points="6 20 2 16 6 12"/><line x1="22" y1="16" x2="11" y2="16"/><line x1="2" y1="16" x2="11" y2="16"/></svg>
+                    Sector Strength
+                  </div>
+                  <span class="watchlist-count" id="sectorTime">—</span>
+                </div>
+                <div class="watchlist-body">
+                  <div class="sector-leaderboard" id="sectorLeaderboard">
+                    <div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">Loading sectors…</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auto Watchlist -->
+              <div class="watchlist-panel">
+                <div class="watchlist-header">
+                  <div class="watchlist-title">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Auto Watchlist
+                  </div>
+                  <span class="watchlist-count" id="watchlistCount">0 assets</span>
+                </div>
+                <div class="watchlist-body" id="watchlistBody">
+                  <div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">Watchlist auto-generates after scan.</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ── 4. AI Explanation + Telegram Alert ────── -->
+        <section id="analysisSection" style="display:none;" aria-label="AI explanation and alerts">
+          <div class="scanner-engine-grid">
+
+            <!-- AI Explanation Panel -->
+            <div class="explanation-panel">
+              <div class="explanation-panel-header">
+                <div class="explanation-panel-title">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  AI Analysis
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);" id="explanationSymbolLabel">Select a setup</div>
+              </div>
+              <div class="explanation-panel-body" id="explanationBody">
+                <div class="no-trade-state" style="padding:24px;">
+                  <div class="no-trade-icon">🧠</div>
+                  <div class="no-trade-title" style="font-size:14px;">Select a setup above</div>
+                  <div class="no-trade-sub">Click any opportunity in the list to see the full AI analysis.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Telegram Alert Panel -->
+            <div class="telegram-panel">
+              <div class="telegram-panel-header">
+                <div class="telegram-panel-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:#0088cc;"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.042 9.627c-.152.68-.557.847-1.126.528l-3.12-2.299-1.503 1.453c-.168.168-.308.308-.628.308l.224-3.17 5.77-5.208c.25-.224-.055-.35-.387-.126L7.028 14.26l-3.067-.957c-.665-.208-.68-.665.14-.985l11.98-4.614c.556-.2 1.04.136.481.544z"/></svg>
+                  Telegram Alert
+                </div>
+                <span class="telegram-gate-status fail" id="telegramGateStatus">No Alert</span>
+              </div>
+              <div class="telegram-panel-body" id="telegramBody">
+                <div class="telegram-no-alert">
+                  <div class="telegram-no-alert-icon">🔕</div>
+                  <div>Alerts fire only for <strong>S-Tier</strong> setups with all gates confirmed.</div>
+                </div>
+                <!-- Gate checklist rendered here by JS -->
+                <div class="telegram-gate-list" id="telegramGateList"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ── Disclaimer ──────────────────────────────── -->
+        <p class="scanner-disclaimer">
+          Nifty Beast AI Scanner · Educational use only · Not financial advice · Always apply your own risk management
+        </p>
+
+      </div><!-- /page-body -->
+    </div><!-- /main-content -->
+
+  </div><!-- /app-shell -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script type="module" src="js/beast-scanner.js"></script>
+</body>
+</html>

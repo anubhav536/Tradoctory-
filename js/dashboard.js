@@ -566,3 +566,63 @@ window.addEventListener('storage', (event) => {
 refreshDashboard();
 refreshScanner();
 scannerRefreshBtn?.addEventListener('click', () => refreshScanner({ forceRefresh: true }));
+
+/* ── Dashboard Scanner Summary Widget ────────────── */
+(async function initDashScannerSummary() {
+  try {
+    const { MultiSymbolScanner }  = await import('./scanner/multi-symbol-scanner.js');
+    const { getMarketMoodEmoji }  = await import('./scanner/market-regime-engine.js');
+
+    const miniScanner = new MultiSymbolScanner();
+    const result = await miniScanner.scanAll();
+    const { regime, sectorRanking, bestSetup, top3, acceptedCount, sTierCount, aTierCount, bTierCount } = result;
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+
+    /* Regime */
+    setHtml('dashRegime', `${getMarketMoodEmoji(regime?.mood)} ${regime?.mood || '—'}`);
+    set('dashRegimeSub', regime?.tradingBias || '—');
+
+    /* Best setup */
+    if (bestSetup) {
+      const col = bestSetup.tier === 'S' ? '#f59e0b' : bestSetup.tier === 'A' ? '#00d26a' : '#3b82f6';
+      setHtml('dashBestSetup', `<span style="color:${col};">${bestSetup.tierEmoji} ${bestSetup.symbol}</span>`);
+      set('dashBestSetupSub', `${bestSetup.direction} · ${bestSetup.score}/10 · R:R 1:${bestSetup.rrRatio}`);
+    } else {
+      set('dashBestSetup', 'No Setup');
+      set('dashBestSetupSub', 'Market not favourable');
+    }
+
+    /* Setup count */
+    set('dashSetupCount', `${acceptedCount} qualified`);
+    set('dashSetupTiers', `🔥${sTierCount} ✅${aTierCount} 📊${bTierCount}`);
+
+    /* Sector */
+    const s = sectorRanking?.strongest;
+    setHtml('dashSector', s ? `${s.icon} ${s.label}` : '—');
+    set('dashSectorSub', s ? `Score: ${s.score}/100` : '—');
+
+    /* Top 3 opportunities mini-list */
+    const listEl = document.getElementById('dashOppList');
+    if (listEl) {
+      if (!top3.length) {
+        listEl.innerHTML = `<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;">🚫 NO HIGH QUALITY SETUP AVAILABLE — Market favours patience.</div>`;
+      } else {
+        const colMap = { S:'#f59e0b', A:'#00d26a', B:'#3b82f6' };
+        listEl.innerHTML = top3.map((s, i) => {
+          const col = colMap[s.tier] || '#6b7280';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);">
+            <span style="font-size:11px;color:var(--text-muted);width:14px;text-align:center;">${i+1}</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text-primary);">${s.symbol}</span>
+            <span style="font-size:10px;color:var(--text-muted);flex:1;">${s.name || ''}</span>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:${col}22;color:${col};border:1px solid ${col}44;">${s.tierEmoji} ${s.tierLabel}</span>
+            <span style="font-size:12px;font-weight:800;color:${col};">${s.score}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+  } catch (err) {
+    console.warn('[Tradoctory] Dashboard scanner summary failed silently.', err);
+  }
+})();

@@ -57,6 +57,15 @@
           </svg>
           AI Analysis
         </a>
+
+        <a href="scanner.html" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+          AI Scanner
+          <span style="margin-left:auto;font-size:9px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:4px;border:1px solid rgba(245,158,11,0.25);">NEW</span>
+        </a>
       </div>
 
       <div class="sidebar-footer">
@@ -209,76 +218,60 @@
           </div>
         </section>
 
-        <!-- Nifty Beast AI Scanner -->
-        <section class="card scanner-card" aria-labelledby="niftyBeastTitle">
-          <div class="scanner-glow" aria-hidden="true"></div>
-          <div class="card-header scanner-header">
-            <div>
-              <div class="card-title" id="niftyBeastTitle">
-                <div class="card-title-icon scanner-icon">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-5 4 3 5-7"/>
-                  </svg>
-                </div>
-                Nifty Beast AI Scanner
+        <!-- Nifty Beast AI Scanner — Dashboard Summary Widget -->
+        <section class="card" aria-labelledby="scannerSummaryTitle" id="dashScannerSection" style="border:1px solid rgba(245,158,11,0.25);background:linear-gradient(135deg,rgba(245,158,11,0.04) 0%,transparent 60%);">
+          <div class="card-header">
+            <div class="card-title" id="scannerSummaryTitle">
+              <div class="card-title-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
               </div>
-              <p class="scanner-subtitle">Rule-based Nifty setup scanner with market-data abstraction, alerts, analytics, and Chart.js-ready scoring.</p>
+              Nifty Beast AI Scanner
+              <span style="font-size:9px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.15);padding:1px 8px;border-radius:4px;border:1px solid rgba(245,158,11,0.25);margin-left:4px;">NEW</span>
             </div>
-            <div class="scanner-actions">
-              <span class="card-badge scanner-source" id="scannerSourceBadge">Initializing</span>
-              <button class="btn btn-ghost scanner-refresh" id="scannerRefreshBtn" type="button">Refresh scanner</button>
-            </div>
+            <a href="scanner.html" class="btn btn-ghost" style="font-size:12px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+              Open Full Scanner
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
           </div>
-          <div class="card-body scanner-body" id="niftyBeastScanner" aria-live="polite">
-            <div class="scanner-status-row">
-              <div class="scanner-bias-card">
-                <span>Current Bias</span>
-                <strong id="scannerBias">Loading…</strong>
-                <small id="scannerBiasMeta">Preparing scanner model.</small>
+          <div class="card-body">
+            <!-- Market Mood row -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px;" id="dashMoodRow">
+              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Market Regime</div>
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashRegime">—</div>
+                <div style="font-size:11px;color:var(--text-muted);" id="dashRegimeSub">Loading…</div>
               </div>
-              <div class="scanner-metric">
-                <span>Confidence</span>
-                <strong id="scannerConfidence">0%</strong>
-                <div class="scanner-confidence-track"><span id="scannerConfidenceBar" style="width:0%"></span></div>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Best Opportunity</div>
+                <div style="font-size:16px;font-weight:700;" id="dashBestSetup">—</div>
+                <div style="font-size:11px;color:var(--text-muted);" id="dashBestSetupSub">—</div>
               </div>
-              <div class="scanner-metric">
-                <span>Nifty Price</span>
-                <strong id="scannerPrice">—</strong>
-                <small id="scannerPriceChange">Awaiting market data</small>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Setups Found</div>
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashSetupCount">—</div>
+                <div style="font-size:11px;color:var(--text-muted);" id="dashSetupTiers">—</div>
               </div>
-              <div class="scanner-metric">
-                <span>Market Status</span>
-                <strong id="scannerMarketStatus">—</strong>
-                <small id="scannerTimestamp">—</small>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Strongest Sector</div>
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashSector">—</div>
+                <div style="font-size:11px;color:var(--text-muted);" id="dashSectorSub">—</div>
               </div>
             </div>
 
-            <div class="scanner-grid">
-              <div class="scanner-panel scanner-panel-main">
-                <div class="scanner-panel-title">Top Scanner Signals</div>
-                <div class="scanner-signal-list" id="scannerSignals">
-                  <div class="chart-empty">Loading Nifty Beast scanner signals…</div>
-                </div>
+            <!-- Top 3 opportunities mini-list -->
+            <div style="display:flex;flex-direction:column;gap:6px;" id="dashOppList">
+              <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px;">
+                Loading scanner data…
               </div>
-              <div class="scanner-panel">
-                <div class="scanner-panel-title">AI Score Map</div>
-                <div class="scanner-chart-wrap">
-                  <canvas id="scannerScoreChart" aria-label="Nifty Beast scanner score map" role="img"></canvas>
-                  <div class="chart-empty" id="scannerChartFallback">Score chart will appear when Chart.js is ready.</div>
-                </div>
-              </div>
-              <div class="scanner-panel">
-                <div class="scanner-panel-title">Alerts</div>
-                <div class="scanner-alert-list" id="scannerAlerts">
-                  <div class="chart-empty">No scanner alerts yet.</div>
-                </div>
-              </div>
-              <div class="scanner-panel">
-                <div class="scanner-panel-title">Risk Notes</div>
-                <ul class="scanner-risk-list" id="scannerRiskNotes">
-                  <li>Educational scanner output only — not financial advice.</li>
-                </ul>
-              </div>
+            </div>
+
+            <div style="margin-top:12px;text-align:center;">
+              <a href="scanner.html" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;">
+                View all opportunities, AI analysis &amp; Telegram alerts →
+              </a>
             </div>
           </div>
         </section>
