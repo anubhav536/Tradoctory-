@@ -116,7 +116,7 @@ function getRiskAnalytics(trades) {
   const averageRiskRewardRatio = positiveRiskRewardRatios.length ? roundTo(positiveRiskRewardRatios.reduce((sum, ratio) => sum + ratio, 0) / positiveRiskRewardRatios.length) : 0;
   const highRiskSignals = [averageRiskPercent > 3, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1, highestRiskTrade?.capital && (highestRiskTrade.riskAmount / highestRiskTrade.capital) * 100 > 5].filter(Boolean).length;
   const mediumRiskSignals = [averageRiskPercent > 1.5, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1.5].filter(Boolean).length;
-  const riskScore = highRiskSignals >= 2 || averageRiskPercent > 5 ? 'High Risk' : highRiskSignals || mediumRiskSignals ? 'Medium Risk' : 'Low Risk';
+  const riskScore = riskRows.length ? (highRiskSignals >= 2 || averageRiskPercent > 5 ? 'High Risk' : highRiskSignals || mediumRiskSignals ? 'Medium Risk' : 'Low Risk') : '';
 
   return {
     schemaVersion: 'tradoctory.risk-analytics.v1',

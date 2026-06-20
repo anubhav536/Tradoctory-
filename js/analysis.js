@@ -8,6 +8,7 @@ import { LocalTradeRepository } from './trades/local-trade-repository.js';
 import { TradeService } from './trades/trade-service.js';
 import { analyzeTradeBehavior } from './trades/trade-behavior-analysis.js';
 import { analyzeTradeTime } from './trades/time-analysis.js';
+import { generateAiCoachReport } from './trades/ai-coach.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -474,7 +475,7 @@ function calculateRiskAnalytics(trades) {
 
   const highRiskSignals = [averageRiskPercent > 3, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1, highestRiskTrade?.capital && (highestRiskTrade.riskAmount / highestRiskTrade.capital) * 100 > 5].filter(Boolean).length;
   const mediumRiskSignals = [averageRiskPercent > 1.5, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1.5].filter(Boolean).length;
-  const riskScore = highRiskSignals >= 2 || averageRiskPercent > 5 ? 'High Risk' : highRiskSignals || mediumRiskSignals ? 'Medium Risk' : 'Low Risk';
+  const riskScore = riskRows.length ? (highRiskSignals >= 2 || averageRiskPercent > 5 ? 'High Risk' : highRiskSignals || mediumRiskSignals ? 'Medium Risk' : 'Low Risk') : '';
 
   return {
     schemaVersion: 'tradoctory.risk-analytics.v1',
@@ -550,11 +551,11 @@ function renderRiskAnalytics(trades) {
   const analytics = calculateRiskAnalytics(trades);
   const scoreEl = document.getElementById('riskScoreLabel');
   const panel = document.getElementById('riskScorePanel');
-  const scoreClass = analytics.riskScore === 'High Risk' ? 'high' : analytics.riskScore === 'Medium Risk' ? 'medium' : 'low';
+  const scoreClass = !analytics.riskScore ? '' : analytics.riskScore === 'High Risk' ? 'high' : analytics.riskScore === 'Medium Risk' ? 'medium' : 'low';
   panel?.classList.remove('low', 'medium', 'high');
-  panel?.classList.add(scoreClass);
-  scoreEl?.replaceChildren(analytics.riskScore);
-  document.getElementById('riskScoreMeta')?.replaceChildren(`${analytics.riskDefinedTrades}/${analytics.sampleSize} trades with defined risk · avg ${analytics.averageRiskPercent}% capital at risk`);
+  if (scoreClass) panel?.classList.add(scoreClass);
+  scoreEl?.replaceChildren(analytics.riskScore || 'Insufficient data');
+  document.getElementById('riskScoreMeta')?.replaceChildren(analytics.riskDefinedTrades ? `${analytics.riskDefinedTrades}/${analytics.sampleSize} trades with defined risk · avg ${analytics.averageRiskPercent}% capital at risk` : `${analytics.riskDefinedTrades}/${analytics.sampleSize} trades with defined risk · add capital, entry, and stop data to score risk`);
   document.getElementById('averageRiskPerTradeStat')?.replaceChildren(formatCurrencyAbsolute(analytics.averageRiskPerTrade));
   document.getElementById('highestRiskTradeStat')?.replaceChildren(formatCurrencyAbsolute(analytics.highestRiskTrade?.riskAmount || 0));
   document.getElementById('highestRiskTradeMeta')?.replaceChildren(analytics.highestRiskTrade?.label || 'No risk-defined trades yet.');
@@ -564,10 +565,29 @@ function renderRiskAnalytics(trades) {
   document.getElementById('riskAnalyticsBadge')?.replaceChildren(`${analytics.schemaVersion} · AI-ready`);
 
   const recommendations = document.getElementById('riskRecommendationsList');
-  if (recommendations) recommendations.innerHTML = buildRiskRecommendations(analytics).map((message) => renderObservation({ severity: analytics.riskScore === 'High Risk' ? 'danger' : analytics.riskScore === 'Medium Risk' ? 'warning' : 'positive', message })).join('');
+  if (recommendations) recommendations.innerHTML = buildRiskRecommendations(analytics).map((message) => renderObservation({ severity: analytics.riskScore === 'High Risk' ? 'danger' : analytics.riskScore === 'Medium Risk' || !analytics.riskScore ? 'warning' : 'positive', message })).join('');
 
   const payload = document.getElementById('riskAnalyticsAiPayload');
   if (payload) payload.textContent = JSON.stringify({ ...analytics, highestRiskTrade: analytics.highestRiskTrade && { label: analytics.highestRiskTrade.label, riskAmount: analytics.highestRiskTrade.riskAmount }, lowestRiskTrade: analytics.lowestRiskTrade && { label: analytics.lowestRiskTrade.label, riskAmount: analytics.lowestRiskTrade.riskAmount } });
+}
+
+
+function renderAiCoachList(containerId, items, severity = 'positive') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = items.map((message) => renderObservation({ severity, message })).join('');
+}
+
+function renderAiCoach(trades) {
+  const report = generateAiCoachReport(trades);
+  document.getElementById('aiCoachHeadline')?.replaceChildren(report.headline);
+  document.getElementById('aiCoachBadge')?.replaceChildren(`${report.engine} · GPT-ready`);
+  document.getElementById('aiCoachMeta')?.replaceChildren(`${report.sampleSize} trade${report.sampleSize === 1 ? '' : 's'} analyzed · no external AI APIs`);
+  renderAiCoachList('aiCoachStrengthsList', report.strengths, 'positive');
+  renderAiCoachList('aiCoachWeaknessesList', report.weaknesses, report.sampleSize ? 'warning' : 'danger');
+  renderAiCoachList('aiCoachActionPlanList', report.actionPlan, 'positive');
+  const payload = document.getElementById('aiCoachPayload');
+  if (payload) payload.textContent = JSON.stringify(report.futureGptPayload, null, 2);
 }
 
 function renderPerformanceByPair(trades) {
@@ -635,6 +655,7 @@ function renderReport(report, trades) {
   renderEmotionAnalytics(trades);
   renderRiskAnalytics(trades);
   renderTimeAnalysis(trades);
+  renderAiCoach(trades);
   renderPerformanceByPair(trades);
   renderImprovementPlan(report);
 }

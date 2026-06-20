@@ -26,13 +26,11 @@ function getExecutionTimestamp(trade) {
       || trade?.tradeData?.executionTime
       || trade?.tradeData?.entryTime
       || trade?.tradeData?.openedAt
-      || trade?.createdAt
-      || trade?.tradeData?.createdAt
   );
 }
 
 function getTradeDate(trade) {
-  return String(trade?.tradeDate || trade?.tradeData?.tradeDate || trade?.createdAt?.slice(0, 10) || trade?.tradeData?.createdAt?.slice(0, 10) || '').trim();
+  return String(trade?.tradeDate || trade?.tradeData?.tradeDate || '').trim();
 }
 
 function getDateFromTrade(trade) {
