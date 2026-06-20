@@ -2,6 +2,7 @@
 
 import { createTrade, TRADE_SCHEMA_VERSION } from './trade.js';
 import { calculateTradeStatistics } from './trade-statistics.js';
+import { generateTradeAnalytics } from './trade-analytics.js';
 
 export class TradeService {
   constructor({ repository, userId }) {
@@ -33,6 +34,11 @@ export class TradeService {
     return calculateTradeStatistics(trades);
   }
 
+  async getAnalytics() {
+    const trades = await this.listTrades();
+    return generateTradeAnalytics(trades);
+  }
+
   async normalizeTrades(trades) {
     const normalizedTrades = trades.map((trade) => createTrade({ ...trade, userId: trade.userId || this.userId }));
     const needsPersistence = trades.some((trade, index) => trade.schemaVersion !== TRADE_SCHEMA_VERSION
@@ -40,6 +46,10 @@ export class TradeService {
       || trade.riskRewardRatio !== normalizedTrades[index].riskRewardRatio
       || trade.tradeResult !== normalizedTrades[index].tradeResult
       || JSON.stringify(trade.tags || []) !== JSON.stringify(normalizedTrades[index].tags)
+      || !trade.tradeData
+      || !trade.emotionData
+      || !trade.riskData
+      || !trade.performanceData
       || !trade.aiLearningProfile);
 
     if (needsPersistence) await this.repository.saveAll(normalizedTrades);

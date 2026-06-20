@@ -1,6 +1,6 @@
 'use strict';
 
-export const TRADE_SCHEMA_VERSION = 'tradoctory.trade.v1';
+export const TRADE_SCHEMA_VERSION = 'tradoctory.trade.v2';
 
 export const TRADE_TAGS = Object.freeze([
   '#Breakout',
@@ -11,7 +11,7 @@ export const TRADE_TAGS = Object.freeze([
   '#LowRisk'
 ]);
 
-export const AI_LEARNING_SCHEMA_VERSION = 'tradoctory.ai-learning.v1';
+export const AI_LEARNING_SCHEMA_VERSION = 'tradoctory.ai-learning.v2';
 
 const BUY_DIRECTIONS = new Set(['buy', 'long']);
 const SELL_DIRECTIONS = new Set(['sell', 'short']);
@@ -52,21 +52,36 @@ export function normalizeTradeTags(tags = []) {
     .filter(Boolean))];
 }
 
-function createAiLearningProfile({ existingProfile = {}, tags, strategy, emotion, riskRewardRatio, tradeResult }) {
+function createAiLearningProfile({ existingProfile = {}, tags, strategy, emotion, riskRewardRatio, tradeResult, tradeData, emotionData, riskData, performanceData }) {
   const existingFeatures = existingProfile?.features && typeof existingProfile.features === 'object'
     ? existingProfile.features
     : {};
 
   return {
     ...existingProfile,
-    schemaVersion: existingProfile?.schemaVersion || AI_LEARNING_SCHEMA_VERSION,
+    schemaVersion: AI_LEARNING_SCHEMA_VERSION,
     tags,
     features: {
       ...existingFeatures,
       strategy,
       emotion,
       riskRewardRatio,
-      tradeResult
+      tradeResult,
+      tradeData,
+      emotionData,
+      riskData,
+      performanceData,
+      mlFeatureVector: {
+        strategy,
+        emotion,
+        direction: tradeData.direction,
+        marketType: tradeData.marketType,
+        capital: riskData.capital,
+        riskRewardRatio: riskData.riskRewardRatio,
+        profitLoss: performanceData.profitLoss,
+        tradeResult: performanceData.tradeResult,
+        tradeDate: tradeData.tradeDate
+      }
     },
     labels: Array.isArray(existingProfile?.labels) ? [...existingProfile.labels] : [],
     notes: existingProfile?.notes || 'Reserved for future AI learning, clustering, and recommendation workflows.'
@@ -131,12 +146,53 @@ export function createTrade(input = {}) {
     return timestamps;
   }, {});
 
-  return {
-    schemaVersion: TRADE_SCHEMA_VERSION,
-    id: input.id || createId(),
-    userId: input.userId || '',
+  const id = input.id || createId();
+  const userId = input.userId || '';
+  const tradeDate = input.tradeDate || now.slice(0, 10);
+  const notes = String(input.notes || '').trim();
+  const screenshot = input.screenshot || '';
+  const tradeData = {
+    id,
+    userId,
     tradeName: String(input.tradeName || '').trim(),
     marketType: String(input.marketType || '').trim(),
+    direction,
+    strategy,
+    tags,
+    tradeDate,
+    createdAt: now,
+    ...executionTimestamps
+  };
+  const emotionData = {
+    emotion,
+    notes,
+    screenshot,
+    tags,
+    journaledAt: now
+  };
+  const riskData = {
+    capital,
+    entryPrice,
+    exitPrice,
+    stopLoss,
+    target,
+    riskRewardRatio,
+    riskAmount: roundTo(Math.abs(entryPrice - stopLoss) * (entryPrice ? capital / entryPrice : 0)),
+    rewardAmount: roundTo(Math.abs(target - entryPrice) * (entryPrice ? capital / entryPrice : 0))
+  };
+  const performanceData = {
+    profitLoss,
+    tradeResult,
+    isClosed: CLOSED_RESULTS.has(tradeResult),
+    returnPercent: capital ? roundTo((profitLoss / capital) * 100, 2) : 0
+  };
+
+  return {
+    schemaVersion: TRADE_SCHEMA_VERSION,
+    id,
+    userId,
+    tradeName: tradeData.tradeName,
+    marketType: tradeData.marketType,
     direction,
     strategy,
     capital,
@@ -148,19 +204,27 @@ export function createTrade(input = {}) {
     riskRewardRatio,
     tradeResult,
     tags,
+    tradeData,
+    emotionData,
+    riskData,
+    performanceData,
     aiLearningProfile: createAiLearningProfile({
       existingProfile: input.aiLearningProfile,
       tags,
       strategy,
       emotion,
       riskRewardRatio,
-      tradeResult
+      tradeResult,
+      tradeData,
+      emotionData,
+      riskData,
+      performanceData
     }),
     emotion,
-    notes: String(input.notes || '').trim(),
-    screenshot: input.screenshot || '',
+    notes,
+    screenshot,
     ...executionTimestamps,
-    tradeDate: input.tradeDate || now.slice(0, 10),
+    tradeDate,
     createdAt: now
   };
 }
