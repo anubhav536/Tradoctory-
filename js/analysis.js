@@ -268,6 +268,114 @@ function renderEmotionAnalytics(trades) {
   if (observations) observations.innerHTML = buildEmotionObservations(analytics).map((message) => renderObservation({ severity: 'positive', message })).join('');
 }
 
+
+function roundTo(value, precision = 2) {
+  const multiplier = 10 ** precision;
+  return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
+}
+
+function formatCurrencyAbsolute(value) {
+  return `$${Math.abs(Number(value) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+}
+
+function getTradeRiskAmount(trade) {
+  const explicitRisk = Number(trade?.riskData?.riskAmount ?? trade?.riskAmount);
+  if (Number.isFinite(explicitRisk) && explicitRisk > 0) return roundTo(explicitRisk);
+
+  const capital = Number(trade?.capital ?? trade?.riskData?.capital) || 0;
+  const entryPrice = Number(trade?.entryPrice ?? trade?.riskData?.entryPrice) || 0;
+  const stopLoss = Number(trade?.stopLoss ?? trade?.riskData?.stopLoss) || 0;
+  if (!capital || !entryPrice || !stopLoss) return 0;
+
+  return roundTo(Math.abs(entryPrice - stopLoss) * (capital / entryPrice));
+}
+
+function getTradeDisplayName(trade) {
+  return String(trade?.tradeName || trade?.marketType || trade?.strategy || trade?.id || 'Unlabeled trade').trim();
+}
+
+function calculateRiskAnalytics(trades) {
+  const riskRows = trades.map((trade) => ({
+    trade,
+    label: getTradeDisplayName(trade),
+    riskAmount: getTradeRiskAmount(trade),
+    riskRewardRatio: Number(trade?.riskRewardRatio ?? trade?.riskData?.riskRewardRatio) || 0,
+    capital: Number(trade?.capital ?? trade?.riskData?.capital) || 0,
+    profitLoss: Number(trade?.profitLoss ?? trade?.performanceData?.profitLoss) || 0,
+    tradeResult: trade?.tradeResult || trade?.performanceData?.tradeResult || 'Open'
+  })).filter((row) => row.riskAmount > 0);
+
+  const totalRisk = riskRows.reduce((sum, row) => sum + row.riskAmount, 0);
+  const averageRiskPerTrade = riskRows.length ? roundTo(totalRisk / riskRows.length) : 0;
+  const highestRiskTrade = [...riskRows].sort((a, b) => b.riskAmount - a.riskAmount)[0] || null;
+  const lowestRiskTrade = [...riskRows].sort((a, b) => a.riskAmount - b.riskAmount)[0] || null;
+  const averageRiskRewardRatio = averageRiskReward(trades);
+  const averageRiskPercent = riskRows.length ? roundTo(riskRows.reduce((sum, row) => sum + (row.capital ? (row.riskAmount / row.capital) * 100 : 0), 0) / riskRows.length) : 0;
+
+  const highRiskSignals = [averageRiskPercent > 3, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1, highestRiskTrade?.capital && (highestRiskTrade.riskAmount / highestRiskTrade.capital) * 100 > 5].filter(Boolean).length;
+  const mediumRiskSignals = [averageRiskPercent > 1.5, averageRiskRewardRatio > 0 && averageRiskRewardRatio < 1.5].filter(Boolean).length;
+  const riskScore = highRiskSignals >= 2 || averageRiskPercent > 5 ? 'High Risk' : highRiskSignals || mediumRiskSignals ? 'Medium Risk' : 'Low Risk';
+
+  return {
+    schemaVersion: 'tradoctory.risk-analytics.v1',
+    generatedAt: new Date().toISOString(),
+    sampleSize: trades.length,
+    riskDefinedTrades: riskRows.length,
+    averageRiskPerTrade,
+    highestRiskTrade,
+    lowestRiskTrade,
+    averageRiskRewardRatio,
+    averageRiskPercent,
+    riskScore,
+    aiCompatibility: {
+      featureVector: {
+        averageRiskPerTrade,
+        highestRiskAmount: highestRiskTrade?.riskAmount || 0,
+        lowestRiskAmount: lowestRiskTrade?.riskAmount || 0,
+        averageRiskRewardRatio,
+        averageRiskPercent,
+        riskScore
+      },
+      recommendationTargets: ['position_sizing', 'stop_loss_quality', 'risk_reward_quality', 'risk_consistency']
+    }
+  };
+}
+
+function buildRiskRecommendations(analytics) {
+  if (!analytics.riskDefinedTrades) return ['Add entry price, stop loss, target, and capital to each trade so risk analytics can score your journal.'];
+  const recommendations = [];
+  if (analytics.averageRiskPercent > 3) recommendations.push(`Average risk is ${analytics.averageRiskPercent}% of capital. Consider reducing position size toward 1–2% per trade.`);
+  if (analytics.averageRiskRewardRatio && analytics.averageRiskRewardRatio < 1.5) recommendations.push(`Average R:R is ${analytics.averageRiskRewardRatio}:1. Prioritize setups with at least 1.5:1 to 2:1 planned reward.`);
+  if (analytics.highestRiskTrade && analytics.lowestRiskTrade && analytics.highestRiskTrade.riskAmount > analytics.lowestRiskTrade.riskAmount * 2) recommendations.push('Risk sizing varies widely. Standardize risk per trade before increasing volume.');
+  if (analytics.riskScore === 'Low Risk') recommendations.push('Risk profile is controlled. Keep logging complete risk fields and review outliers weekly.');
+  if (!recommendations.length) recommendations.push('Maintain consistent stop placement, target planning, and capital risk before every entry.');
+  return recommendations;
+}
+
+function renderRiskAnalytics(trades) {
+  const analytics = calculateRiskAnalytics(trades);
+  const scoreEl = document.getElementById('riskScoreLabel');
+  const panel = document.getElementById('riskScorePanel');
+  const scoreClass = analytics.riskScore === 'High Risk' ? 'high' : analytics.riskScore === 'Medium Risk' ? 'medium' : 'low';
+  panel?.classList.remove('low', 'medium', 'high');
+  panel?.classList.add(scoreClass);
+  scoreEl?.replaceChildren(analytics.riskScore);
+  document.getElementById('riskScoreMeta')?.replaceChildren(`${analytics.riskDefinedTrades}/${analytics.sampleSize} trades with defined risk · avg ${analytics.averageRiskPercent}% capital at risk`);
+  document.getElementById('averageRiskPerTradeStat')?.replaceChildren(formatCurrencyAbsolute(analytics.averageRiskPerTrade));
+  document.getElementById('highestRiskTradeStat')?.replaceChildren(formatCurrencyAbsolute(analytics.highestRiskTrade?.riskAmount || 0));
+  document.getElementById('highestRiskTradeMeta')?.replaceChildren(analytics.highestRiskTrade?.label || 'No risk-defined trades yet.');
+  document.getElementById('lowestRiskTradeStat')?.replaceChildren(formatCurrencyAbsolute(analytics.lowestRiskTrade?.riskAmount || 0));
+  document.getElementById('lowestRiskTradeMeta')?.replaceChildren(analytics.lowestRiskTrade?.label || 'No risk-defined trades yet.');
+  document.getElementById('riskAverageRiskRewardStat')?.replaceChildren(`${analytics.averageRiskRewardRatio}:1`);
+  document.getElementById('riskAnalyticsBadge')?.replaceChildren(`${analytics.schemaVersion} · AI-ready`);
+
+  const recommendations = document.getElementById('riskRecommendationsList');
+  if (recommendations) recommendations.innerHTML = buildRiskRecommendations(analytics).map((message) => renderObservation({ severity: analytics.riskScore === 'High Risk' ? 'danger' : analytics.riskScore === 'Medium Risk' ? 'warning' : 'positive', message })).join('');
+
+  const payload = document.getElementById('riskAnalyticsAiPayload');
+  if (payload) payload.textContent = JSON.stringify({ ...analytics, highestRiskTrade: analytics.highestRiskTrade && { label: analytics.highestRiskTrade.label, riskAmount: analytics.highestRiskTrade.riskAmount }, lowestRiskTrade: analytics.lowestRiskTrade && { label: analytics.lowestRiskTrade.label, riskAmount: analytics.lowestRiskTrade.riskAmount } });
+}
+
 function renderPerformanceByPair(trades) {
   const tableBody = document.getElementById('performanceTableBody');
   if (!tableBody) return;
@@ -330,6 +438,7 @@ function renderReport(report, trades) {
 
   renderStrategyPerformanceDashboard(trades);
   renderEmotionAnalytics(trades);
+  renderRiskAnalytics(trades);
   renderPerformanceByPair(trades);
   renderImprovementPlan(report);
 }

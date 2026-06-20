@@ -2171,3 +2171,80 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 900px) {
   .emotion-card-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Risk analytics ──────────────────────────────── */
+.risk-analytics-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.risk-score-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  background: rgba(255,255,255,0.025);
+}
+
+.risk-score-panel.low { border-color: rgba(0,210,106,0.35); background: rgba(0,210,106,0.07); }
+.risk-score-panel.medium { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.07); }
+.risk-score-panel.high { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.07); }
+
+.risk-score-label,
+.risk-metric-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.risk-score-value {
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.risk-score-meta,
+.risk-metric-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.risk-score-panel.low .risk-score-value { color: var(--accent); }
+.risk-score-panel.medium .risk-score-value { color: #f59e0b; }
+.risk-score-panel.high .risk-score-value { color: var(--red); }
+
+.risk-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.risk-metric-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255,255,255,0.025);
+}
+
+.risk-metric-card.high { border-color: rgba(239,68,68,0.28); }
+.risk-metric-card.low { border-color: rgba(0,210,106,0.28); }
+
+.risk-metric-value {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 700px) {
+  .risk-score-panel { align-items: flex-start; flex-direction: column; }
+  .risk-metric-grid { grid-template-columns: 1fr; }
+}
