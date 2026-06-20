@@ -195,6 +195,46 @@
           </div>
         </div>
 
+
+        <!-- AI Coach module -->
+        <div class="card weekly-report-card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="card-title-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2z"/>
+                </svg>
+              </div>
+              AI Coach
+            </div>
+            <span class="card-badge" id="aiCoachBadge">Local rule engine · GPT-ready</span>
+          </div>
+          <div class="card-body weekly-report-body">
+            <div class="weekly-report-heading">
+              <div>
+                <div class="weekly-report-eyebrow">Personalized Feedback</div>
+                <div class="weekly-report-range" id="aiCoachHeadline">Analyzing your journal…</div>
+              </div>
+              <div class="weekly-report-note" id="aiCoachMeta">No external AI APIs are used.</div>
+            </div>
+            <div class="weekly-report-cards">
+              <div class="weekly-report-list-card achievements">
+                <div class="weekly-report-list-title">Strengths</div>
+                <div id="aiCoachStrengthsList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading strengths…</div></div></div>
+              </div>
+              <div class="weekly-report-list-card warnings">
+                <div class="weekly-report-list-title">Weaknesses</div>
+                <div id="aiCoachWeaknessesList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading weaknesses…</div></div></div>
+              </div>
+              <div class="weekly-report-list-card recommendations">
+                <div class="weekly-report-list-title">Action Plan</div>
+                <div id="aiCoachActionPlanList" class="weekly-report-list"><div class="ai-insight"><div class="ai-insight-icon">•</div><div>Loading action plan…</div></div></div>
+              </div>
+            </div>
+            <script type="application/json" id="aiCoachPayload">{}</script>
+          </div>
+        </div>
+
         <div class="content-grid two-col">
 
           <!-- Left col -->
