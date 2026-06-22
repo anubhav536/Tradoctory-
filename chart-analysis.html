@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tradoctory AI Chart Analysis — upload chart screenshots for structured trade-quality review." />
+  <title>AI Chart Analysis — Tradoctory</title>
+  <script>document.documentElement.classList.add('guard-loading');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a href="dashboard.html" class="sidebar-logo"><div class="sidebar-logo-icon">▲</div>Tradoctory</a>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="journal.html" class="nav-item">Journal</a>
+        <a href="analysis.html" class="nav-item">AI Analysis</a>
+        <a href="chart-analysis.html" class="nav-item active">AI Chart Analysis <span class="nav-pill nav-pill-warning">BETA</span></a>
+        <a href="scanner.html" class="nav-item">AI Scanner <span class="nav-pill nav-pill-warning">NEW</span></a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-row" id="sidebarUser"><div class="user-avatar" id="userAvatarInitial">?</div><div class="user-info"><div class="user-name" id="userDisplayName">Loading…</div><div class="user-plan" id="userDisplayPlan">Free plan</div></div></div>
+        <button class="signout-btn" id="signOutBtn">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left"><div class="topbar-title">AI Chart Analysis</div><div class="topbar-subtitle">Premium screenshot review and risk planning</div></div>
+        <div class="topbar-right"><div class="topbar-badge"><span class="live-dot"></span>AI-ready</div><button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="false">☰</button></div>
+      </header>
+
+      <div class="page-body chart-ai-page">
+        <section class="chart-ai-hero" aria-labelledby="chartAiTitle">
+          <div><div class="eyebrow">Premium trade intelligence</div><h1 id="chartAiTitle">Upload a chart. Get a structured trade read.</h1><p>Designed as a mobile-first AI analysis workspace with a pluggable screenshot pipeline ready for future vision-model integration.</p></div>
+          <div class="chart-ai-hero-metric"><span>Model pipeline</span><strong>Vision Adapter Ready</strong></div>
+        </section>
+
+        <section class="chart-ai-grid" aria-label="AI chart analysis workspace">
+          <article class="card chart-upload-card" aria-labelledby="uploadTitle">
+            <div class="card-header"><div class="card-title" id="uploadTitle">1. Upload Chart Screenshot</div><span class="card-badge">PNG/JPG/WebP</span></div>
+            <div class="card-body">
+              <label class="chart-dropzone" for="chartUpload"><input id="chartUpload" type="file" accept="image/png,image/jpeg,image/webp" /><span class="chart-drop-icon">⌁</span><strong>Drop or select a chart screenshot</strong><small>Future image AI will use this file as the vision input. Today, Tradoctory runs a deterministic preview analysis.</small></label>
+              <div class="chart-preview-panel" id="chartPreviewPanel"><div class="chart-preview-empty">No chart selected yet.</div></div>
+            </div>
+          </article>
+
+          <aside class="card analysis-status-card" aria-labelledby="statusTitle">
+            <div class="card-header"><div class="card-title" id="statusTitle">2. Analysis Status Card</div><span class="status-pill" id="analysisStatus">Waiting</span></div>
+            <div class="card-body status-stack">
+              <div class="status-row"><span>Image ingestion</span><strong id="ingestionState">Pending</strong></div>
+              <div class="status-row"><span>Vision model adapter</span><strong>Configured</strong></div>
+              <div class="status-row"><span>Risk engine</span><strong id="riskEngineState">Standby</strong></div>
+              <button class="btn btn-primary" id="runAnalysisBtn" type="button" disabled>Run chart analysis</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="content-grid main-side chart-ai-results">
+          <article class="card"><div class="card-header"><div class="card-title">3. AI Analysis Result</div><span class="card-badge">Structured</span></div><div class="card-body"><div id="analysisResult" class="analysis-result-copy">Upload a chart screenshot to generate a market-structure summary, confluence notes, and invalidation levels.</div></div></article>
+          <article class="card score-card"><div class="card-header"><div class="card-title">4. Trade Quality Score</div></div><div class="card-body"><div class="quality-score"><span id="qualityScore">--</span><small>/100</small></div><div class="score-ring" aria-hidden="true"><div id="scoreRingFill"></div></div></div></article>
+        </section>
+
+        <section class="content-grid two-col chart-ai-bottom">
+          <article class="card"><div class="card-header"><div class="card-title">5. Suggested Action</div></div><div class="card-body"><div class="action-callout" id="suggestedAction">Wait for screenshot analysis before planning an entry.</div></div></article>
+          <article class="card"><div class="card-header"><div class="card-title">6. Risk Summary</div></div><div class="card-body"><ul class="risk-list" id="riskSummary"><li>Define stop-loss before entry.</li><li>Risk 1% or less until confirmation improves.</li><li>Do not treat this educational analysis as financial advice.</li></ul></div></article>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="js/chart-analysis.js"></script>
+</body>
+</html>

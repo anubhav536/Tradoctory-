@@ -6,10 +6,35 @@ export const ACHIEVEMENT_SCHEMA_VERSION = 'tradoctory.achievements.v1';
 
 const DISCIPLINED_EMOTIONS = new Set(['calm', 'confident', 'focused', 'patient', 'neutral']);
 
+function parseTimestamp(value, fallback = 0) {
+  if (!value) return fallback;
+  const normalized = String(value).includes('T') ? String(value) : `${value}T00:00:00`;
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? fallback : date.getTime();
+}
+
 function parseTradeTime(trade) {
-  const rawDate = trade?.tradeDate || trade?.createdAt;
-  const date = new Date(String(rawDate || '').includes('T') ? rawDate : `${rawDate}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+  const tradeDateTime = parseTimestamp(trade?.tradeDate || trade?.tradeData?.tradeDate);
+  const executionTime = parseTimestamp(
+    trade?.executedAt
+      || trade?.executionTime
+      || trade?.entryTime
+      || trade?.openedAt
+      || trade?.createdAt
+      || trade?.tradeData?.executedAt
+      || trade?.tradeData?.executionTime
+      || trade?.tradeData?.entryTime
+      || trade?.tradeData?.openedAt
+      || trade?.tradeData?.createdAt,
+    tradeDateTime
+  );
+
+  const tradeDayStart = tradeDateTime
+    ? parseTimestamp(new Date(tradeDateTime).toISOString().slice(0, 10))
+    : 0;
+  const executionOffset = Math.max(executionTime - tradeDayStart, 0);
+
+  return tradeDateTime + executionOffset;
 }
 
 function getClosedTrades(trades) {

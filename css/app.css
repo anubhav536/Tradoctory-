@@ -2899,3 +2899,67 @@ body.modal-open { overflow: hidden; }
   .dashboard-opportunity-score { grid-column: span 1; }
   .dashboard-opportunity-name { display: none; }
 }
+
+/* ── AI Chart Analysis page ───────────────────────── */
+.nav-pill {
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.nav-pill-warning { background: var(--blue-dim); color: #8bb8ff; }
+.chart-ai-page { background: radial-gradient(circle at top right, rgba(59,130,246,0.12), transparent 32%); }
+.chart-ai-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(17,24,39,0.98), rgba(8,12,20,0.94));
+  box-shadow: 0 24px 70px rgba(0,0,0,0.36);
+}
+.chart-ai-hero h1 { max-width: 720px; font-size: clamp(30px, 5vw, 54px); line-height: 0.98; letter-spacing: -1.6px; margin-bottom: 12px; }
+.chart-ai-hero p { max-width: 680px; color: var(--text-secondary); line-height: 1.7; }
+.chart-ai-hero-metric { align-self: stretch; min-width: 220px; padding: 18px; border: 1px solid rgba(0,210,106,0.2); border-radius: 16px; background: rgba(0,210,106,0.08); display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.chart-ai-hero-metric span { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.chart-ai-hero-metric strong { color: var(--accent); font-size: 18px; }
+.chart-ai-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; margin-bottom: 20px; }
+.chart-dropzone { min-height: 260px; border: 1px dashed rgba(59,130,246,0.45); border-radius: 18px; background: rgba(59,130,246,0.07); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; color: var(--text-secondary); }
+.chart-dropzone input { position: absolute; opacity: 0; pointer-events: none; }
+.chart-dropzone strong { color: var(--text-primary); font-size: 17px; }
+.chart-dropzone small { max-width: 440px; line-height: 1.6; }
+.chart-drop-icon { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; background: var(--accent-dim); color: var(--accent); font-size: 30px; }
+.chart-preview-panel { margin-top: 16px; border-radius: 16px; border: 1px solid var(--border); background: rgba(0,0,0,0.18); overflow: hidden; min-height: 84px; display: grid; place-items: center; }
+.chart-preview-panel img { width: 100%; max-height: 360px; object-fit: contain; background: #020617; }
+.chart-preview-empty { color: var(--text-muted); font-size: 13px; padding: 28px; }
+.chart-file-meta { width: 100%; display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--border); }
+.status-pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.06); color: var(--text-secondary); font-size: 11px; font-weight: 800; }
+.status-pill.ready { background: var(--blue-dim); color: #8bb8ff; }
+.status-pill.complete { background: var(--accent-dim); color: var(--accent); }
+.status-stack { display: grid; gap: 14px; }
+.status-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: 13px; }
+.status-row strong { color: var(--text-primary); }
+.analysis-result-copy { color: var(--text-secondary); line-height: 1.8; font-size: 14px; }
+.score-card .card-body { display: grid; gap: 18px; }
+.quality-score { display: flex; align-items: baseline; gap: 4px; }
+.quality-score span { font-size: 58px; font-weight: 800; letter-spacing: -2px; color: var(--accent); }
+.quality-score small { color: var(--text-muted); font-size: 18px; }
+.score-ring { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+.score-ring div { height: 100%; width: 0%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--blue)); transition: width 0.45s ease; }
+.chart-ai-results, .chart-ai-bottom { margin-bottom: 20px; }
+.action-callout { padding: 18px; border-radius: 14px; background: linear-gradient(135deg, var(--accent-dim), rgba(59,130,246,0.08)); border: 1px solid rgba(0,210,106,0.18); color: var(--text-primary); line-height: 1.7; }
+.risk-list { display: grid; gap: 12px; color: var(--text-secondary); line-height: 1.6; padding-left: 18px; }
+.risk-list li { list-style: disc; }
+@media (max-width: 900px) {
+  .chart-ai-hero, .chart-ai-grid { grid-template-columns: 1fr; flex-direction: column; }
+  .chart-ai-hero-metric { min-width: 0; }
+}
+@media (max-width: 520px) {
+  .chart-ai-hero { padding: 22px; }
+  .chart-dropzone { min-height: 220px; }
+  .chart-file-meta { flex-direction: column; }
+}
