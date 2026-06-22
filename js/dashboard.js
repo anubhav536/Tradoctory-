@@ -9,6 +9,7 @@ import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
 import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
 import { analyzeConsistency } from './trades/consistency-analysis.js';
+import { buildTradingAchievements } from './trades/trading-achievements.js';
 import { isClosedTrade } from './trades/trade.js';
 import { MarketDataProvider } from './market/market-data-provider.js';
 import { ScannerProvider } from './scanner/scanner-provider.js';
@@ -56,6 +57,8 @@ const scannerProvider = new ScannerProvider({ marketDataProvider });
 const alertProvider = new AlertProvider();
 const scannerAnalyticsProvider = new AnalyticsProvider();
 const scannerChartProvider = new ChartProvider({ chartGlobal: window.Chart });
+const achievementsGrid = document.getElementById('achievementsGrid');
+const achievementsSummary = document.getElementById('achievementsSummary');
 
 function formatCurrency(value) {
   const numericValue = Number(value) || 0;
@@ -123,6 +126,28 @@ function getCurrentStreak(closedTrades) {
   const count = sortedTrades.findIndex((trade) => trade.tradeResult.toLowerCase() !== latestResult);
   const streakCount = count === -1 ? sortedTrades.length : count;
   return { label: `${streakCount} ${latestResult}${streakCount === 1 ? '' : 's'}`, count: streakCount, result: latestResult };
+}
+
+
+function renderAchievements(trades) {
+  if (!achievementsGrid) return;
+  const model = buildTradingAchievements(trades);
+  if (achievementsSummary) {
+    achievementsSummary.replaceChildren(`${model.summary.unlockedCount}/${model.summary.totalCount} unlocked · Process-first milestones`);
+  }
+  achievementsGrid.innerHTML = model.achievements.map((achievement) => `
+    <article class="achievement-badge ${achievement.unlocked ? 'unlocked' : 'locked'}" aria-label="${escapeHtml(achievement.title)} ${achievement.unlocked ? 'unlocked' : 'locked'}">
+      <div class="achievement-icon" aria-hidden="true">${achievement.icon}</div>
+      <div class="achievement-content">
+        <div class="achievement-title-row">
+          <h3>${escapeHtml(achievement.title)}</h3>
+          <span>${achievement.unlocked ? 'Unlocked' : `${achievement.progress}/${achievement.target}`}</span>
+        </div>
+        <p>${escapeHtml(achievement.description)}</p>
+        <div class="achievement-progress" aria-hidden="true"><span style="width:${achievement.percent}%"></span></div>
+      </div>
+    </article>
+  `).join('');
 }
 
 function renderStatistics(trades) {
@@ -557,6 +582,7 @@ async function refreshDashboard() {
   renderStrategyPerformance(trades);
   renderWeeklyPerformance(trades);
   renderTraderDna(trades);
+  renderAchievements(trades);
 }
 
 window.addEventListener('storage', (event) => {
