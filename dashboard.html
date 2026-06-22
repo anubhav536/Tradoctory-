@@ -64,7 +64,7 @@
             <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
           AI Scanner
-          <span style="margin-left:auto;font-size:9px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:4px;border:1px solid rgba(245,158,11,0.25);">NEW</span>
+          <span class="nav-pill nav-pill-warning">NEW</span>
         </a>
       </div>
 
@@ -100,7 +100,7 @@
             <span class="live-dot"></span>
             Live
           </div>
-          <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="false">
             <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
               <line x1="3" y1="18" x2="21" y2="18"/>
@@ -245,57 +245,57 @@
         </section>
 
         <!-- Nifty Beast AI Scanner — Dashboard Summary Widget -->
-        <section class="card" aria-labelledby="scannerSummaryTitle" id="dashScannerSection" style="border:1px solid rgba(245,158,11,0.25);background:linear-gradient(135deg,rgba(245,158,11,0.04) 0%,transparent 60%);">
+        <section class="card dashboard-scanner-card" aria-labelledby="scannerSummaryTitle" id="dashScannerSection">
           <div class="card-header">
             <div class="card-title" id="scannerSummaryTitle">
-              <div class="card-title-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
+              <div class="card-title-icon warning-icon">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
                 </svg>
               </div>
               Nifty Beast AI Scanner
-              <span style="font-size:9px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.15);padding:1px 8px;border-radius:4px;border:1px solid rgba(245,158,11,0.25);margin-left:4px;">NEW</span>
+              <span class="title-pill title-pill-warning">NEW</span>
             </div>
-            <a href="scanner.html" class="btn btn-ghost" style="font-size:12px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+            <a href="scanner.html" class="btn btn-ghost dashboard-scanner-link">
               Open Full Scanner
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
           </div>
           <div class="card-body">
             <!-- Market Mood row -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px;" id="dashMoodRow">
-              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Market Regime</div>
-                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashRegime">—</div>
-                <div style="font-size:11px;color:var(--text-muted);" id="dashRegimeSub">Loading…</div>
+            <div class="dashboard-scanner-kpis" id="dashMoodRow">
+              <div class="dashboard-scanner-kpi">
+                <div class="dashboard-scanner-label">Market Regime</div>
+                <div class="dashboard-scanner-value" id="dashRegime">—</div>
+                <div class="dashboard-scanner-sub" id="dashRegimeSub">Loading…</div>
               </div>
-              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Best Opportunity</div>
-                <div style="font-size:16px;font-weight:700;" id="dashBestSetup">—</div>
-                <div style="font-size:11px;color:var(--text-muted);" id="dashBestSetupSub">—</div>
+              <div class="dashboard-scanner-kpi">
+                <div class="dashboard-scanner-label">Best Opportunity</div>
+                <div class="dashboard-scanner-value" id="dashBestSetup">—</div>
+                <div class="dashboard-scanner-sub" id="dashBestSetupSub">—</div>
               </div>
-              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Setups Found</div>
-                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashSetupCount">—</div>
-                <div style="font-size:11px;color:var(--text-muted);" id="dashSetupTiers">—</div>
+              <div class="dashboard-scanner-kpi">
+                <div class="dashboard-scanner-label">Setups Found</div>
+                <div class="dashboard-scanner-value" id="dashSetupCount">—</div>
+                <div class="dashboard-scanner-sub" id="dashSetupTiers">—</div>
               </div>
-              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Strongest Sector</div>
-                <div style="font-size:16px;font-weight:700;color:var(--text-primary);" id="dashSector">—</div>
-                <div style="font-size:11px;color:var(--text-muted);" id="dashSectorSub">—</div>
+              <div class="dashboard-scanner-kpi">
+                <div class="dashboard-scanner-label">Strongest Sector</div>
+                <div class="dashboard-scanner-value" id="dashSector">—</div>
+                <div class="dashboard-scanner-sub" id="dashSectorSub">—</div>
               </div>
             </div>
 
             <!-- Top 3 opportunities mini-list -->
-            <div style="display:flex;flex-direction:column;gap:6px;" id="dashOppList">
-              <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px;">
+            <div class="dashboard-opportunity-list" id="dashOppList">
+              <div class="dashboard-opportunity-empty">
                 Loading scanner data…
               </div>
             </div>
 
-            <div style="margin-top:12px;text-align:center;">
-              <a href="scanner.html" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;">
+            <div class="dashboard-scanner-footer">
+              <a href="scanner.html">
                 View all opportunities, AI analysis &amp; Telegram alerts →
               </a>
             </div>
@@ -383,7 +383,7 @@
 
   </div><!-- /app-shell -->
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
