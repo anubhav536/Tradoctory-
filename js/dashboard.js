@@ -4,18 +4,13 @@
 'use strict';
 
 import { guardRoute, signOutAndRedirect } from './route-guard.js';
-import { LocalTradeRepository } from './trades/local-trade-repository.js';
+import { createDashboardTradeRepository } from './dashboard-data-source.js';
 import { TradeService } from './trades/trade-service.js';
 import { calculateTradeStatistics } from './trades/trade-statistics.js';
 import { analyzeTraderDna } from './trades/trader-dna-analysis.js';
 import { analyzeConsistency } from './trades/consistency-analysis.js';
 import { buildTradingAchievements } from './trades/trading-achievements.js';
 import { isClosedTrade } from './trades/trade.js';
-import { MarketDataProvider } from './market/market-data-provider.js';
-import { ScannerProvider } from './scanner/scanner-provider.js';
-import { AlertProvider } from './scanner/alert-provider.js';
-import { AnalyticsProvider } from './scanner/analytics-provider.js';
-import { ChartProvider } from './scanner/chart-provider.js';
 
 /* ── 1. Enforce authentication ───────────────────── */
 const user = guardRoute('login.html');
@@ -37,11 +32,22 @@ if (avatarEl) avatarEl.textContent = (user.name ?? user.email).charAt(0).toUpper
 signOutBtn?.addEventListener('click', () => signOutAndRedirect('index.html'));
 
 /* ── 4. Mobile sidebar toggle ────────────────────── */
-menuToggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
+menuToggle?.addEventListener('click', () => {
+  const isOpen = sidebar?.classList.toggle('open') ?? false;
+  menuToggle.setAttribute('aria-expanded', String(isOpen));
+});
+
+document.addEventListener('click', (event) => {
+  if (!sidebar?.classList.contains('open')) return;
+  if (sidebar.contains(event.target) || menuToggle?.contains(event.target)) return;
+  sidebar.classList.remove('open');
+  menuToggle?.setAttribute('aria-expanded', 'false');
+});
 
 /* ── 5. Premium fintech dashboard ────────────────── */
-const tradeRepository = new LocalTradeRepository({ userId: user.id || user.email });
-const tradeService = new TradeService({ repository: tradeRepository, userId: user.id || user.email });
+const dashboardUserId = user.id || user.email;
+const tradeRepository = await createDashboardTradeRepository({ userId: dashboardUserId });
+const tradeService = new TradeService({ repository: tradeRepository, userId: dashboardUserId });
 
 const equityCurveChart = document.getElementById('equityCurveChart');
 const equityCurveCanvas = document.getElementById('equityCurveCanvas');
@@ -52,11 +58,6 @@ const winLossLegend = document.getElementById('winLossLegend');
 const strategyPerformanceChart = document.getElementById('strategyPerformanceChart');
 const weeklyPerformanceChart = document.getElementById('weeklyPerformanceChart');
 const scannerRefreshBtn = document.getElementById('scannerRefreshBtn');
-const marketDataProvider = new MarketDataProvider();
-const scannerProvider = new ScannerProvider({ marketDataProvider });
-const alertProvider = new AlertProvider();
-const scannerAnalyticsProvider = new AnalyticsProvider();
-const scannerChartProvider = new ChartProvider({ chartGlobal: window.Chart });
 const achievementsGrid = document.getElementById('achievementsGrid');
 const achievementsSummary = document.getElementById('achievementsSummary');
 
@@ -553,10 +554,41 @@ function renderScannerSummary(scanResult, alerts, analytics) {
   renderScannerRiskNotes(scanResult.riskNotes);
 }
 
+let scannerRuntimePromise = null;
+
+function scheduleIdleTask(callback) {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(callback, { timeout: 1800 });
+    return;
+  }
+  window.setTimeout(callback, 350);
+}
+
+function getScannerRuntime() {
+  scannerRuntimePromise ??= Promise.all([
+    import('./market/market-data-provider.js'),
+    import('./scanner/scanner-provider.js'),
+    import('./scanner/alert-provider.js'),
+    import('./scanner/analytics-provider.js'),
+    import('./scanner/chart-provider.js')
+  ]).then(([marketModule, scannerModule, alertModule, analyticsModule, chartModule]) => {
+    const marketDataProvider = new marketModule.MarketDataProvider();
+    const scannerProvider = new scannerModule.ScannerProvider({ marketDataProvider });
+    return {
+      scannerProvider,
+      alertProvider: new alertModule.AlertProvider(),
+      scannerAnalyticsProvider: new analyticsModule.AnalyticsProvider(),
+      scannerChartProvider: new chartModule.ChartProvider({ chartGlobal: window.Chart })
+    };
+  });
+  return scannerRuntimePromise;
+}
+
 async function refreshScanner({ forceRefresh = false } = {}) {
   scannerRefreshBtn?.setAttribute('disabled', 'true');
   scannerRefreshBtn?.classList.add('is-loading');
   try {
+    const { scannerProvider, alertProvider, scannerAnalyticsProvider, scannerChartProvider } = await getScannerRuntime();
     const scanResult = await scannerProvider.scan({ forceRefresh });
     const alerts = alertProvider.evaluate(scanResult);
     const analytics = scannerAnalyticsProvider.summarize(scanResult, alerts);
@@ -586,15 +618,17 @@ async function refreshDashboard() {
 }
 
 window.addEventListener('storage', (event) => {
-  if (event.key === tradeRepository.storageKey) refreshDashboard();
+  if (!tradeRepository.storageKey || event.key === tradeRepository.storageKey) refreshDashboard();
 });
 
 refreshDashboard();
-refreshScanner();
-scannerRefreshBtn?.addEventListener('click', () => refreshScanner({ forceRefresh: true }));
+if (scannerRefreshBtn) {
+  scheduleIdleTask(() => refreshScanner());
+  scannerRefreshBtn.addEventListener('click', () => refreshScanner({ forceRefresh: true }));
+}
 
 /* ── Dashboard Scanner Summary Widget ────────────── */
-(async function initDashScannerSummary() {
+async function initDashScannerSummary() {
   try {
     const { MultiSymbolScanner }  = await import('./scanner/multi-symbol-scanner.js');
     const { getMarketMoodEmoji }  = await import('./scanner/market-regime-engine.js');
@@ -633,17 +667,17 @@ scannerRefreshBtn?.addEventListener('click', () => refreshScanner({ forceRefresh
     const listEl = document.getElementById('dashOppList');
     if (listEl) {
       if (!top3.length) {
-        listEl.innerHTML = `<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;">🚫 NO HIGH QUALITY SETUP AVAILABLE — Market favours patience.</div>`;
+        listEl.innerHTML = '<div class="dashboard-opportunity-empty">🚫 NO HIGH QUALITY SETUP AVAILABLE — Market favours patience.</div>';
       } else {
         const colMap = { S:'#f59e0b', A:'#00d26a', B:'#3b82f6' };
         listEl.innerHTML = top3.map((s, i) => {
           const col = colMap[s.tier] || '#6b7280';
-          return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);">
-            <span style="font-size:11px;color:var(--text-muted);width:14px;text-align:center;">${i+1}</span>
-            <span style="font-size:13px;font-weight:700;color:var(--text-primary);">${s.symbol}</span>
-            <span style="font-size:10px;color:var(--text-muted);flex:1;">${s.name || ''}</span>
-            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:${col}22;color:${col};border:1px solid ${col}44;">${s.tierEmoji} ${s.tierLabel}</span>
-            <span style="font-size:12px;font-weight:800;color:${col};">${s.score}</span>
+          return `<div class="dashboard-opportunity-row" style="--opportunity-tone:${col};">
+            <span class="dashboard-opportunity-rank">${i + 1}</span>
+            <span class="dashboard-opportunity-symbol">${escapeHtml(s.symbol)}</span>
+            <span class="dashboard-opportunity-name">${escapeHtml(s.name || '')}</span>
+            <span class="dashboard-opportunity-tier">${escapeHtml(s.tierEmoji)} ${escapeHtml(s.tierLabel)}</span>
+            <span class="dashboard-opportunity-score">${escapeHtml(s.score)}</span>
           </div>`;
         }).join('');
       }
@@ -651,4 +685,5 @@ scannerRefreshBtn?.addEventListener('click', () => refreshScanner({ forceRefresh
   } catch (err) {
     console.warn('[Tradoctory] Dashboard scanner summary failed silently.', err);
   }
-})();
+}
+scheduleIdleTask(initDashScannerSummary);
