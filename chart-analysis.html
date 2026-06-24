@@ -45,7 +45,15 @@
           <article class="card chart-upload-card" aria-labelledby="uploadTitle">
             <div class="card-header"><div class="card-title" id="uploadTitle">1. Upload Chart Screenshot</div><span class="card-badge">PNG/JPG/WebP</span></div>
             <div class="card-body">
-              <label class="chart-dropzone" for="chartUpload"><input id="chartUpload" type="file" accept="image/png,image/jpeg,image/webp" /><span class="chart-drop-icon">⌁</span><strong>Drop or select a chart screenshot</strong><small>Future image AI will use this file as the vision input. Today, Tradoctory runs a deterministic preview analysis.</small></label>
+              <label class="chart-dropzone" id="chartDropzone" for="chartUpload">
+                <input id="chartUpload" type="file" accept="image/png,image/jpeg,image/webp" />
+                <span class="chart-drop-icon">⇪</span>
+                <strong>Drop, tap, or browse for a chart screenshot</strong>
+                <small>Works with desktop drag-and-drop and mobile gallery uploads. Files are validated before they enter the future vision-model pipeline.</small>
+                <span class="upload-format-row" aria-label="Supported image formats"><span>PNG</span><span>JPG</span><span>JPEG</span><span>WEBP</span></span>
+              </label>
+              <div class="upload-validation-message neutral" id="uploadValidationMessage" role="status">Supported formats: PNG, JPG, JPEG, and WEBP up to 10 MB.</div>
+              <div class="chart-preview-toolbar"><strong>Preview before analysis</strong><button class="btn btn-ghost btn-sm" id="removeImageBtn" type="button" hidden>Remove image</button></div>
               <div class="chart-preview-panel" id="chartPreviewPanel"><div class="chart-preview-empty">No chart selected yet.</div></div>
             </div>
           </article>
@@ -54,6 +62,7 @@
             <div class="card-header"><div class="card-title" id="statusTitle">2. Analysis Status Card</div><span class="status-pill" id="analysisStatus">Waiting</span></div>
             <div class="card-body status-stack">
               <div class="status-row"><span>Image ingestion</span><strong id="ingestionState">Pending</strong></div>
+              <div class="status-row"><span>Image details</span><strong id="imageDetailState">Awaiting image</strong></div>
               <div class="status-row"><span>Vision model adapter</span><strong>Configured</strong></div>
               <div class="status-row"><span>Risk engine</span><strong id="riskEngineState">Standby</strong></div>
               <button class="btn btn-primary" id="runAnalysisBtn" type="button" disabled>Run chart analysis</button>
