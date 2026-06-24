@@ -2963,3 +2963,86 @@ body.modal-open { overflow: hidden; }
   .chart-dropzone { min-height: 220px; }
   .chart-file-meta { flex-direction: column; }
 }
+
+/* Enhanced screenshot upload system */
+.chart-dropzone {
+  position: relative;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+.chart-dropzone:hover,
+.chart-dropzone:focus-within,
+.chart-dropzone.drag-over {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(0,210,106,0.08));
+  box-shadow: 0 18px 55px rgba(59,130,246,0.18);
+  transform: translateY(-1px);
+}
+.upload-format-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.upload-format-row span {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 5px 9px;
+}
+.upload-validation-message {
+  margin-top: 12px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+}
+.upload-validation-message.success {
+  border-color: rgba(0,210,106,0.22);
+  background: rgba(0,210,106,0.08);
+  color: #8ff0bf;
+}
+.upload-validation-message.error,
+.status-pill.error {
+  border-color: rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.1);
+  color: #fca5a5;
+}
+.chart-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.btn-sm { padding: 7px 12px; font-size: 12px; }
+.chart-preview-panel {
+  align-items: stretch;
+  justify-items: stretch;
+}
+.chart-preview-panel img {
+  border-bottom: 1px solid var(--border);
+}
+.chart-file-meta strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-file-meta span { white-space: nowrap; }
+@media (max-width: 520px) {
+  .chart-preview-toolbar { align-items: flex-start; flex-direction: column; }
+  .chart-preview-toolbar .btn { width: 100%; justify-content: center; }
+  .chart-file-meta strong,
+  .chart-file-meta span { white-space: normal; }
+}
